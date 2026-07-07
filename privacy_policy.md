@@ -25,7 +25,7 @@
 | PIN / dữ liệu sinh trắc học                    | PIN được hash và lưu trong Keystore (Android) / Keychain (iOS); sinh trắc học được xử lý hoàn toàn bởi hệ điều hành, app không bao giờ nhận hay lưu dữ liệu vân tay/khuôn mặt | Không — app không có quyền truy cập dữ liệu sinh trắc học gốc                              |
 | File backup (JSON/CSV) khi bạn chủ động export | Do bạn chọn nơi lưu (Google Drive, iCloud, bộ nhớ máy, gửi qua app khác...)                                                                                                   | Chỉ khi và nơi **bạn tự chọn** để lưu — nằm ngoài phạm vi kiểm soát của app sau khi export |
 
----
+## | File ghi âm giọng nói (Voice Note) | Thư mục file biệt lập trong sandbox app trên thiết bị | Không | Ứng dụng chỉ ghi âm khi bạn chủ động nhấn nút Mic trên giao diện. |
 
 ## 3. Chúng tôi KHÔNG làm gì
 
@@ -74,6 +74,7 @@ Vì toàn bộ dữ liệu nằm trên thiết bị của bạn, bạn có toàn
 - Khóa mã hóa được lưu trong Android Keystore / iOS Keychain — không lưu dưới dạng văn bản thuần (plaintext), không hardcode trong mã nguồn.
 - App có thể được khóa bằng PIN hoặc sinh trắc học (FaceID/TouchID/Fingerprint) — lớp bảo vệ bổ sung ở cấp ứng dụng.
 - Dù đã áp dụng các biện pháp trên, không có hệ thống nào bảo mật tuyệt đối 100%; người dùng nên tự bảo vệ thiết bị của mình (khóa màn hình, cập nhật OS thường xuyên).
+- Về quyền Microphone: Ứng dụng sẽ yêu cầu quyền truy cập Micro của thiết bị. Quyền này chỉ được kích hoạt và sử dụng khi bạn chủ động nhấn vào tính năng "Ghi âm nhật ký". Tập tin âm thanh được thu âm trực tiếp và lưu hoàn toàn cục bộ trên máy của bạn, tuyệt đối không gửi về bất kỳ máy chủ nào.
 
 ---
 

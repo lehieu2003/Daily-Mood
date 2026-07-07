@@ -52,7 +52,7 @@ Một ứng dụng nhật ký tâm trạng riêng tư, không cần tài khoản
 ## 5. Phạm vi MVP (In Scope)
 
 - Ghi mood theo 5 mức, kèm activity tags (mặc định + custom).
-- Ghi chú văn bản tự do (optional) và ảnh đính kèm (optional).
+- Ghi chú văn bản tự do (optional), ảnh đính kèm (optional) và ghi âm nhật ký bằng giọng nói (Voice Note - optional).
 - Dashboard xem lịch sử, biểu đồ xu hướng tuần, calendar heatmap tháng.
 - Khóa app bằng PIN hoặc biometric.
 - Mã hóa dữ liệu tại chỗ (SQLCipher).
@@ -80,6 +80,7 @@ Một ứng dụng nhật ký tâm trạng riêng tư, không cần tài khoản
 6. **Là một người dùng muốn backup**, tôi muốn export toàn bộ dữ liệu ra file, để tôi tự lưu trữ theo ý mình (Drive, iCloud, máy tính...).
 7. **Là một người dùng đổi điện thoại**, tôi muốn import lại file backup, để không mất lịch sử nhật ký cũ.
 8. **Là một người dùng muốn xóa dữ liệu**, tôi muốn có nút xóa toàn bộ dữ liệu rõ ràng trong Settings, để tôi kiểm soát hoàn toàn thông tin của mình.
+9. **Là một người dùng không muốn gõ chữ**, tôi muốn ghi âm nhanh tiếng lòng của mình dưới dạng Voice Note, để lưu giữ cảm xúc một cách sống động và tốn ít công sức nhất.
 
 ---
 

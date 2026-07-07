@@ -50,6 +50,7 @@ dependencies:
   flutter_image_compress: ^2.4.0
   sqlite3: ^2.9.4
   equatable: ^2.1.0
+  crypto: ^3.0.7
 
 dev_dependencies:
   flutter_test:
@@ -73,6 +74,9 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  assets:
+    - assets/emojis/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

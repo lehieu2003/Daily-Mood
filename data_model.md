@@ -14,14 +14,29 @@ erDiagram
     MOOD_ENTRIES ||--o{ MOOD_ENTRY_ACTIVITIES : "has"
     ACTIVITIES ||--o{ MOOD_ENTRY_ACTIVITIES : "tagged in"
     MOOD_ENTRIES ||--o| MOOD_PHOTOS : "has optional"
+    MOOD_ENTRIES ||--o{ MOOD_ENTRY_SUB_EMOTIONS : "has"
+    SUB_EMOTIONS ||--o{ MOOD_ENTRY_SUB_EMOTIONS : "tagged in"
 
     MOOD_ENTRIES {
         int id PK
         int moodScore
         string note
+        string voiceNotePath
         datetime createdAt
         datetime updatedAt
         boolean isDeleted
+    }
+
+    SUB_EMOTIONS {
+        int id PK
+        string name
+        string emoji
+        int parentMoodScore
+    }
+
+    MOOD_ENTRY_SUB_EMOTIONS {
+        int moodEntryId FK
+        int subEmotionId FK
     }
 
     ACTIVITIES {
@@ -56,14 +71,15 @@ erDiagram
 
 Bảng trung tâm, lưu mỗi lần log mood.
 
-| Cột         | Kiểu dữ liệu | Ràng buộc                 | Ghi chú                                                                                         |
-| ----------- | ------------ | ------------------------- | ----------------------------------------------------------------------------------------------- |
-| `id`        | INTEGER      | PRIMARY KEY AUTOINCREMENT |                                                                                                 |
-| `moodScore` | INTEGER      | NOT NULL, CHECK (1–5)     | 1 = Awful ... 5 = Excellent                                                                     |
-| `note`      | TEXT         | NULLABLE                  | Nhật ký tự do, optional                                                                         |
-| `createdAt` | DATETIME     | NOT NULL                  | Thời điểm tạo, dùng để hiển thị timeline                                                        |
-| `updatedAt` | DATETIME     | NOT NULL                  | Dùng để giải quyết conflict khi import/restore                                                  |
-| `isDeleted` | BOOLEAN      | DEFAULT false             | Soft-delete, tránh mất dữ liệu khi user xóa nhầm; dọn dẹp thật sự theo chu kỳ (vd. sau 30 ngày) |
+| Cột             | Kiểu dữ liệu | Ràng buộc                 | Ghi chú                                                                                         |
+| --------------- | ------------ | ------------------------- | ----------------------------------------------------------------------------------------------- |
+| `id`            | INTEGER      | PRIMARY KEY AUTOINCREMENT |                                                                                                 |
+| `moodScore`     | INTEGER      | NOT NULL, CHECK (1–5)     | 1 = Awful ... 5 = Excellent                                                                     |
+| `note`          | TEXT         | NULLABLE                  | Nhật ký tự do, optional                                                                         |
+| `createdAt`     | DATETIME     | NOT NULL                  | Thời điểm tạo, dùng để hiển thị timeline                                                        |
+| `updatedAt`     | DATETIME     | NOT NULL                  | Dùng để giải quyết conflict khi import/restore                                                  |
+| `isDeleted`     | BOOLEAN      | DEFAULT false             | Soft-delete, tránh mất dữ liệu khi user xóa nhầm; dọn dẹp thật sự theo chu kỳ (vd. sau 30 ngày) |
+| `voiceNotePath` | TEXT         | NULLABLE                  | Đường dẫn tương đối của file ghi âm trong sandbox app, ví dụ: `mood_voices/{uuid}.m4a`          |
 
 **Index đề xuất:**
 
@@ -115,6 +131,27 @@ Lưu reference đến ảnh đính kèm (ảnh thật lưu trong file system, kh
 | `moodEntryId`  | INTEGER      | FK → MoodEntries.id, ON DELETE CASCADE, UNIQUE | 1 entry tối đa 1 ảnh ở MVP                                                                    |
 | `relativePath` | TEXT         | NOT NULL                                       | Đường dẫn tương đối trong sandbox app, vd. `mood_photos/{uuid}.jpg` — KHÔNG lưu absolute path |
 | `createdAt`    | DATETIME     | NOT NULL                                       |                                                                                               |
+
+### 2.5 `SubEmotions`
+
+Danh mục các cảm xúc chi tiết thuộc về 5 nhóm Mood chính (Seed dữ liệu tĩnh)[cite: 5].
+
+| Cột               | Kiểu dữ liệu | Ràng buộc                 | Ghi chú                                                  |
+| ----------------- | ------------ | ------------------------- | -------------------------------------------------------- |
+| `id`              | INTEGER      | PRIMARY KEY AUTOINCREMENT |                                                          |
+| `name`            | TEXT         | NOT NULL, UNIQUE          | Ví dụ: Excited, Confused, Guilty, Proud, Disappointed... |
+| `emoji`           | TEXT         | NOT NULL                  | Ký tự Emoji hoặc mã Asset Icon dùng để hiển thị trên UI  |
+| `parentMoodScore` | INTEGER      | NOT NULL, CHECK (1–5)     | Liên kết trực tiếp xem thuộc nhóm mood chính nào (1-5)   |
+
+### 2.6 `MoodEntrySubEmotions` (Junction Table)
+
+Quan hệ nhiều-nhiều giữa lượt log (`MoodEntries`) và các cảm xúc chi tiết (`SubEmotions`)[cite: 5].
+
+| Cột            | Kiểu dữ liệu | Ràng buộc                               | Ghi chú                                 |
+| -------------- | ------------ | --------------------------------------- | --------------------------------------- |
+| `moodEntryId`  | INTEGER      | FK → MoodEntries.id, ON DELETE CASCADE  |                                         |
+| `subEmotionId` | INTEGER      | FK → SubEmotions.id, ON DELETE CASCADE  |                                         |
+|                |              | PRIMARY KEY (moodEntryId, subEmotionId) | Composite key, tránh trùng lặp[cite: 5] |
 
 **Quy tắc xử lý file ảnh:**
 

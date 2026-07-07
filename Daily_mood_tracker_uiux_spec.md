@@ -112,20 +112,21 @@ Màu semantic map trực tiếp theo **5 mức mood**. Các mã màu nền (back
 | [Cancel]       New Entry          [Done] |
 |                                          |
 | 1. How are you feeling?                  |
-|    ( (Awful) (Bad) (Okay) (Good) (Excel) )  <-- Interactive Carousel/Slider
+|    ( (Awful) (Bad) (Okay) (Good) (Excel) )  <-- Interactive Carousel
+|                                          |
+| 1b. More details about this mood?        |
+|    ( [Excited] ) [Confused] [Guilty]     |  <-- Sub-Emotions Grid
+|    [Anxious] ( [Proud] ) [Disappointed]  |  <-- (Active choices are filled)
 |                                          |
 | 2. What have you been up to?             |
 |    [+ Add Custom Tag]                    |
-|    Category: Health                      |
-|    ( [Exercise] ) ( [Sleep] ) [Nutrition]|  <-- Multi-Select Filter Chips
-|    Category: Life                        |
-|    ( [Work] ) [Family] [Social] [Hobbies]|  <-- (Active tags are filled)
+|    ( [Exercise] ) [Sleep] [Work] [Family]|  <-- Multi-Select Filter Chips
 |                                          |
 | 3. Write about your day (Optional)       |
 |    [ Type your private journal notes... ]|
 |                                          |
-| 4. Add Photo (Optional)                  |
-|    [ + Attach Media Image ]              |
+| 4. Attach Media (Optional)               |
+|    [ + Photo Image ]  [ 🎤 Record Voice ]|  <-- Thêm nút Ghi âm giọng nói
 +------------------------------------------+
 ```
 
@@ -140,6 +141,15 @@ Màu semantic map trực tiếp theo **5 mức mood**. Các mã màu nền (back
 - Ảnh **không lưu dưới dạng blob trong SQLite** — lưu file thực tế vào thư mục local qua `path_provider` (vd. `/app_documents/mood_photos/{entryId}.jpg`), DB chỉ lưu **đường dẫn tương đối** (relative path), không lưu absolute path (tránh vỡ reference khi app update hoặc đổi container ID).
 - Khi export/backup JSON, ảnh được đóng gói riêng (zip kèm JSON) hoặc convert base64 nếu file nhỏ — cần quyết định rõ ở Phase 4 (Backup/Restore) để tránh JSON phình to hoặc mất ảnh khi restore.
 - Nén ảnh trước khi lưu (vd. resize về max 1080px cạnh dài, quality ~80%) để không làm phình dung lượng app theo thời gian.
+
+**Lưu ý về các tệp tin đa phương tiện đính kèm (Ảnh & Ghi âm):**
+
+- Ảnh và file ghi âm giọng nói **không lưu dưới dạng blob trong SQLite**.
+- Toàn bộ file thực tế được lưu vào bộ nhớ cục bộ của sandbox app thông qua `path_provider`:
+  - Ảnh: `/app_documents/mood_photos/{uuid}.jpg`
+  - File ghi âm: `/app_documents/mood_voices/{uuid}.m4a` hoặc `.mp3`
+- Database chỉ lưu **đường dẫn tương đối** (relative path) (Ví dụ: `mood_photos/{uuid}.jpg`, `mood_voices/{uuid}.m4a`) để đảm bảo không bị vỡ liên kết khi hệ điều hành thay đổi ID thư mục container của ứng dụng.
+- Khi tiến hành ghi âm, app chỉ cho phép tối đa **3 phút** mỗi bản ghi để tối ưu dung lượng lưu trữ cục bộ.
 
 ---
 

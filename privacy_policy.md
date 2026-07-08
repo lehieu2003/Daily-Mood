@@ -1,113 +1,108 @@
-# Chính sách quyền riêng tư (Privacy Policy)
+# Privacy Policy
 
 ## "Daily Mood: Tracker & Diary"
 
-**Có hiệu lực từ:** [Điền ngày phát hành chính thức]
-**Phiên bản:** 1.0 — Draft, cần luật sư/chuyên gia pháp lý rà soát trước khi công bố chính thức
+---
 
-> ⚠️ **Lưu ý quan trọng:** Đây là bản nháp kỹ thuật dựa trên kiến trúc thực tế của app, dùng làm cơ sở soạn thảo. Đây **không phải** tư vấn pháp lý. Trước khi publish lên App Store/Google Play, nên có luật sư hoặc chuyên gia privacy compliance rà soát lại, đặc biệt nếu app nhắm đến thị trường có luật riêng (GDPR - Châu Âu, CCPA - California, Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân - Việt Nam).
+## 1. Summary (Short, Easy to Understand)
+
+**Daily Mood: Tracker & Diary** does not collect, store, or transmit any of your personal data to our servers — simply because **we have no servers storing user data**. All of your journal entries, moods, photos, and notes exist only on your own device, encrypted locally.
 
 ---
 
-## 1. Tóm tắt (Ngắn gọn, dễ hiểu)
+## 2. What Data Is Created and Where It's Stored
 
-**Daily Mood: Tracker & Diary** không thu thập, không lưu trữ, và không truyền bất kỳ dữ liệu cá nhân nào của bạn lên máy chủ của chúng tôi — vì đơn giản là **chúng tôi không có máy chủ nào lưu dữ liệu người dùng**. Toàn bộ nhật ký, mood, ảnh, và ghi chú của bạn chỉ tồn tại trên chính thiết bị của bạn, được mã hóa tại chỗ.
+| Data type                                          | Storage location                                                                                                                                                          | Does it leave the device?                                                               |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Mood score, journal notes                          | Local database (SQLite, encrypted with SQLCipher) on the device                                                                                                           | No                                                                                      |
+| Activity tags (default + custom)                   | Local database on the device                                                                                                                                              | No                                                                                      |
+| Attached photos                                    | App's private sandbox file folder on the device                                                                                                                           | No                                                                                      |
+| PIN / biometric data                               | PIN is hashed and stored in Keystore (Android) / Keychain (iOS); biometrics are processed entirely by the OS — the app never receives or stores raw fingerprint/face data | No — the app has no access to raw biometric data                                        |
+| Backup file (JSON/CSV) when you actively export it | You choose where to save it (Google Drive, iCloud, device storage, sending via another app, etc.)                                                                         | Only when and where **you choose** to save it — outside the app's control once exported |
 
----
+## | Voice recording file (Voice Note) | Separate file folder within the app's sandbox on the device | No | The app only records audio when you actively tap the Mic button in the interface. |
 
-## 2. Dữ liệu nào được tạo ra và lưu ở đâu
+## 3. What We Do NOT Do
 
-| Loại dữ liệu                                   | Nơi lưu trữ                                                                                                                                                                   | Có rời khỏi thiết bị không?                                                                |
-| ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| Mood score, ghi chú nhật ký                    | Database local (SQLite, mã hóa bằng SQLCipher) trên thiết bị                                                                                                                  | Không                                                                                      |
-| Activity tags (mặc định + tự tạo)              | Database local trên thiết bị                                                                                                                                                  | Không                                                                                      |
-| Ảnh đính kèm                                   | Thư mục file riêng trong sandbox app trên thiết bị                                                                                                                            | Không                                                                                      |
-| PIN / dữ liệu sinh trắc học                    | PIN được hash và lưu trong Keystore (Android) / Keychain (iOS); sinh trắc học được xử lý hoàn toàn bởi hệ điều hành, app không bao giờ nhận hay lưu dữ liệu vân tay/khuôn mặt | Không — app không có quyền truy cập dữ liệu sinh trắc học gốc                              |
-| File backup (JSON/CSV) khi bạn chủ động export | Do bạn chọn nơi lưu (Google Drive, iCloud, bộ nhớ máy, gửi qua app khác...)                                                                                                   | Chỉ khi và nơi **bạn tự chọn** để lưu — nằm ngoài phạm vi kiểm soát của app sau khi export |
-
-## | File ghi âm giọng nói (Voice Note) | Thư mục file biệt lập trong sandbox app trên thiết bị | Không | Ứng dụng chỉ ghi âm khi bạn chủ động nhấn nút Mic trên giao diện. |
-
-## 3. Chúng tôi KHÔNG làm gì
-
-- Không yêu cầu tạo tài khoản, không thu thập email, số điện thoại, hay bất kỳ thông tin định danh nào.
-- Không có server backend nhận hay lưu trữ dữ liệu người dùng.
-- Không chia sẻ, bán, hoặc cho bên thứ ba truy cập dữ liệu nhật ký/mood của bạn.
-- Không chèn quảng cáo, không dùng SDK quảng cáo hay tracking bên thứ ba (Facebook SDK, Google Ads SDK...).
-- Không tự động đồng bộ dữ liệu lên bất kỳ cloud nào mà không có hành động export rõ ràng từ bạn.
+- We do not require account creation, and do not collect email, phone number, or any identifying information.
+- There is no backend server that receives or stores user data.
+- We do not share, sell, or give third parties access to your journal/mood data.
+- We do not insert ads, and we do not use ad SDKs or third-party tracking (Facebook SDK, Google Ads SDK, etc.).
+- We do not automatically sync data to any cloud without an explicit export action from you.
 
 ---
 
-## 4. Analytics & Crash Reporting (Nếu có, phải Opt-in)
+## 4. Analytics & Crash Reporting (If Applicable, Must Be Opt-in)
 
-Nếu ứng dụng có tích hợp công cụ đo lường sự ổn định (vd. crash reporting) hoặc thống kê sử dụng ẩn danh ở các phiên bản sau:
+If the app integrates stability-measurement tools (e.g., crash reporting) or anonymous usage statistics in later versions:
 
-- Mặc định **tắt (opt-out by default)**, người dùng phải chủ động bật trong Settings nếu muốn.
-- Dữ liệu thu thập (nếu có) sẽ **không bao giờ** bao gồm: nội dung nhật ký, ảnh, mood score cụ thể theo ngày, hay bất kỳ nội dung cá nhân nào.
-- Dữ liệu ẩn danh có thể bao gồm: số lần app crash, phiên bản OS, loại thiết bị (để debug kỹ thuật) — không gắn với danh tính người dùng.
+- Default is **off (opt-out by default)** — users must actively enable it in Settings if they want it.
+- Any data collected (if enabled) will **never** include: journal content, photos, specific daily mood scores, or any personal content.
+- Anonymous data may include: number of app crashes, OS version, device type (for technical debugging) — none of it tied to user identity.
 
-> **Trạng thái MVP hiện tại:** Chưa tích hợp analytics/crash reporting nào. Mục này áp dụng nếu được bổ sung ở version sau, và chính sách sẽ được cập nhật + thông báo rõ trong app trước khi kích hoạt.
-
----
-
-## 5. Quyền của bạn đối với dữ liệu
-
-Vì toàn bộ dữ liệu nằm trên thiết bị của bạn, bạn có toàn quyền:
-
-- **Xem** toàn bộ dữ liệu trực tiếp trong app, không giới hạn.
-- **Xuất (Export)** dữ liệu bất kỳ lúc nào dưới định dạng JSON/CSV, có thể đọc được ngoài app.
-- **Xóa** toàn bộ dữ liệu vĩnh viễn thông qua chức năng "Xóa toàn bộ dữ liệu" trong Settings — hành động này không thể hoàn tác vì không có bản sao nào trên server để khôi phục.
-- **Gỡ ứng dụng** để xóa hoàn toàn dữ liệu khỏi thiết bị (trừ khi bạn đã bật backup hệ thống như iCloud Backup hoặc Android Auto Backup ở cấp hệ điều hành — xem mục 6).
+> **Current MVP status:** No analytics/crash reporting has been integrated yet. This section applies if added in a later version, and the policy will be updated with clear in-app notice before activation.
 
 ---
 
-## 6. Lưu ý về Backup cấp Hệ điều hành (iOS/Android)
+## 5. Your Rights Over Your Data
 
-- Nếu bạn bật **iCloud Backup** hoặc **Google Backup** ở cấp hệ điều hành (không phải tính năng riêng của app), dữ liệu app **có thể** được bao gồm trong bản sao lưu hệ thống đó, tùy theo cấu hình của bạn.
-- Việc backup đó được thực hiện và bảo mật bởi Apple/Google theo chính sách riêng của họ, nằm ngoài phạm vi kiểm soát của "Daily Mood: Tracker & Diary".
-- Bạn có thể tắt tính năng này riêng cho app trong Cài đặt hệ thống nếu muốn dữ liệu tuyệt đối không rời khỏi thiết bị vật lý.
+Since all data resides on your device, you have full rights to:
 
----
-
-## 7. Bảo mật dữ liệu
-
-- Toàn bộ database được mã hóa tại chỗ bằng SQLCipher (AES-256).
-- Khóa mã hóa được lưu trong Android Keystore / iOS Keychain — không lưu dưới dạng văn bản thuần (plaintext), không hardcode trong mã nguồn.
-- App có thể được khóa bằng PIN hoặc sinh trắc học (FaceID/TouchID/Fingerprint) — lớp bảo vệ bổ sung ở cấp ứng dụng.
-- Dù đã áp dụng các biện pháp trên, không có hệ thống nào bảo mật tuyệt đối 100%; người dùng nên tự bảo vệ thiết bị của mình (khóa màn hình, cập nhật OS thường xuyên).
-- Về quyền Microphone: Ứng dụng sẽ yêu cầu quyền truy cập Micro của thiết bị. Quyền này chỉ được kích hoạt và sử dụng khi bạn chủ động nhấn vào tính năng "Ghi âm nhật ký". Tập tin âm thanh được thu âm trực tiếp và lưu hoàn toàn cục bộ trên máy của bạn, tuyệt đối không gửi về bất kỳ máy chủ nào.
+- **View** all your data directly in the app, without restriction.
+- **Export** any data at any time in JSON/CSV format, readable outside the app.
+- **Delete** all data permanently via the "Delete All Data" function in Settings — this action cannot be undone since there is no server-side copy to restore from.
+- **Uninstall** the app to completely remove data from the device (unless you have enabled OS-level system backup such as iCloud Backup or Android Auto Backup — see section 6).
 
 ---
 
-## 8. Đối tượng sử dụng & Giới hạn về nội dung sức khỏe
+## 6. Note on OS-Level Backup (iOS/Android)
 
-- Ứng dụng dành cho **mục đích tự theo dõi cá nhân**, không phải công cụ chẩn đoán hoặc điều trị y tế/tâm lý.
-- Ứng dụng **không thay thế** tư vấn từ chuyên gia y tế, tâm lý học, hoặc bác sĩ tâm thần.
-- Nếu bạn đang gặp khủng hoảng tâm lý hoặc có ý nghĩ tự hại, vui lòng liên hệ ngay các đường dây hỗ trợ khẩn cấp tại khu vực của bạn hoặc người có chuyên môn.
-- Ứng dụng khuyến nghị không dành cho trẻ em dưới 13 tuổi (hoặc độ tuổi tối thiểu theo luật địa phương) sử dụng độc lập mà không có sự giám sát của phụ huynh, do tính chất ghi chép nội dung cá nhân/nhật ký.
-
----
-
-## 9. Thay đổi chính sách
-
-Nếu chính sách này thay đổi (vd. khi bổ sung tính năng cloud sync ở version sau), chúng tôi sẽ:
-
-- Thông báo rõ ràng trong app trước khi tính năng mới có hiệu lực.
-- Yêu cầu xác nhận đồng ý (opt-in) nếu thay đổi liên quan đến việc dữ liệu bắt đầu rời khỏi thiết bị (vd. bật cloud sync).
-- Cập nhật ngày hiệu lực ở đầu tài liệu này.
+- If you enable **iCloud Backup** or **Google Backup** at the OS level (not an app-specific feature), the app's data **may** be included in that system backup, depending on your configuration.
+- That backup is performed and secured by Apple/Google under their own respective policies, outside the control of "Daily Mood: Tracker & Diary."
+- You can disable this feature specifically for the app in System Settings if you want your data to absolutely never leave the physical device.
 
 ---
 
-## 10. Liên hệ
+## 7. Data Security
 
-Nếu có câu hỏi về chính sách quyền riêng tư này, vui lòng liên hệ: [Điền email/kênh liên hệ hỗ trợ chính thức]
+- The entire database is encrypted locally using SQLCipher (AES-256).
+- The encryption key is stored in Android Keystore / iOS Keychain — never stored as plaintext, never hardcoded in source code.
+- The app can be locked with a PIN or biometrics (FaceID/TouchID/Fingerprint) — an additional protection layer at the application level.
+- Despite these measures, no system is 100% absolutely secure; users should protect their own device (screen lock, regular OS updates).
+- Regarding Microphone permission: The app will request access to the device's microphone. This permission is only activated and used when you actively tap the "Voice Journal Recording" feature. Audio files are recorded and stored entirely locally on your device, and are never sent to any server.
 
 ---
 
-## Checklist trước khi công bố chính thức (dành cho đội dev/product)
+## 8. Intended Users & Limitations on Health Content
 
-- [ ] Có luật sư/chuyên gia compliance rà soát bản draft này.
-- [ ] Điền đầy đủ [ngày hiệu lực] và [thông tin liên hệ].
-- [ ] Kiểm tra yêu cầu riêng của App Store (Apple Privacy Nutrition Label) và Google Play (Data Safety section) — cả hai đều yêu cầu khai báo chi tiết loại dữ liệu xử lý, kể cả khi chỉ lưu local.
-- [ ] Xác nhận app không dùng bất kỳ SDK bên thứ ba nào âm thầm thu thập dữ liệu (kiểm tra kỹ các package như crash reporting, ad SDK nếu có thêm sau này).
-- [ ] Nếu nhắm thị trường Việt Nam: đối chiếu với Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân.
-- [ ] Nếu nhắm thị trường EU: đối chiếu với GDPR (đặc biệt là quyền "right to erasure" — app đã đáp ứng qua chức năng xóa dữ liệu local).
+- The app is intended for **personal self-tracking purposes**, and is not a diagnostic or medical/psychological treatment tool.
+- The app **does not replace** consultation from medical professionals, psychologists, or psychiatrists.
+- If you are experiencing a mental health crisis or having thoughts of self-harm, please contact emergency support hotlines in your area or a qualified professional immediately.
+- The app is recommended not to be used independently by children under 13 (or the minimum age per local law) without parental supervision, due to the personal/journaling nature of its content.
+
+---
+
+## 9. Policy Changes
+
+If this policy changes (e.g., when adding cloud sync features in a later version), we will:
+
+- Clearly notify users in-app before the new feature takes effect.
+- Require opt-in consent if the change involves data starting to leave the device (e.g., enabling cloud sync).
+- Update the effective date at the top of this document.
+
+---
+
+## 10. Contact
+
+If you have questions about this privacy policy, please contact: [Fill in official support email/channel]
+
+---
+
+## Checklist Before Official Publication (for the dev/product team)
+
+- [ ] Have a lawyer/compliance expert review this draft.
+- [ ] Fill in the [effective date] and [contact information].
+- [ ] Check the specific requirements of the App Store (Apple Privacy Nutrition Label) and Google Play (Data Safety section) — both require detailed disclosure of data types processed, even when only stored locally.
+- [ ] Confirm the app does not use any third-party SDK that silently collects data (carefully check packages such as crash reporting, ad SDKs if added later).
+- [ ] If targeting the Vietnamese market: cross-check against Decree 13/2023/NĐ-CP on personal data protection.
+- [ ] If targeting the EU market: cross-check against GDPR (especially the "right to erasure" — the app already satisfies this via the local data deletion function).

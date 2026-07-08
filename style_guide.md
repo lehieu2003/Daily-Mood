@@ -1,7 +1,7 @@
 # Style Guide
 
 **Version:** 1.0
-**Phạm vi:** Design tokens cho Colors & Typography
+**Scope:** Design tokens for Colors & Typography
 
 ---
 
@@ -9,9 +9,9 @@
 
 ### 1.1 UI Colors
 
-Màu chính dùng cho các thành phần giao diện (buttons, backgrounds, accents).
+Primary colors used for interface elements (buttons, backgrounds, accents).
 
-| Màu            | Hex       | Opacity | Swatch |
+| Color          | Hex       | Opacity | Swatch |
 | -------------- | --------- | ------- | ------ |
 | Primary Purple | `#8B4CFC` | 100%    | 🟣     |
 | Pink           | `#FAD9E6` | 100%    | 🌸     |
@@ -19,37 +19,37 @@ Màu chính dùng cho các thành phần giao diện (buttons, backgrounds, acce
 
 ### 1.2 Chart Colors
 
-Bộ màu dành riêng cho biểu đồ, dùng độ mờ 75% để tạo cảm giác nhẹ nhàng, không cạnh tranh với nội dung chính.
+A dedicated color set for charts, using 75% opacity to create a soft feel that doesn't compete with the main content.
 
-| Màu    | Hex       | Opacity | Swatch |
+| Color  | Hex       | Opacity | Swatch |
 | ------ | --------- | ------- | ------ |
 | Green  | `#8B4CFC` | 75%     | 🟢     |
 | Red    | `#FF1F11` | 75%     | 🔴     |
 | Blue   | `#3686FF` | 75%     | 🔵     |
 | Orange | `#FF5C00` | 75%     | 🟠     |
 
-> Lưu ý: mã hex của "Green" trùng với Primary Purple (`#8B4CFC`) trong bảng gốc — nên kiểm tra lại xem đây có phải nhầm lẫn khi export từ design tool không, vì tên gọi "Green" nhưng mã hex lại là tím.
+> Note: the hex code for "Green" matches Primary Purple (`#8B4CFC`) in the original table — this should be double-checked to see whether it's a mistake from exporting out of the design tool, since the name says "Green" but the hex value is purple.
 
 ### 1.3 Text Colors
 
-| Màu            | Hex       | Opacity | Swatch         | Use case gợi ý                    |
-| -------------- | --------- | ------- | -------------- | --------------------------------- |
-| Text Primary   | `#100F11` | 100%    | ⚫             | Tiêu đề, nội dung chính           |
-| Text Secondary | `#100F11` | 74%     | ⚫ (nhạt hơn)  | Nội dung phụ, mô tả               |
-| Text Tertiary  | `#100F11` | 64%     | ⚫ (nhạt nhất) | Placeholder, caption              |
-| Accent Yellow  | `#E8B50E` | 100%    | 🟡             | Nhấn mạnh, cảnh báo nhẹ           |
-| Accent Red     | `#FC4C4C` | 100%    | 🔴             | Lỗi, cảnh báo, destructive action |
+| Color          | Hex       | Opacity | Swatch        | Suggested use case                    |
+| -------------- | --------- | ------- | ------------- | ------------------------------------- |
+| Text Primary   | `#100F11` | 100%    | ⚫            | Headings, main content                |
+| Text Secondary | `#100F11` | 74%     | ⚫ (lighter)  | Secondary content, descriptions       |
+| Text Tertiary  | `#100F11` | 64%     | ⚫ (lightest) | Placeholders, captions                |
+| Accent Yellow  | `#E8B50E` | 100%    | 🟡            | Emphasis, mild warnings               |
+| Accent Red     | `#FC4C4C` | 100%    | 🔴            | Errors, warnings, destructive actions |
 
 ### 1.4 Gradient Colors
 
-| Tên        | Stops (Hex — Opacity)                                                  | Swatch |
+| Name       | Stops (Hex — Opacity)                                                  | Swatch |
 | ---------- | ---------------------------------------------------------------------- | ------ |
 | Gradient 1 | `#EED3F2` (100%) → `#EED3F2` (100%)                                    | 🌸     |
 | Gradient 2 | `#C3FFD4` (100%) → `#CFCCFB` (100%) → `#EFF9F2` (100%)                 | 🌈     |
 | Gradient 3 | `#BACFFF` (67%) → `#FFCEB7` (100%)                                     | 🔵🟠   |
 | Gradient 4 | `#D0CFE9` (34%) → `#FFCEB7` (100%) → `#DF2771` (55%) → `#BAE6FF` (67%) | 🌅     |
 
-> Gradient 1 có 2 stop cùng màu/cùng opacity — cần xác nhận lại đây có đúng chủ ý thiết kế (solid color được lưu dưới dạng gradient 2 điểm) hay bị thiếu 1 stop khi export.
+> Gradient 1 has 2 stops with the same color/opacity — needs confirmation on whether this is intentional (a solid color stored as a 2-point gradient) or whether a stop was lost during export.
 
 ---
 
@@ -57,7 +57,7 @@ Bộ màu dành riêng cho biểu đồ, dùng độ mờ 75% để tạo cảm 
 
 ### 2.1 Font
 
-**Pangram** — kiểu chữ chính dùng xuyên suốt toàn bộ sản phẩm, cho cả heading và body text.
+**Pangram** — the primary typeface used throughout the entire product, for both headings and body text.
 
 ### 2.2 Headings
 
@@ -69,7 +69,7 @@ Bộ màu dành riêng cho biểu đồ, dùng độ mờ 75% để tạo cảm 
 
 ### 2.3 Body Text
 
-| Level      | Size | Weight(s) khả dụng    |
+| Level      | Size | Available Weight(s)   |
 | ---------- | ---- | --------------------- |
 | Sub text 1 | 16px | Regular, Medium, Bold |
 | Sub text 2 | 14px | Regular, Medium       |
@@ -77,18 +77,18 @@ Bộ màu dành riêng cho biểu đồ, dùng độ mờ 75% để tạo cảm 
 
 ---
 
-## 3. Cách sử dụng token
+## 3. Token Usage Guidelines
 
-- **Colors:** Dùng đúng token đã định nghĩa thay vì tự pha màu mới, để đảm bảo tính nhất quán qua toàn bộ sản phẩm. Với text, dùng đúng 3 cấp độ opacity của `#100F11` (100% / 74% / 64%) để thể hiện thứ bậc thông tin (primary / secondary / tertiary), thay vì tạo thêm màu xám riêng.
-- **Chart colors:** Chỉ dùng nhóm 4 màu ở mục 1.2 cho biểu đồ, giữ opacity 75% mặc định để chart không bị chói khi hiển thị nhiều dữ liệu cùng lúc.
-- **Gradient:** Ưu tiên dùng cho khu vực trang trí (background card, hero section), tránh dùng làm nền cho text vì độ tương phản không ổn định giữa các điểm dừng màu.
-- **Typography:** Heading 1–3 dùng cho cấu trúc phân cấp nội dung (page title → section title → sub-section). Sub text 1–3 dùng cho nội dung thân bài, nhãn, và chú thích — chọn weight phù hợp với mức độ nhấn mạnh cần thiết (Bold cho nhấn mạnh, Regular cho nội dung thông thường).
+- **Colors:** Use only the tokens already defined instead of mixing new colors, to ensure consistency across the entire product. For text, use exactly the 3 opacity levels of `#100F11` (100% / 74% / 64%) to convey information hierarchy (primary / secondary / tertiary), rather than creating separate gray colors.
+- **Chart colors:** Only use the group of 4 colors from section 1.2 for charts, keeping the default 75% opacity so charts aren't overly bright when displaying a lot of data at once.
+- **Gradient:** Prefer for decorative areas (card backgrounds, hero sections); avoid using as a background for text since contrast is unstable across the color stops.
+- **Typography:** Heading 1–3 are used for content hierarchy structure (page title → section title → sub-section). Sub text 1–3 are used for body content, labels, and captions — choose the weight that fits the level of emphasis needed (Bold for emphasis, Regular for normal content).
 
 ---
 
-## 4. Việc cần xác nhận thêm
+## 4. Items to Confirm
 
-- [ ] Xác nhận lại mã hex "Green" trong Chart color (hiện đang trùng với Primary Purple).
-- [ ] Xác nhận Gradient 1 có đúng là 2 stop cùng màu, hay bị thiếu dữ liệu khi export từ Figma/design tool.
-- [ ] Bổ sung kiểm tra contrast (WCAG AA) giữa các Text Colors và nền thực tế sẽ dùng, đặc biệt với opacity 64% (Text Tertiary) trên nền sáng.
-- [ ] Xác nhận tên font "Pangram" là font family thật (Google Fonts/Adobe Fonts) hay chỉ là placeholder demo text ("Pangram" thường được dùng làm câu ví dụ hiển thị font, không phải tên font) — cần điền tên font chính thức nếu khác.
+- [ ] Confirm the "Green" hex code in Chart colors (currently duplicates Primary Purple).
+- [ ] Confirm whether Gradient 1 is intentionally 2 stops of the same color, or whether data was lost during export from Figma/design tool.
+- [ ] Add contrast checks (WCAG AA) between Text Colors and the actual backgrounds they'll be used on, especially for 64% opacity (Text Tertiary) on light backgrounds.
+- [ ] Confirm whether the font name "Pangram" is an actual font family (Google Fonts/Adobe Fonts) or just placeholder demo text ("Pangram" is commonly used as sample text to preview a font, not a font name itself) — fill in the official font name if different.

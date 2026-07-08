@@ -6,23 +6,23 @@ This document outlines the user interface layout, design tokens, and user experi
 
 ## 1. Design Tokens & Visual Hierarchy
 
-To foster emotional reflection, the visual layout utilizes soft, low-contrast pastel tones, generous white space, and smooth, playful micro-interactions — **cân bằng với yêu cầu về độ tương phản đủ để đọc được**.
+To foster emotional reflection, the visual layout utilizes soft, low-contrast pastel tones, generous white space, and smooth, playful micro-interactions — **balanced against the requirement for sufficient readability contrast**.
 
 ### Color Palettes (Light & Dark Adaptive)
 
-Màu semantic map trực tiếp theo **5 mức mood**. Các mã màu nền (background chip/card) giữ nguyên tông pastel, nhưng **text/icon đặt trên nền màu phải dùng màu tối hơn** để đạt tối thiểu WCAG AA (contrast ratio ≥ 4.5:1 cho text thường, ≥ 3:1 cho text lớn/icon).
+Semantic colors map directly to the **5 mood levels**. The background colors (chip/card background) keep a pastel tone, but **text/icons placed on colored backgrounds must use a darker color** to achieve at least WCAG AA (contrast ratio ≥ 4.5:1 for normal text, ≥ 3:1 for large text/icons).
 
-| Mood Level    | Score | Emotional Mapping          | Light Mode BG           | Dark Mode BG | Text/Icon trên nền (Light) |
-| ------------- | ----- | -------------------------- | ----------------------- | ------------ | -------------------------- |
-| **Excellent** | 5     | Radiant, joyful, energized | `#A7F3D0` (Mint)        | `#065F46`    | `#065F46` (Emerald 800)    |
-| **Good**      | 4     | Calm, satisfied, stable    | `#BAE6FD` (Sky Pastel)  | `#075985`    | `#075985` (Sky 800)        |
-| **Okay**      | 3     | Neutral, passive, routine  | `#FEF08A` (Soft Yellow) | `#854D0E`    | `#854D0E` (Amber 800)      |
-| **Bad**       | 2     | Anxious, tired, down       | `#FED7AA` (Soft Orange) | `#9A3412`    | `#9A3412` (Orange 800)     |
-| **Awful**     | 1     | Overwhelmed, angry, sad    | `#FCA5A5` (Blush Red)   | `#991B1B`    | `#991B1B` (Red 800)        |
+| Mood Level    | Score | Emotional Mapping          | Light Mode BG           | Dark Mode BG | Text/Icon on background (Light) |
+| ------------- | ----- | -------------------------- | ----------------------- | ------------ | ------------------------------- |
+| **Excellent** | 5     | Radiant, joyful, energized | `#A7F3D0` (Mint)        | `#065F46`    | `#065F46` (Emerald 800)         |
+| **Good**      | 4     | Calm, satisfied, stable    | `#BAE6FD` (Sky Pastel)  | `#075985`    | `#075985` (Sky 800)             |
+| **Okay**      | 3     | Neutral, passive, routine  | `#FEF08A` (Soft Yellow) | `#854D0E`    | `#854D0E` (Amber 800)           |
+| **Bad**       | 2     | Anxious, tired, down       | `#FED7AA` (Soft Orange) | `#9A3412`    | `#9A3412` (Orange 800)          |
+| **Awful**     | 1     | Overwhelmed, angry, sad    | `#FCA5A5` (Blush Red)   | `#991B1B`    | `#991B1B` (Red 800)             |
 
 - **Backgrounds:** Light Mode `#F8FAFC` (Slate 50). Dark Mode `#0F172A` (Slate 900).
-- **Typography:** `Inter` hoặc `Plus Jakarta Sans`.
-- **QA rule:** Chạy kiểm tra contrast (vd. bằng Stark hoặc WebAIM Contrast Checker) cho mọi cặp màu text-trên-nền trước khi merge UI, không chỉ dựa vào cảm quan thiết kế.
+- **Typography:** `Inter` or `Plus Jakarta Sans`.
+- **QA rule:** Run contrast checks (e.g., using Stark or the WebAIM Contrast Checker) on every text-on-background color pair before merging UI, rather than relying solely on visual judgment.
 
 ---
 
@@ -48,15 +48,15 @@ Màu semantic map trực tiếp theo **5 mức mood**. Các mã màu nền (back
 +------------------------------------------+
 ```
 
-- **UX Rule:** Tự động gọi `local_auth` (FaceID/Fingerprint) khi màn hình này hiển thị **lần đầu sau khi app vào foreground từ background**, không gọi lại mỗi lần widget rebuild.
-- **Chống spam prompt:** Thêm cooldown — nếu biometric thất bại hoặc bị hủy, không tự động bật lại; chờ user chủ động nhấn nút `[Bio]`. Android giới hạn số lần gọi `BiometricPrompt` liên tục, nên tránh trigger tự động lặp lại.
-- **App lifecycle:** Chỉ yêu cầu lại xác thực nếu app đã ở background quá một khoảng thời gian cấu hình được (vd. mặc định 1 phút), không phải mỗi lần chuyển tab/app switcher.
+- **UX Rule:** Automatically trigger `local_auth` (FaceID/Fingerprint) when this screen is displayed for the **first time after the app comes to the foreground from the background**, not every time the widget rebuilds.
+- **Prevent prompt spam:** Add a cooldown — if biometric auth fails or is cancelled, do not automatically retrigger it; wait for the user to actively tap the `[Bio]` button. Android limits the number of consecutive `BiometricPrompt` calls, so avoid repeated automatic triggers.
+- **App lifecycle:** Only require re-authentication if the app has been in the background longer than a configurable time period (e.g., default 1 minute), not every time the user switches tabs/apps.
 
 ---
 
 ### Screen B: The Home Dashboard (Main Feed)
 
-**Trạng thái có dữ liệu:**
+**State with data:**
 
 ```text
 +------------------------------------------+
@@ -84,24 +84,24 @@ Màu semantic map trực tiếp theo **5 mức mood**. Các mã màu nền (back
 +------------------------------------------+
 ```
 
-**Trạng thái Empty (chưa có entry nào — quan trọng cho ngày đầu dùng app):**
+**Empty state (no entries yet — important for the first day of app use):**
 
 ```text
 +------------------------------------------+
 | [Settings]     JULY 2026       [Calendar]|
 |                                          |
 |                                          |
-|            (illustration nhẹ nhàng)      |
-|         "Chưa có ghi chú tâm trạng nào"  |
-|      "Hãy bắt đầu bằng cách nhấn nút +"  |
+|            (gentle illustration)         |
+|         "No mood entries yet"            |
+|      "Start by tapping the + button"     |
 |                                          |
 |                    ↓                     |
-|                 (( + ))                  |  <-- Nhấn mạnh bằng animation nhẹ (pulse)
+|                 (( + ))                  |  <-- Emphasized with a subtle pulse animation
 +------------------------------------------+
 ```
 
-- **UX Rule:** Không hiển thị chart/line trend rỗng gây cảm giác lỗi. Thay vào đó, hiện illustration + copy ngắn khuyến khích hành động đầu tiên.
-- Sau khi user có ≥ 3 entries, mới bắt đầu hiển thị Weekly Trend chart (dưới 3 điểm dữ liệu, chart không có ý nghĩa thống kê).
+- **UX Rule:** Do not display an empty chart/trend line, as it creates a sense of something being broken. Instead, show an illustration + short copy encouraging the first action.
+- Only start showing the Weekly Trend chart once the user has ≥ 3 entries. With fewer than 3 data points, a chart carries no statistical meaning.
 
 ---
 
@@ -126,49 +126,49 @@ Màu semantic map trực tiếp theo **5 mức mood**. Các mã màu nền (back
 |    [ Type your private journal notes... ]|
 |                                          |
 | 4. Attach Media (Optional)               |
-|    [ + Photo Image ]  [ 🎤 Record Voice ]|  <-- Thêm nút Ghi âm giọng nói
+|    [ + Photo Image ]  [ 🎤 Record Voice ]|  <-- Added Voice Recording button
 +------------------------------------------+
 ```
 
-**Flow chi tiết cho "Add Custom Tag":**
+**Detailed flow for "Add Custom Tag":**
 
-- Khi nhấn `[+ Add Custom Tag]`, hiện bottom sheet nhỏ gồm: ô nhập tên tag (giới hạn **20 ký tự**, không cho emoji để tránh vỡ layout chip-wrap) + dropdown chọn category có sẵn (`Health`, `Life`, hoặc `Other`).
-- Tag mới lưu vào bảng `Activities` với cờ `isCustom = true`, để phân biệt với tag mặc định khi hiển thị thống kê sau này.
-- Giới hạn tối đa **30 custom tags** để tránh danh sách chip quá dài gây rối UI; khi đạt giới hạn, ẩn nút thêm và hiện gợi ý "Xóa bớt tag ít dùng trong Settings".
+- When `[+ Add Custom Tag]` is tapped, a small bottom sheet appears with: a text input for the tag name (limited to **20 characters**, no emoji allowed to avoid breaking chip-wrap layout) + a dropdown to select an existing category (`Health`, `Life`, or `Other`).
+- The new tag is saved to the `Activities` table with the `isCustom = true` flag, to distinguish it from default tags when later displayed in statistics.
+- Maximum limit of **30 custom tags** to prevent an overly long chip list from cluttering the UI; when the limit is reached, hide the add button and show a suggestion: "Remove some rarely-used tags in Settings."
 
-**Lưu ý về ảnh đính kèm (mục 4):**
+**Note on attached photos (item 4):**
 
-- Ảnh **không lưu dưới dạng blob trong SQLite** — lưu file thực tế vào thư mục local qua `path_provider` (vd. `/app_documents/mood_photos/{entryId}.jpg`), DB chỉ lưu **đường dẫn tương đối** (relative path), không lưu absolute path (tránh vỡ reference khi app update hoặc đổi container ID).
-- Khi export/backup JSON, ảnh được đóng gói riêng (zip kèm JSON) hoặc convert base64 nếu file nhỏ — cần quyết định rõ ở Phase 4 (Backup/Restore) để tránh JSON phình to hoặc mất ảnh khi restore.
-- Nén ảnh trước khi lưu (vd. resize về max 1080px cạnh dài, quality ~80%) để không làm phình dung lượng app theo thời gian.
+- Photos are **not stored as a blob in SQLite** — the actual file is saved to a local folder via `path_provider` (e.g., `/app_documents/mood_photos/{entryId}.jpg`), with the DB only storing the **relative path**, not the absolute path (to avoid broken references when the app updates or the container ID changes).
+- When exporting/backing up to JSON, photos are packaged separately (zipped alongside the JSON) or converted to base64 if the file is small — this needs to be clearly decided in Phase 4 (Backup/Restore) to avoid a bloated JSON or lost photos during restore.
+- Compress photos before saving (e.g., resize to max 1080px on the long edge, ~80% quality) to avoid the app's storage footprint growing over time.
 
-**Lưu ý về các tệp tin đa phương tiện đính kèm (Ảnh & Ghi âm):**
+**Note on attached media files (Photos & Voice Recordings):**
 
-- Ảnh và file ghi âm giọng nói **không lưu dưới dạng blob trong SQLite**.
-- Toàn bộ file thực tế được lưu vào bộ nhớ cục bộ của sandbox app thông qua `path_provider`:
-  - Ảnh: `/app_documents/mood_photos/{uuid}.jpg`
-  - File ghi âm: `/app_documents/mood_voices/{uuid}.m4a` hoặc `.mp3`
-- Database chỉ lưu **đường dẫn tương đối** (relative path) (Ví dụ: `mood_photos/{uuid}.jpg`, `mood_voices/{uuid}.m4a`) để đảm bảo không bị vỡ liên kết khi hệ điều hành thay đổi ID thư mục container của ứng dụng.
-- Khi tiến hành ghi âm, app chỉ cho phép tối đa **3 phút** mỗi bản ghi để tối ưu dung lượng lưu trữ cục bộ.
+- Photos and voice recording files are **not stored as blobs in SQLite**.
+- All actual files are stored in the app's local sandbox storage via `path_provider`:
+  - Photos: `/app_documents/mood_photos/{uuid}.jpg`
+  - Voice recordings: `/app_documents/mood_voices/{uuid}.m4a` or `.mp3`
+- The database only stores the **relative path** (e.g., `mood_photos/{uuid}.jpg`, `mood_voices/{uuid}.m4a`) to ensure links don't break when the OS changes the app's container folder ID.
+- When recording, the app allows a maximum of **3 minutes** per recording to optimize local storage usage.
 
 ---
 
 ## 3. Micro-Interactions & Animation Guide
 
-- **Mood Selection Scale:** Vuốt/trượt qua các mức mood sẽ scale icon được chọn lên, làm mờ các lựa chọn khác. Màu nền theo accent color của mood được chọn sẽ morph nhẹ nhàng.
-- **Tactile Feedback (`HapticFeedback`) — đã điều chỉnh để tránh gây khó chịu:**
-  - Chỉ rung nhẹ (`HapticFeedback.selectionClick`) khi selector **dừng lại** ở một mood score, không rung liên tục trong lúc đang vuốt qua từng mức — tránh cảm giác rung dồn dập khi vuốt nhanh.
-  - Chip tag: chỉ 1 pulse ngắn khi **kích hoạt** (chọn), không rung khi bỏ chọn, để tránh cảm giác "ồn" khi user tap nhiều chip liên tiếp.
-  - Thêm toggle **"Tắt rung phản hồi"** trong Settings cho user không thích haptics.
-- **Feed Interpolation:** Dùng `ScaleTransition` hoặc sliding translation khi thêm/xóa journal item để tránh giật màn hình.
+- **Mood Selection Scale:** Swiping/sliding through mood levels scales up the selected icon while dimming the other options. The background color morphs smoothly to the accent color of the selected mood.
+- **Tactile Feedback (`HapticFeedback`) — adjusted to avoid annoyance:**
+  - Only vibrate lightly (`HapticFeedback.selectionClick`) when the selector **stops** on a mood score, not continuously while swiping through each level — to avoid a jarring rapid-fire vibration feeling when swiping quickly.
+  - Tag chip: only a single short pulse when **activated** (selected), no vibration when deselected, to avoid a "noisy" feeling when the user taps multiple chips in a row.
+  - Add a **"Turn off haptic feedback"** toggle in Settings for users who don't like haptics.
+- **Feed Interpolation:** Use `ScaleTransition` or a sliding translation when adding/removing journal items to avoid screen jank.
 
 ---
 
 ## 4. UX Anti-Patterns to Avoid
 
-- **No Mandatory Onboarding:** Không bắt tạo profile, nhập email, hay xem tutorial khi mở app lần đầu. Vào thẳng dashboard (ở trạng thái empty state như mô tả ở mục 2).
-- **Avoid Text Entry Blocks:** Không đặt textbox trống làm interaction chính. Text chỉ là phần phụ, optional.
-- **No Hidden Data Options:** Luôn có khu vực rõ ràng trong Settings để user xóa toàn bộ dữ liệu local hoặc export file, không được giấu sâu trong submenu.
-- **(Mới) Tránh Prompt Mệt Mỏi:** Không nên hiện quá nhiều dialog xác nhận liên tiếp (vd. xác nhận xóa → xác nhận lần 2 → toast thông báo) — tối đa 1 lớp xác nhận cho các hành động phá hủy dữ liệu (destructive actions).
+- **No Mandatory Onboarding:** Do not force profile creation, email entry, or a tutorial when the app is first opened. Go straight to the dashboard (in the empty state described in section 2).
+- **Avoid Text Entry Blocks:** Do not make an empty textbox the primary interaction. Text is only a secondary, optional part.
+- **No Hidden Data Options:** Always have a clearly visible area in Settings for the user to delete all local data or export a file — it should never be buried deep in a submenu.
+- **(New) Avoid Confirmation Fatigue:** Do not show too many consecutive confirmation dialogs (e.g., confirm delete → confirm again → toast notification) — maximum of 1 confirmation layer for destructive actions.
 
 ---

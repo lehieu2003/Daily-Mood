@@ -4,107 +4,107 @@
 
 **Version:** 1.0
 **Status:** Draft — MVP
-**Loại sản phẩm:** Mobile app (iOS + Android), Offline-First
+**Product Type:** Mobile app (iOS + Android), Offline-First
 
 ---
 
-## 1. Tầm nhìn sản phẩm (Vision)
+## 1. Product Vision
 
-Một ứng dụng nhật ký tâm trạng riêng tư, không cần tài khoản, không server, giúp người dùng ghi lại cảm xúc hằng ngày trong **dưới 10 giây** và nhìn thấy được xu hướng cảm xúc của bản thân theo thời gian — mà không phải đánh đổi quyền riêng tư.
+A private mood-journaling app, requiring no account and no server, that helps users record their daily emotions in **under 10 seconds** and see their emotional trends over time — without having to sacrifice privacy.
 
-**Điểm khác biệt cốt lõi:** Zero-Knowledge, 100% offline, không quảng cáo, không theo dõi hành vi.
-
----
-
-## 2. Vấn đề cần giải quyết (Problem Statement)
-
-- Nhiều app mood tracker hiện tại yêu cầu tạo tài khoản, gửi dữ liệu lên cloud của họ, hoặc có quảng cáo/theo dõi hành vi — gây e ngại vì dữ liệu tâm trạng, nhật ký là thông tin rất nhạy cảm.
-- Việc ghi nhật ký cảm xúc truyền thống (viết tay, note app) không có cấu trúc để nhìn ra xu hướng hoặc mối liên hệ giữa hoạt động và cảm xúc.
-- Friction cao (phải mở app, đăng nhập, viết dài dòng) khiến user bỏ cuộc sau vài ngày.
+**Core differentiator:** Zero-Knowledge, 100% offline, no ads, no behavioral tracking.
 
 ---
 
-## 3. Đối tượng người dùng (Target Users)
+## 2. Problem Statement
 
-| Persona                                  | Mô tả                                                                             | Nhu cầu chính                                                   |
-| ---------------------------------------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| **Người tự theo dõi sức khỏe tinh thần** | 20-40 tuổi, quan tâm đến wellness, có thể đang trị liệu hoặc tự quan sát bản thân | Cần dữ liệu để trao đổi với therapist hoặc tự nhận diện pattern |
-| **Người bận rộn muốn ghi nhanh**         | Không có thời gian viết nhật ký dài, muốn 1 thao tác nhanh mỗi ngày               | Cần tốc độ, tối thiểu số bước                                   |
-| **Người coi trọng privacy**              | Không muốn dữ liệu cá nhân rời khỏi thiết bị dưới bất kỳ hình thức nào            | Cần cam kết rõ ràng về zero-knowledge, không tài khoản          |
+- Many current mood tracker apps require account creation, send data to their cloud, or contain ads/behavioral tracking — which raises concerns since mood and journal data is highly sensitive information.
+- Traditional emotional journaling (handwriting, note apps) lacks the structure needed to reveal trends or relationships between activities and emotions.
+- High friction (having to open the app, log in, write lengthy entries) causes users to give up after a few days.
 
 ---
 
-## 4. Mục tiêu & Success Metrics
+## 3. Target Users
 
-| Mục tiêu                 | Chỉ số đo                                | Ngưỡng kỳ vọng (3 tháng sau launch)   |
-| ------------------------ | ---------------------------------------- | ------------------------------------- |
-| Giữ chân người dùng      | D7 Retention                             | ≥ 25%                                 |
-| Giữ chân người dùng      | D30 Retention                            | ≥ 10%                                 |
-| Mức độ dùng thường xuyên | Số entry trung bình/user/tuần            | ≥ 4 entries                           |
-| Tốc độ log               | Thời gian trung bình để hoàn tất 1 entry | ≤ 10 giây (không tính phần viết note) |
-| Trải nghiệm ổn định      | Crash-free session rate                  | ≥ 99.5%                               |
-| Tin cậy dữ liệu          | Số ca mất dữ liệu do lỗi backup/restore  | 0                                     |
-
-> Lưu ý: vì app không có server, các chỉ số trên chỉ đo được nếu có lớp analytics local-optional (xem mục 8), tuân thủ nguyên tắc privacy-first (opt-in, ẩn danh).
+| Persona                              | Description                                                                 | Main Need                                                        |
+| ------------------------------------ | --------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| **The mental wellness self-tracker** | Age 20-40, interested in wellness, may be in therapy or self-observing      | Needs data to discuss with a therapist or self-identify patterns |
+| **The busy quick-logger**            | No time to write long journal entries, wants a single quick action each day | Needs speed, minimal steps                                       |
+| **The privacy-conscious user**       | Does not want personal data leaving the device in any form                  | Needs a clear commitment to zero-knowledge, no account required  |
 
 ---
 
-## 5. Phạm vi MVP (In Scope)
+## 4. Goals & Success Metrics
 
-- Ghi mood theo 5 mức, kèm activity tags (mặc định + custom).
-- Ghi chú văn bản tự do (optional), ảnh đính kèm (optional) và ghi âm nhật ký bằng giọng nói (Voice Note - optional).
-- Dashboard xem lịch sử, biểu đồ xu hướng tuần, calendar heatmap tháng.
-- Khóa app bằng PIN hoặc biometric.
-- Mã hóa dữ liệu tại chỗ (SQLCipher).
-- Export/Import dữ liệu thủ công (JSON/CSV) qua share sheet hệ thống.
-- Dark mode / Light mode tự động theo hệ thống.
+| Goal                | Metric                                                   | Expected Threshold (3 months post-launch)  |
+| ------------------- | -------------------------------------------------------- | ------------------------------------------ |
+| User retention      | D7 Retention                                             | ≥ 25%                                      |
+| User retention      | D30 Retention                                            | ≥ 10%                                      |
+| Regular usage level | Average entries/user/week                                | ≥ 4 entries                                |
+| Logging speed       | Average time to complete 1 entry                         | ≤ 10 seconds (excluding note-writing time) |
+| Stable experience   | Crash-free session rate                                  | ≥ 99.5%                                    |
+| Data reliability    | Number of data-loss incidents from backup/restore errors | 0                                          |
 
-## 6. Ngoài phạm vi MVP (Out of Scope — để version sau)
-
-- Đồng bộ cloud tự động (Google Drive / iCloud).
-- Nhắc nhở thông minh (smart reminder dựa trên pattern dùng app).
-- Chia sẻ dữ liệu với therapist/bên thứ ba.
-- Widget màn hình chính (home screen widget).
-- Đa ngôn ngữ (MVP chỉ tiếng Việt + tiếng Anh).
-- Đăng nhập / tài khoản dưới bất kỳ hình thức nào.
+> Note: since the app has no server, the above metrics can only be measured if there is an opt-in local analytics layer (see section 8), following privacy-first principles (opt-in, anonymous).
 
 ---
 
-## 7. User Stories chính
+## 5. MVP Scope (In Scope)
 
-1. **Là một người dùng mới**, tôi muốn mở app và log mood ngay lập tức mà không cần tạo tài khoản, để tôi bắt đầu dùng mà không có rào cản.
-2. **Là một người dùng hằng ngày**, tôi muốn log mood trong dưới 10 giây, để việc ghi nhật ký không trở thành gánh nặng.
-3. **Là một người dùng quan tâm privacy**, tôi muốn đặt PIN/biometric để khóa app, để người khác không đọc được nhật ký của tôi nếu cầm điện thoại của tôi.
-4. **Là một người dùng lâu năm**, tôi muốn xem biểu đồ xu hướng mood theo tuần/tháng, để tôi nhận ra pattern cảm xúc của mình.
-5. **Là một người dùng lâu năm**, tôi muốn xem hoạt động nào tương quan với mood tốt/xấu, để tôi điều chỉnh thói quen.
-6. **Là một người dùng muốn backup**, tôi muốn export toàn bộ dữ liệu ra file, để tôi tự lưu trữ theo ý mình (Drive, iCloud, máy tính...).
-7. **Là một người dùng đổi điện thoại**, tôi muốn import lại file backup, để không mất lịch sử nhật ký cũ.
-8. **Là một người dùng muốn xóa dữ liệu**, tôi muốn có nút xóa toàn bộ dữ liệu rõ ràng trong Settings, để tôi kiểm soát hoàn toàn thông tin của mình.
-9. **Là một người dùng không muốn gõ chữ**, tôi muốn ghi âm nhanh tiếng lòng của mình dưới dạng Voice Note, để lưu giữ cảm xúc một cách sống động và tốn ít công sức nhất.
+- Log mood on a 5-level scale, along with activity tags (default + custom).
+- Free-form text notes (optional), attached photos (optional), and voice journal recordings (Voice Note - optional).
+- Dashboard to view history, weekly trend chart, monthly calendar heatmap.
+- App lock via PIN or biometrics.
+- Local data encryption (SQLCipher).
+- Manual data export/import (JSON/CSV) via the system share sheet.
+- Automatic Dark mode / Light mode based on system settings.
 
----
+## 6. Out of Scope for MVP (For Later Versions)
 
-## 8. Cân nhắc về Privacy & Analytics
-
-- Không thu thập dữ liệu cá nhân, không có server backend.
-- Nếu có analytics (đo retention, crash report), phải là **opt-in rõ ràng**, ẩn danh hoàn toàn, không gắn với nội dung nhật ký. Đề xuất dùng công cụ crash-only (vd. Sentry ở chế độ không thu thập PII) thay vì full analytics SDK.
-- Chi tiết đầy đủ nằm trong tài liệu **Privacy Policy** riêng.
-
----
-
-## 9. Rủi ro & Giả định
-
-| Rủi ro                                                          | Mức độ          | Giảm thiểu                                                                              |
-| --------------------------------------------------------------- | --------------- | --------------------------------------------------------------------------------------- |
-| Mất dữ liệu khi restore sai                                     | Cao             | Auto-backup trước khi import, chiến lược conflict theo timestamp (xem Data Model doc)   |
-| App bị từ chối lên store vì category sức khỏe tâm thần nhạy cảm | Trung bình      | Privacy Policy rõ ràng, không claim y tế, disclaimer "không thay thế tư vấn chuyên môn" |
-| User bỏ app sau vài ngày vì quên log                            | Cao             | Cân nhắc local notification nhắc nhở nhẹ nhàng (không phải MVP nhưng nên note sớm)      |
-| Hiệu năng kém khi dữ liệu lớn (nhiều năm sử dụng)               | Thấp-Trung bình | Index hóa đúng cột trong SQLite, phân trang khi load lịch sử                            |
+- Automatic cloud sync (Google Drive / iCloud).
+- Smart reminders (based on app usage patterns).
+- Sharing data with a therapist/third party.
+- Home screen widget.
+- Multiple languages (MVP is Vietnamese + English only).
+- Login / account of any kind.
 
 ---
 
-## 10. Câu hỏi mở (cần quyết định trước khi code)
+## 7. Key User Stories
 
-- Có cần local notification nhắc log mood hằng ngày không? (Ảnh hưởng đến permission yêu cầu lúc onboarding)
-- Giới hạn dung lượng ảnh đính kèm là bao nhiêu trước khi cảnh báo user?
-- Ngôn ngữ mặc định là gì khi app không detect được locale hệ thống?
+1. **As a new user**, I want to open the app and log my mood right away without creating an account, so I can start using it without friction.
+2. **As a daily user**, I want to log my mood in under 10 seconds, so that journaling doesn't become a burden.
+3. **As a privacy-conscious user**, I want to set a PIN/biometric lock, so that others can't read my journal if they pick up my phone.
+4. **As a long-term user**, I want to view weekly/monthly mood trend charts, so I can recognize my own emotional patterns.
+5. **As a long-term user**, I want to see which activities correlate with good/bad moods, so I can adjust my habits.
+6. **As a user who wants backups**, I want to export all my data to a file, so I can store it however I choose (Drive, iCloud, computer, etc.).
+7. **As a user switching phones**, I want to import a backup file, so I don't lose my old journal history.
+8. **As a user who wants to delete data**, I want a clear "delete all data" button in Settings, so I have full control over my information.
+9. **As a user who doesn't want to type**, I want to quickly record my thoughts as a Voice Note, so I can capture my emotions vividly with the least effort.
+
+---
+
+## 8. Privacy & Analytics Considerations
+
+- No personal data collection, no backend server.
+- If analytics (measuring retention, crash reports) is included, it must be **clearly opt-in**, fully anonymous, and not linked to journal content. Recommend using a crash-only tool (e.g., Sentry in no-PII-collection mode) rather than a full analytics SDK.
+- Full details are located in the separate **Privacy Policy** document.
+
+---
+
+## 9. Risks & Assumptions
+
+| Risk                                                                | Level      | Mitigation                                                                                         |
+| ------------------------------------------------------------------- | ---------- | -------------------------------------------------------------------------------------------------- |
+| Data loss from incorrect restore                                    | High       | Auto-backup before import, timestamp-based conflict strategy (see Data Model doc)                  |
+| App rejected from the store due to sensitive mental health category | Medium     | Clear Privacy Policy, no medical claims, disclaimer that it "does not replace professional advice" |
+| Users abandon the app after a few days due to forgetting to log     | High       | Consider a gentle local reminder notification (not MVP but should be noted early)                  |
+| Poor performance with large data volumes (many years of use)        | Low-Medium | Properly index SQLite columns, paginate when loading history                                       |
+
+---
+
+## 10. Open Questions (to decide before coding)
+
+- Is a local notification to remind users to log their mood daily needed? (Affects the permission requested during onboarding)
+- What is the attachment photo size limit before warning the user?
+- What is the default language when the app cannot detect the system locale?

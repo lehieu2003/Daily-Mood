@@ -20,8 +20,8 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | Overall MVP status | Foundation in progress |
 | Current active phase | Phase 1 - Local Foundation, Encryption, Database |
 | Last updated | 2026-07-09 |
-| Latest verification | `flutter analyze` reported by user as passing with no issues |
-| Main next task | Finish target database schema: voice note path, sub-emotions, and entry-sub-emotion junction |
+| Latest verification | `dart format lib test`, `flutter test`, and `flutter analyze` passed |
+| Main next task | Add migration tests for schema version 2 and old-to-new database upgrades |
 | Known blockers | Real privacy-policy effective date/contact; final chart green; Gradient 1 confirmation; WCAG contrast pass |
 
 ## Update Rules
@@ -49,10 +49,10 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | --- | --- | --- | --- | --- | --- |
 | P1.1 | Flutter app shell and routing | Done | App shell, routes | App boots through configured router | Home and quick-log are still placeholders. |
 | P1.2 | Theme and design tokens | Done | Theme layer | Tokens align with style guide v1.1 and analyzer has no opacity deprecations | Final design confirmations still blocked in P0.5. |
-| P1.3 | Drift database setup | In Progress | Database layer | App database opens and generated Drift code matches tables | Current schema is partial against the target data model. |
+| P1.3 | Drift database setup | Done | Database layer | App database opens and generated Drift code matches tables | Verified by database tests after schema generation. |
 | P1.4 | SQLCipher encrypted connection | In Progress | Database/security layer | Encrypted DB opens using secure key storage on target platforms | Needs device/platform verification. |
 | P1.5 | Default activity seed data | Done | Database seed logic | Seven default activities are seeded on first create | Existing test covers count. |
-| P1.6 | Complete target schema | Not Started | Database tables | Schema includes voice note path, sub-emotions, and entry-sub-emotion junction | Next recommended implementation task. |
+| P1.6 | Complete target schema | Done | Database tables | Schema includes voice note path, sub-emotions, and entry-sub-emotion junction | Added schema version 2 with `voiceNotePath`, `SubEmotions`, and `MoodEntrySubEmotions`; tests/analyze pass. |
 | P1.7 | Migration strategy and tests | Not Started | Database migrations/tests | Migration tests preserve sample data across schema versions | Required before release once schema changes. |
 
 ## Phase 2 - Mood Logging Flow
@@ -109,7 +109,7 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | ID | Task | Status | Main files/areas | Acceptance check | Notes |
 | --- | --- | --- | --- | --- | --- |
 | P7.1 | Static analysis | Done | Flutter app | `flutter analyze` passes | User reported no issues after opacity cleanup. |
-| P7.2 | Automated tests | Not Started | Tests | `flutter test` passes after latest edits | Needs fresh run. |
+| P7.2 | Automated tests | Done | Tests | `flutter test` passes after latest edits | Passed on 2026-07-09. |
 | P7.3 | Accessibility and contrast pass | Not Started | UI/theme | Text/background pairs meet WCAG target from UI spec | Especially text tertiary and mood chips. |
 | P7.4 | App icon and launch screen branding | Not Started | Platform assets | App has production icon and launch screen assets | Current iOS launch README is default boilerplate. |
 | P7.5 | Store privacy readiness | Blocked | Privacy/store metadata | Privacy policy, App Store labels, and Google Play Data Safety are complete | Requires owner/legal/product input. |
@@ -129,6 +129,9 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | --- | --- | --- | --- |
 | 2026-07-09 | `flutter analyze` | Passed | Reported by user after deprecation cleanup. |
 | 2026-07-09 | `rg -n "withOpacity" lib` | Passed | No remaining matches under app `lib`. |
+| 2026-07-09 | `dart format lib test` | Passed | Reported by user, 0 files changed. |
+| 2026-07-09 | `flutter test` | Passed | Reported by user, all tests passed. |
+| 2026-07-09 | `flutter analyze` | Passed | Reported by user, no issues found. |
 
 ## Reference Docs
 

@@ -14,16 +14,27 @@ import 'tables/tables.dart';
 part 'app_database.g.dart';
 
 @DriftDatabase(
-  tables: [MoodEntries, Activities, MoodEntryActivities, MoodPhotos],
+  tables: [
+    MoodEntries,
+    Activities,
+    MoodEntryActivities,
+    SubEmotions,
+    MoodEntrySubEmotions,
+    MoodPhotos,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
-  AppDatabase() : super(_openEncryptedConnection());
+  AppDatabase() : this._(_openEncryptedConnection());
+
+  AppDatabase.forTesting(QueryExecutor executor) : this._(executor);
+
+  AppDatabase._(super.executor);
 
   // Bump this every time a table/column changes and add a matching
   // migration step below. Never use a destructive migration once the
   // app has shipped — that drops user data.
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -32,10 +43,11 @@ class AppDatabase extends _$AppDatabase {
       await _seedDefaultActivities();
     },
     onUpgrade: (Migrator m, int from, int to) async {
-      // Example for the next schema bump:
-      // if (from < 2) {
-      //   await m.addColumn(activities, activities.someNewColumn);
-      // }
+      if (from < 2) {
+        await m.addColumn(moodEntries, moodEntries.voiceNotePath);
+        await m.createTable(subEmotions);
+        await m.createTable(moodEntrySubEmotions);
+      }
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');

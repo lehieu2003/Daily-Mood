@@ -53,6 +53,17 @@ class $MoodEntriesTable extends MoodEntries
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _voiceNotePathMeta = const VerificationMeta(
+    'voiceNotePath',
+  );
+  @override
+  late final GeneratedColumn<String> voiceNotePath = GeneratedColumn<String>(
+    'voice_note_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -96,6 +107,7 @@ class $MoodEntriesTable extends MoodEntries
     uuid,
     moodScore,
     note,
+    voiceNotePath,
     createdAt,
     updatedAt,
     isDeleted,
@@ -135,6 +147,15 @@ class $MoodEntriesTable extends MoodEntries
       context.handle(
         _noteMeta,
         note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    if (data.containsKey('voice_note_path')) {
+      context.handle(
+        _voiceNotePathMeta,
+        voiceNotePath.isAcceptableOrUnknown(
+          data['voice_note_path']!,
+          _voiceNotePathMeta,
+        ),
       );
     }
     if (data.containsKey('created_at')) {
@@ -184,6 +205,10 @@ class $MoodEntriesTable extends MoodEntries
         DriftSqlType.string,
         data['${effectivePrefix}note'],
       ),
+      voiceNotePath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}voice_note_path'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -218,6 +243,10 @@ class MoodEntry extends DataClass implements Insertable<MoodEntry> {
   /// entirely, so NOT NULL must be spelled out here explicitly.
   final int moodScore;
   final String? note;
+
+  /// Relative path of an optional voice recording in app sandbox storage,
+  /// e.g. `mood_voices/some-uuid.m4a`.
+  final String? voiceNotePath;
   final DateTime createdAt;
 
   /// Used to resolve conflicts when importing a backup file.
@@ -231,6 +260,7 @@ class MoodEntry extends DataClass implements Insertable<MoodEntry> {
     required this.uuid,
     required this.moodScore,
     this.note,
+    this.voiceNotePath,
     required this.createdAt,
     required this.updatedAt,
     required this.isDeleted,
@@ -244,6 +274,9 @@ class MoodEntry extends DataClass implements Insertable<MoodEntry> {
     if (!nullToAbsent || note != null) {
       map['note'] = Variable<String>(note);
     }
+    if (!nullToAbsent || voiceNotePath != null) {
+      map['voice_note_path'] = Variable<String>(voiceNotePath);
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     map['is_deleted'] = Variable<bool>(isDeleted);
@@ -256,6 +289,9 @@ class MoodEntry extends DataClass implements Insertable<MoodEntry> {
       uuid: Value(uuid),
       moodScore: Value(moodScore),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      voiceNotePath: voiceNotePath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(voiceNotePath),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       isDeleted: Value(isDeleted),
@@ -272,6 +308,7 @@ class MoodEntry extends DataClass implements Insertable<MoodEntry> {
       uuid: serializer.fromJson<String>(json['uuid']),
       moodScore: serializer.fromJson<int>(json['moodScore']),
       note: serializer.fromJson<String?>(json['note']),
+      voiceNotePath: serializer.fromJson<String?>(json['voiceNotePath']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       isDeleted: serializer.fromJson<bool>(json['isDeleted']),
@@ -285,6 +322,7 @@ class MoodEntry extends DataClass implements Insertable<MoodEntry> {
       'uuid': serializer.toJson<String>(uuid),
       'moodScore': serializer.toJson<int>(moodScore),
       'note': serializer.toJson<String?>(note),
+      'voiceNotePath': serializer.toJson<String?>(voiceNotePath),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'isDeleted': serializer.toJson<bool>(isDeleted),
@@ -296,6 +334,7 @@ class MoodEntry extends DataClass implements Insertable<MoodEntry> {
     String? uuid,
     int? moodScore,
     Value<String?> note = const Value.absent(),
+    Value<String?> voiceNotePath = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
     bool? isDeleted,
@@ -304,6 +343,9 @@ class MoodEntry extends DataClass implements Insertable<MoodEntry> {
     uuid: uuid ?? this.uuid,
     moodScore: moodScore ?? this.moodScore,
     note: note.present ? note.value : this.note,
+    voiceNotePath: voiceNotePath.present
+        ? voiceNotePath.value
+        : this.voiceNotePath,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     isDeleted: isDeleted ?? this.isDeleted,
@@ -314,6 +356,9 @@ class MoodEntry extends DataClass implements Insertable<MoodEntry> {
       uuid: data.uuid.present ? data.uuid.value : this.uuid,
       moodScore: data.moodScore.present ? data.moodScore.value : this.moodScore,
       note: data.note.present ? data.note.value : this.note,
+      voiceNotePath: data.voiceNotePath.present
+          ? data.voiceNotePath.value
+          : this.voiceNotePath,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
@@ -327,6 +372,7 @@ class MoodEntry extends DataClass implements Insertable<MoodEntry> {
           ..write('uuid: $uuid, ')
           ..write('moodScore: $moodScore, ')
           ..write('note: $note, ')
+          ..write('voiceNotePath: $voiceNotePath, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('isDeleted: $isDeleted')
@@ -335,8 +381,16 @@ class MoodEntry extends DataClass implements Insertable<MoodEntry> {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, uuid, moodScore, note, createdAt, updatedAt, isDeleted);
+  int get hashCode => Object.hash(
+    id,
+    uuid,
+    moodScore,
+    note,
+    voiceNotePath,
+    createdAt,
+    updatedAt,
+    isDeleted,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -345,6 +399,7 @@ class MoodEntry extends DataClass implements Insertable<MoodEntry> {
           other.uuid == this.uuid &&
           other.moodScore == this.moodScore &&
           other.note == this.note &&
+          other.voiceNotePath == this.voiceNotePath &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.isDeleted == this.isDeleted);
@@ -355,6 +410,7 @@ class MoodEntriesCompanion extends UpdateCompanion<MoodEntry> {
   final Value<String> uuid;
   final Value<int> moodScore;
   final Value<String?> note;
+  final Value<String?> voiceNotePath;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<bool> isDeleted;
@@ -363,6 +419,7 @@ class MoodEntriesCompanion extends UpdateCompanion<MoodEntry> {
     this.uuid = const Value.absent(),
     this.moodScore = const Value.absent(),
     this.note = const Value.absent(),
+    this.voiceNotePath = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.isDeleted = const Value.absent(),
@@ -372,6 +429,7 @@ class MoodEntriesCompanion extends UpdateCompanion<MoodEntry> {
     required String uuid,
     required int moodScore,
     this.note = const Value.absent(),
+    this.voiceNotePath = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.isDeleted = const Value.absent(),
@@ -384,6 +442,7 @@ class MoodEntriesCompanion extends UpdateCompanion<MoodEntry> {
     Expression<String>? uuid,
     Expression<int>? moodScore,
     Expression<String>? note,
+    Expression<String>? voiceNotePath,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<bool>? isDeleted,
@@ -393,6 +452,7 @@ class MoodEntriesCompanion extends UpdateCompanion<MoodEntry> {
       if (uuid != null) 'uuid': uuid,
       if (moodScore != null) 'mood_score': moodScore,
       if (note != null) 'note': note,
+      if (voiceNotePath != null) 'voice_note_path': voiceNotePath,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (isDeleted != null) 'is_deleted': isDeleted,
@@ -404,6 +464,7 @@ class MoodEntriesCompanion extends UpdateCompanion<MoodEntry> {
     Value<String>? uuid,
     Value<int>? moodScore,
     Value<String?>? note,
+    Value<String?>? voiceNotePath,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<bool>? isDeleted,
@@ -413,6 +474,7 @@ class MoodEntriesCompanion extends UpdateCompanion<MoodEntry> {
       uuid: uuid ?? this.uuid,
       moodScore: moodScore ?? this.moodScore,
       note: note ?? this.note,
+      voiceNotePath: voiceNotePath ?? this.voiceNotePath,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       isDeleted: isDeleted ?? this.isDeleted,
@@ -434,6 +496,9 @@ class MoodEntriesCompanion extends UpdateCompanion<MoodEntry> {
     if (note.present) {
       map['note'] = Variable<String>(note.value);
     }
+    if (voiceNotePath.present) {
+      map['voice_note_path'] = Variable<String>(voiceNotePath.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -453,6 +518,7 @@ class MoodEntriesCompanion extends UpdateCompanion<MoodEntry> {
           ..write('uuid: $uuid, ')
           ..write('moodScore: $moodScore, ')
           ..write('note: $note, ')
+          ..write('voiceNotePath: $voiceNotePath, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('isDeleted: $isDeleted')
@@ -1160,6 +1226,552 @@ class MoodEntryActivitiesCompanion extends UpdateCompanion<MoodEntryActivity> {
   }
 }
 
+class $SubEmotionsTable extends SubEmotions
+    with TableInfo<$SubEmotionsTable, SubEmotion> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SubEmotionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _emojiMeta = const VerificationMeta('emoji');
+  @override
+  late final GeneratedColumn<String> emoji = GeneratedColumn<String>(
+    'emoji',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _parentMoodScoreMeta = const VerificationMeta(
+    'parentMoodScore',
+  );
+  @override
+  late final GeneratedColumn<int> parentMoodScore = GeneratedColumn<int>(
+    'parent_mood_score',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL CHECK (parent_mood_score BETWEEN 1 AND 5)',
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, name, emoji, parentMoodScore];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sub_emotions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SubEmotion> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('emoji')) {
+      context.handle(
+        _emojiMeta,
+        emoji.isAcceptableOrUnknown(data['emoji']!, _emojiMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_emojiMeta);
+    }
+    if (data.containsKey('parent_mood_score')) {
+      context.handle(
+        _parentMoodScoreMeta,
+        parentMoodScore.isAcceptableOrUnknown(
+          data['parent_mood_score']!,
+          _parentMoodScoreMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_parentMoodScoreMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SubEmotion map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SubEmotion(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      emoji: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}emoji'],
+      )!,
+      parentMoodScore: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}parent_mood_score'],
+      )!,
+    );
+  }
+
+  @override
+  $SubEmotionsTable createAlias(String alias) {
+    return $SubEmotionsTable(attachedDatabase, alias);
+  }
+}
+
+class SubEmotion extends DataClass implements Insertable<SubEmotion> {
+  final int id;
+  final String name;
+
+  /// Emoji character or app asset code used by the UI.
+  final String emoji;
+
+  /// 1 = Awful ... 5 = Excellent
+  final int parentMoodScore;
+  const SubEmotion({
+    required this.id,
+    required this.name,
+    required this.emoji,
+    required this.parentMoodScore,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    map['emoji'] = Variable<String>(emoji);
+    map['parent_mood_score'] = Variable<int>(parentMoodScore);
+    return map;
+  }
+
+  SubEmotionsCompanion toCompanion(bool nullToAbsent) {
+    return SubEmotionsCompanion(
+      id: Value(id),
+      name: Value(name),
+      emoji: Value(emoji),
+      parentMoodScore: Value(parentMoodScore),
+    );
+  }
+
+  factory SubEmotion.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SubEmotion(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      emoji: serializer.fromJson<String>(json['emoji']),
+      parentMoodScore: serializer.fromJson<int>(json['parentMoodScore']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'emoji': serializer.toJson<String>(emoji),
+      'parentMoodScore': serializer.toJson<int>(parentMoodScore),
+    };
+  }
+
+  SubEmotion copyWith({
+    int? id,
+    String? name,
+    String? emoji,
+    int? parentMoodScore,
+  }) => SubEmotion(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    emoji: emoji ?? this.emoji,
+    parentMoodScore: parentMoodScore ?? this.parentMoodScore,
+  );
+  SubEmotion copyWithCompanion(SubEmotionsCompanion data) {
+    return SubEmotion(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      emoji: data.emoji.present ? data.emoji.value : this.emoji,
+      parentMoodScore: data.parentMoodScore.present
+          ? data.parentMoodScore.value
+          : this.parentMoodScore,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SubEmotion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('emoji: $emoji, ')
+          ..write('parentMoodScore: $parentMoodScore')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, emoji, parentMoodScore);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SubEmotion &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.emoji == this.emoji &&
+          other.parentMoodScore == this.parentMoodScore);
+}
+
+class SubEmotionsCompanion extends UpdateCompanion<SubEmotion> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<String> emoji;
+  final Value<int> parentMoodScore;
+  const SubEmotionsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.emoji = const Value.absent(),
+    this.parentMoodScore = const Value.absent(),
+  });
+  SubEmotionsCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    required String emoji,
+    required int parentMoodScore,
+  }) : name = Value(name),
+       emoji = Value(emoji),
+       parentMoodScore = Value(parentMoodScore);
+  static Insertable<SubEmotion> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<String>? emoji,
+    Expression<int>? parentMoodScore,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (emoji != null) 'emoji': emoji,
+      if (parentMoodScore != null) 'parent_mood_score': parentMoodScore,
+    });
+  }
+
+  SubEmotionsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? name,
+    Value<String>? emoji,
+    Value<int>? parentMoodScore,
+  }) {
+    return SubEmotionsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      emoji: emoji ?? this.emoji,
+      parentMoodScore: parentMoodScore ?? this.parentMoodScore,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (emoji.present) {
+      map['emoji'] = Variable<String>(emoji.value);
+    }
+    if (parentMoodScore.present) {
+      map['parent_mood_score'] = Variable<int>(parentMoodScore.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SubEmotionsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('emoji: $emoji, ')
+          ..write('parentMoodScore: $parentMoodScore')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MoodEntrySubEmotionsTable extends MoodEntrySubEmotions
+    with TableInfo<$MoodEntrySubEmotionsTable, MoodEntrySubEmotion> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MoodEntrySubEmotionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _moodEntryIdMeta = const VerificationMeta(
+    'moodEntryId',
+  );
+  @override
+  late final GeneratedColumn<int> moodEntryId = GeneratedColumn<int>(
+    'mood_entry_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES mood_entries (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _subEmotionIdMeta = const VerificationMeta(
+    'subEmotionId',
+  );
+  @override
+  late final GeneratedColumn<int> subEmotionId = GeneratedColumn<int>(
+    'sub_emotion_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES sub_emotions (id) ON DELETE CASCADE',
+    ),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [moodEntryId, subEmotionId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'mood_entry_sub_emotions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<MoodEntrySubEmotion> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('mood_entry_id')) {
+      context.handle(
+        _moodEntryIdMeta,
+        moodEntryId.isAcceptableOrUnknown(
+          data['mood_entry_id']!,
+          _moodEntryIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_moodEntryIdMeta);
+    }
+    if (data.containsKey('sub_emotion_id')) {
+      context.handle(
+        _subEmotionIdMeta,
+        subEmotionId.isAcceptableOrUnknown(
+          data['sub_emotion_id']!,
+          _subEmotionIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_subEmotionIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {moodEntryId, subEmotionId};
+  @override
+  MoodEntrySubEmotion map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MoodEntrySubEmotion(
+      moodEntryId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}mood_entry_id'],
+      )!,
+      subEmotionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sub_emotion_id'],
+      )!,
+    );
+  }
+
+  @override
+  $MoodEntrySubEmotionsTable createAlias(String alias) {
+    return $MoodEntrySubEmotionsTable(attachedDatabase, alias);
+  }
+}
+
+class MoodEntrySubEmotion extends DataClass
+    implements Insertable<MoodEntrySubEmotion> {
+  final int moodEntryId;
+  final int subEmotionId;
+  const MoodEntrySubEmotion({
+    required this.moodEntryId,
+    required this.subEmotionId,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['mood_entry_id'] = Variable<int>(moodEntryId);
+    map['sub_emotion_id'] = Variable<int>(subEmotionId);
+    return map;
+  }
+
+  MoodEntrySubEmotionsCompanion toCompanion(bool nullToAbsent) {
+    return MoodEntrySubEmotionsCompanion(
+      moodEntryId: Value(moodEntryId),
+      subEmotionId: Value(subEmotionId),
+    );
+  }
+
+  factory MoodEntrySubEmotion.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MoodEntrySubEmotion(
+      moodEntryId: serializer.fromJson<int>(json['moodEntryId']),
+      subEmotionId: serializer.fromJson<int>(json['subEmotionId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'moodEntryId': serializer.toJson<int>(moodEntryId),
+      'subEmotionId': serializer.toJson<int>(subEmotionId),
+    };
+  }
+
+  MoodEntrySubEmotion copyWith({int? moodEntryId, int? subEmotionId}) =>
+      MoodEntrySubEmotion(
+        moodEntryId: moodEntryId ?? this.moodEntryId,
+        subEmotionId: subEmotionId ?? this.subEmotionId,
+      );
+  MoodEntrySubEmotion copyWithCompanion(MoodEntrySubEmotionsCompanion data) {
+    return MoodEntrySubEmotion(
+      moodEntryId: data.moodEntryId.present
+          ? data.moodEntryId.value
+          : this.moodEntryId,
+      subEmotionId: data.subEmotionId.present
+          ? data.subEmotionId.value
+          : this.subEmotionId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MoodEntrySubEmotion(')
+          ..write('moodEntryId: $moodEntryId, ')
+          ..write('subEmotionId: $subEmotionId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(moodEntryId, subEmotionId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MoodEntrySubEmotion &&
+          other.moodEntryId == this.moodEntryId &&
+          other.subEmotionId == this.subEmotionId);
+}
+
+class MoodEntrySubEmotionsCompanion
+    extends UpdateCompanion<MoodEntrySubEmotion> {
+  final Value<int> moodEntryId;
+  final Value<int> subEmotionId;
+  final Value<int> rowid;
+  const MoodEntrySubEmotionsCompanion({
+    this.moodEntryId = const Value.absent(),
+    this.subEmotionId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MoodEntrySubEmotionsCompanion.insert({
+    required int moodEntryId,
+    required int subEmotionId,
+    this.rowid = const Value.absent(),
+  }) : moodEntryId = Value(moodEntryId),
+       subEmotionId = Value(subEmotionId);
+  static Insertable<MoodEntrySubEmotion> custom({
+    Expression<int>? moodEntryId,
+    Expression<int>? subEmotionId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (moodEntryId != null) 'mood_entry_id': moodEntryId,
+      if (subEmotionId != null) 'sub_emotion_id': subEmotionId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MoodEntrySubEmotionsCompanion copyWith({
+    Value<int>? moodEntryId,
+    Value<int>? subEmotionId,
+    Value<int>? rowid,
+  }) {
+    return MoodEntrySubEmotionsCompanion(
+      moodEntryId: moodEntryId ?? this.moodEntryId,
+      subEmotionId: subEmotionId ?? this.subEmotionId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (moodEntryId.present) {
+      map['mood_entry_id'] = Variable<int>(moodEntryId.value);
+    }
+    if (subEmotionId.present) {
+      map['sub_emotion_id'] = Variable<int>(subEmotionId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MoodEntrySubEmotionsCompanion(')
+          ..write('moodEntryId: $moodEntryId, ')
+          ..write('subEmotionId: $subEmotionId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $MoodPhotosTable extends MoodPhotos
     with TableInfo<$MoodPhotosTable, MoodPhoto> {
   @override
@@ -1488,6 +2100,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ActivitiesTable activities = $ActivitiesTable(this);
   late final $MoodEntryActivitiesTable moodEntryActivities =
       $MoodEntryActivitiesTable(this);
+  late final $SubEmotionsTable subEmotions = $SubEmotionsTable(this);
+  late final $MoodEntrySubEmotionsTable moodEntrySubEmotions =
+      $MoodEntrySubEmotionsTable(this);
   late final $MoodPhotosTable moodPhotos = $MoodPhotosTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -1497,6 +2112,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     moodEntries,
     activities,
     moodEntryActivities,
+    subEmotions,
+    moodEntrySubEmotions,
     moodPhotos,
   ];
   @override
@@ -1507,6 +2124,20 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('mood_entry_activities', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'mood_entries',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('mood_entry_sub_emotions', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'sub_emotions',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('mood_entry_sub_emotions', kind: UpdateKind.delete)],
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
@@ -1524,6 +2155,7 @@ typedef $$MoodEntriesTableCreateCompanionBuilder =
       required String uuid,
       required int moodScore,
       Value<String?> note,
+      Value<String?> voiceNotePath,
       required DateTime createdAt,
       required DateTime updatedAt,
       Value<bool> isDeleted,
@@ -1534,6 +2166,7 @@ typedef $$MoodEntriesTableUpdateCompanionBuilder =
       Value<String> uuid,
       Value<int> moodScore,
       Value<String?> note,
+      Value<String?> voiceNotePath,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<bool> isDeleted,
@@ -1561,6 +2194,34 @@ final class $$MoodEntriesTableReferences
 
     final cache = $_typedResult.readTableOrNull(
       _moodEntryActivitiesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $MoodEntrySubEmotionsTable,
+    List<MoodEntrySubEmotion>
+  >
+  _moodEntrySubEmotionsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.moodEntrySubEmotions,
+        aliasName: $_aliasNameGenerator(
+          db.moodEntries.id,
+          db.moodEntrySubEmotions.moodEntryId,
+        ),
+      );
+
+  $$MoodEntrySubEmotionsTableProcessedTableManager
+  get moodEntrySubEmotionsRefs {
+    final manager = $$MoodEntrySubEmotionsTableTableManager(
+      $_db,
+      $_db.moodEntrySubEmotions,
+    ).filter((f) => f.moodEntryId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _moodEntrySubEmotionsRefsTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -1618,6 +2279,11 @@ class $$MoodEntriesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get voiceNotePath => $composableBuilder(
+    column: $table.voiceNotePath,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnFilters(column),
@@ -1649,6 +2315,31 @@ class $$MoodEntriesTableFilterComposer
           }) => $$MoodEntryActivitiesTableFilterComposer(
             $db: $db,
             $table: $db.moodEntryActivities,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> moodEntrySubEmotionsRefs(
+    Expression<bool> Function($$MoodEntrySubEmotionsTableFilterComposer f) f,
+  ) {
+    final $$MoodEntrySubEmotionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.moodEntrySubEmotions,
+      getReferencedColumn: (t) => t.moodEntryId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MoodEntrySubEmotionsTableFilterComposer(
+            $db: $db,
+            $table: $db.moodEntrySubEmotions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -1713,6 +2404,11 @@ class $$MoodEntriesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get voiceNotePath => $composableBuilder(
+    column: $table.voiceNotePath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -1750,6 +2446,11 @@ class $$MoodEntriesTableAnnotationComposer
   GeneratedColumn<String> get note =>
       $composableBuilder(column: $table.note, builder: (column) => column);
 
+  GeneratedColumn<String> get voiceNotePath => $composableBuilder(
+    column: $table.voiceNotePath,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -1776,6 +2477,32 @@ class $$MoodEntriesTableAnnotationComposer
               }) => $$MoodEntryActivitiesTableAnnotationComposer(
                 $db: $db,
                 $table: $db.moodEntryActivities,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<T> moodEntrySubEmotionsRefs<T extends Object>(
+    Expression<T> Function($$MoodEntrySubEmotionsTableAnnotationComposer a) f,
+  ) {
+    final $$MoodEntrySubEmotionsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.moodEntrySubEmotions,
+          getReferencedColumn: (t) => t.moodEntryId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$MoodEntrySubEmotionsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.moodEntrySubEmotions,
                 $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
                 joinBuilder: joinBuilder,
                 $removeJoinBuilderFromRootComposer:
@@ -1826,6 +2553,7 @@ class $$MoodEntriesTableTableManager
           MoodEntry,
           PrefetchHooks Function({
             bool moodEntryActivitiesRefs,
+            bool moodEntrySubEmotionsRefs,
             bool moodPhotosRefs,
           })
         > {
@@ -1846,6 +2574,7 @@ class $$MoodEntriesTableTableManager
                 Value<String> uuid = const Value.absent(),
                 Value<int> moodScore = const Value.absent(),
                 Value<String?> note = const Value.absent(),
+                Value<String?> voiceNotePath = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<bool> isDeleted = const Value.absent(),
@@ -1854,6 +2583,7 @@ class $$MoodEntriesTableTableManager
                 uuid: uuid,
                 moodScore: moodScore,
                 note: note,
+                voiceNotePath: voiceNotePath,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 isDeleted: isDeleted,
@@ -1864,6 +2594,7 @@ class $$MoodEntriesTableTableManager
                 required String uuid,
                 required int moodScore,
                 Value<String?> note = const Value.absent(),
+                Value<String?> voiceNotePath = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
                 Value<bool> isDeleted = const Value.absent(),
@@ -1872,6 +2603,7 @@ class $$MoodEntriesTableTableManager
                 uuid: uuid,
                 moodScore: moodScore,
                 note: note,
+                voiceNotePath: voiceNotePath,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 isDeleted: isDeleted,
@@ -1885,11 +2617,16 @@ class $$MoodEntriesTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({moodEntryActivitiesRefs = false, moodPhotosRefs = false}) {
+              ({
+                moodEntryActivitiesRefs = false,
+                moodEntrySubEmotionsRefs = false,
+                moodPhotosRefs = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (moodEntryActivitiesRefs) db.moodEntryActivities,
+                    if (moodEntrySubEmotionsRefs) db.moodEntrySubEmotions,
                     if (moodPhotosRefs) db.moodPhotos,
                   ],
                   addJoins: null,
@@ -1910,6 +2647,27 @@ class $$MoodEntriesTableTableManager
                                 table,
                                 p0,
                               ).moodEntryActivitiesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.moodEntryId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (moodEntrySubEmotionsRefs)
+                        await $_getPrefetchedData<
+                          MoodEntry,
+                          $MoodEntriesTable,
+                          MoodEntrySubEmotion
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MoodEntriesTableReferences
+                              ._moodEntrySubEmotionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MoodEntriesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).moodEntrySubEmotionsRefs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
                                 (e) => e.moodEntryId == item.id,
@@ -1959,6 +2717,7 @@ typedef $$MoodEntriesTableProcessedTableManager =
       MoodEntry,
       PrefetchHooks Function({
         bool moodEntryActivitiesRefs,
+        bool moodEntrySubEmotionsRefs,
         bool moodPhotosRefs,
       })
     >;
@@ -2683,6 +3442,676 @@ typedef $$MoodEntryActivitiesTableProcessedTableManager =
       MoodEntryActivity,
       PrefetchHooks Function({bool moodEntryId, bool activityId})
     >;
+typedef $$SubEmotionsTableCreateCompanionBuilder =
+    SubEmotionsCompanion Function({
+      Value<int> id,
+      required String name,
+      required String emoji,
+      required int parentMoodScore,
+    });
+typedef $$SubEmotionsTableUpdateCompanionBuilder =
+    SubEmotionsCompanion Function({
+      Value<int> id,
+      Value<String> name,
+      Value<String> emoji,
+      Value<int> parentMoodScore,
+    });
+
+final class $$SubEmotionsTableReferences
+    extends BaseReferences<_$AppDatabase, $SubEmotionsTable, SubEmotion> {
+  $$SubEmotionsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<
+    $MoodEntrySubEmotionsTable,
+    List<MoodEntrySubEmotion>
+  >
+  _moodEntrySubEmotionsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.moodEntrySubEmotions,
+        aliasName: $_aliasNameGenerator(
+          db.subEmotions.id,
+          db.moodEntrySubEmotions.subEmotionId,
+        ),
+      );
+
+  $$MoodEntrySubEmotionsTableProcessedTableManager
+  get moodEntrySubEmotionsRefs {
+    final manager = $$MoodEntrySubEmotionsTableTableManager(
+      $_db,
+      $_db.moodEntrySubEmotions,
+    ).filter((f) => f.subEmotionId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _moodEntrySubEmotionsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$SubEmotionsTableFilterComposer
+    extends Composer<_$AppDatabase, $SubEmotionsTable> {
+  $$SubEmotionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get emoji => $composableBuilder(
+    column: $table.emoji,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get parentMoodScore => $composableBuilder(
+    column: $table.parentMoodScore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> moodEntrySubEmotionsRefs(
+    Expression<bool> Function($$MoodEntrySubEmotionsTableFilterComposer f) f,
+  ) {
+    final $$MoodEntrySubEmotionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.moodEntrySubEmotions,
+      getReferencedColumn: (t) => t.subEmotionId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MoodEntrySubEmotionsTableFilterComposer(
+            $db: $db,
+            $table: $db.moodEntrySubEmotions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$SubEmotionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $SubEmotionsTable> {
+  $$SubEmotionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get emoji => $composableBuilder(
+    column: $table.emoji,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get parentMoodScore => $composableBuilder(
+    column: $table.parentMoodScore,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SubEmotionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SubEmotionsTable> {
+  $$SubEmotionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get emoji =>
+      $composableBuilder(column: $table.emoji, builder: (column) => column);
+
+  GeneratedColumn<int> get parentMoodScore => $composableBuilder(
+    column: $table.parentMoodScore,
+    builder: (column) => column,
+  );
+
+  Expression<T> moodEntrySubEmotionsRefs<T extends Object>(
+    Expression<T> Function($$MoodEntrySubEmotionsTableAnnotationComposer a) f,
+  ) {
+    final $$MoodEntrySubEmotionsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.moodEntrySubEmotions,
+          getReferencedColumn: (t) => t.subEmotionId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$MoodEntrySubEmotionsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.moodEntrySubEmotions,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$SubEmotionsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SubEmotionsTable,
+          SubEmotion,
+          $$SubEmotionsTableFilterComposer,
+          $$SubEmotionsTableOrderingComposer,
+          $$SubEmotionsTableAnnotationComposer,
+          $$SubEmotionsTableCreateCompanionBuilder,
+          $$SubEmotionsTableUpdateCompanionBuilder,
+          (SubEmotion, $$SubEmotionsTableReferences),
+          SubEmotion,
+          PrefetchHooks Function({bool moodEntrySubEmotionsRefs})
+        > {
+  $$SubEmotionsTableTableManager(_$AppDatabase db, $SubEmotionsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SubEmotionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SubEmotionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SubEmotionsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> emoji = const Value.absent(),
+                Value<int> parentMoodScore = const Value.absent(),
+              }) => SubEmotionsCompanion(
+                id: id,
+                name: name,
+                emoji: emoji,
+                parentMoodScore: parentMoodScore,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String name,
+                required String emoji,
+                required int parentMoodScore,
+              }) => SubEmotionsCompanion.insert(
+                id: id,
+                name: name,
+                emoji: emoji,
+                parentMoodScore: parentMoodScore,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$SubEmotionsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({moodEntrySubEmotionsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (moodEntrySubEmotionsRefs) db.moodEntrySubEmotions,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (moodEntrySubEmotionsRefs)
+                    await $_getPrefetchedData<
+                      SubEmotion,
+                      $SubEmotionsTable,
+                      MoodEntrySubEmotion
+                    >(
+                      currentTable: table,
+                      referencedTable: $$SubEmotionsTableReferences
+                          ._moodEntrySubEmotionsRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$SubEmotionsTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).moodEntrySubEmotionsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where(
+                            (e) => e.subEmotionId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$SubEmotionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SubEmotionsTable,
+      SubEmotion,
+      $$SubEmotionsTableFilterComposer,
+      $$SubEmotionsTableOrderingComposer,
+      $$SubEmotionsTableAnnotationComposer,
+      $$SubEmotionsTableCreateCompanionBuilder,
+      $$SubEmotionsTableUpdateCompanionBuilder,
+      (SubEmotion, $$SubEmotionsTableReferences),
+      SubEmotion,
+      PrefetchHooks Function({bool moodEntrySubEmotionsRefs})
+    >;
+typedef $$MoodEntrySubEmotionsTableCreateCompanionBuilder =
+    MoodEntrySubEmotionsCompanion Function({
+      required int moodEntryId,
+      required int subEmotionId,
+      Value<int> rowid,
+    });
+typedef $$MoodEntrySubEmotionsTableUpdateCompanionBuilder =
+    MoodEntrySubEmotionsCompanion Function({
+      Value<int> moodEntryId,
+      Value<int> subEmotionId,
+      Value<int> rowid,
+    });
+
+final class $$MoodEntrySubEmotionsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $MoodEntrySubEmotionsTable,
+          MoodEntrySubEmotion
+        > {
+  $$MoodEntrySubEmotionsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $MoodEntriesTable _moodEntryIdTable(_$AppDatabase db) =>
+      db.moodEntries.createAlias(
+        $_aliasNameGenerator(
+          db.moodEntrySubEmotions.moodEntryId,
+          db.moodEntries.id,
+        ),
+      );
+
+  $$MoodEntriesTableProcessedTableManager get moodEntryId {
+    final $_column = $_itemColumn<int>('mood_entry_id')!;
+
+    final manager = $$MoodEntriesTableTableManager(
+      $_db,
+      $_db.moodEntries,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_moodEntryIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $SubEmotionsTable _subEmotionIdTable(_$AppDatabase db) =>
+      db.subEmotions.createAlias(
+        $_aliasNameGenerator(
+          db.moodEntrySubEmotions.subEmotionId,
+          db.subEmotions.id,
+        ),
+      );
+
+  $$SubEmotionsTableProcessedTableManager get subEmotionId {
+    final $_column = $_itemColumn<int>('sub_emotion_id')!;
+
+    final manager = $$SubEmotionsTableTableManager(
+      $_db,
+      $_db.subEmotions,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_subEmotionIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$MoodEntrySubEmotionsTableFilterComposer
+    extends Composer<_$AppDatabase, $MoodEntrySubEmotionsTable> {
+  $$MoodEntrySubEmotionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$MoodEntriesTableFilterComposer get moodEntryId {
+    final $$MoodEntriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.moodEntryId,
+      referencedTable: $db.moodEntries,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MoodEntriesTableFilterComposer(
+            $db: $db,
+            $table: $db.moodEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$SubEmotionsTableFilterComposer get subEmotionId {
+    final $$SubEmotionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.subEmotionId,
+      referencedTable: $db.subEmotions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SubEmotionsTableFilterComposer(
+            $db: $db,
+            $table: $db.subEmotions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$MoodEntrySubEmotionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $MoodEntrySubEmotionsTable> {
+  $$MoodEntrySubEmotionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$MoodEntriesTableOrderingComposer get moodEntryId {
+    final $$MoodEntriesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.moodEntryId,
+      referencedTable: $db.moodEntries,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MoodEntriesTableOrderingComposer(
+            $db: $db,
+            $table: $db.moodEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$SubEmotionsTableOrderingComposer get subEmotionId {
+    final $$SubEmotionsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.subEmotionId,
+      referencedTable: $db.subEmotions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SubEmotionsTableOrderingComposer(
+            $db: $db,
+            $table: $db.subEmotions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$MoodEntrySubEmotionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $MoodEntrySubEmotionsTable> {
+  $$MoodEntrySubEmotionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$MoodEntriesTableAnnotationComposer get moodEntryId {
+    final $$MoodEntriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.moodEntryId,
+      referencedTable: $db.moodEntries,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MoodEntriesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.moodEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$SubEmotionsTableAnnotationComposer get subEmotionId {
+    final $$SubEmotionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.subEmotionId,
+      referencedTable: $db.subEmotions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SubEmotionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.subEmotions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$MoodEntrySubEmotionsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $MoodEntrySubEmotionsTable,
+          MoodEntrySubEmotion,
+          $$MoodEntrySubEmotionsTableFilterComposer,
+          $$MoodEntrySubEmotionsTableOrderingComposer,
+          $$MoodEntrySubEmotionsTableAnnotationComposer,
+          $$MoodEntrySubEmotionsTableCreateCompanionBuilder,
+          $$MoodEntrySubEmotionsTableUpdateCompanionBuilder,
+          (MoodEntrySubEmotion, $$MoodEntrySubEmotionsTableReferences),
+          MoodEntrySubEmotion,
+          PrefetchHooks Function({bool moodEntryId, bool subEmotionId})
+        > {
+  $$MoodEntrySubEmotionsTableTableManager(
+    _$AppDatabase db,
+    $MoodEntrySubEmotionsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MoodEntrySubEmotionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MoodEntrySubEmotionsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$MoodEntrySubEmotionsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> moodEntryId = const Value.absent(),
+                Value<int> subEmotionId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => MoodEntrySubEmotionsCompanion(
+                moodEntryId: moodEntryId,
+                subEmotionId: subEmotionId,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required int moodEntryId,
+                required int subEmotionId,
+                Value<int> rowid = const Value.absent(),
+              }) => MoodEntrySubEmotionsCompanion.insert(
+                moodEntryId: moodEntryId,
+                subEmotionId: subEmotionId,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$MoodEntrySubEmotionsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({moodEntryId = false, subEmotionId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (moodEntryId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.moodEntryId,
+                                referencedTable:
+                                    $$MoodEntrySubEmotionsTableReferences
+                                        ._moodEntryIdTable(db),
+                                referencedColumn:
+                                    $$MoodEntrySubEmotionsTableReferences
+                                        ._moodEntryIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+                    if (subEmotionId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.subEmotionId,
+                                referencedTable:
+                                    $$MoodEntrySubEmotionsTableReferences
+                                        ._subEmotionIdTable(db),
+                                referencedColumn:
+                                    $$MoodEntrySubEmotionsTableReferences
+                                        ._subEmotionIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$MoodEntrySubEmotionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $MoodEntrySubEmotionsTable,
+      MoodEntrySubEmotion,
+      $$MoodEntrySubEmotionsTableFilterComposer,
+      $$MoodEntrySubEmotionsTableOrderingComposer,
+      $$MoodEntrySubEmotionsTableAnnotationComposer,
+      $$MoodEntrySubEmotionsTableCreateCompanionBuilder,
+      $$MoodEntrySubEmotionsTableUpdateCompanionBuilder,
+      (MoodEntrySubEmotion, $$MoodEntrySubEmotionsTableReferences),
+      MoodEntrySubEmotion,
+      PrefetchHooks Function({bool moodEntryId, bool subEmotionId})
+    >;
 typedef $$MoodPhotosTableCreateCompanionBuilder =
     MoodPhotosCompanion Function({
       Value<int> id,
@@ -2989,6 +4418,10 @@ class $AppDatabaseManager {
       $$ActivitiesTableTableManager(_db, _db.activities);
   $$MoodEntryActivitiesTableTableManager get moodEntryActivities =>
       $$MoodEntryActivitiesTableTableManager(_db, _db.moodEntryActivities);
+  $$SubEmotionsTableTableManager get subEmotions =>
+      $$SubEmotionsTableTableManager(_db, _db.subEmotions);
+  $$MoodEntrySubEmotionsTableTableManager get moodEntrySubEmotions =>
+      $$MoodEntrySubEmotionsTableTableManager(_db, _db.moodEntrySubEmotions);
   $$MoodPhotosTableTableManager get moodPhotos =>
       $$MoodPhotosTableTableManager(_db, _db.moodPhotos);
 }

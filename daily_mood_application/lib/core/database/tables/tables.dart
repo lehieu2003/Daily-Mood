@@ -18,6 +18,10 @@ class MoodEntries extends Table {
 
   TextColumn get note => text().nullable()();
 
+  /// Relative path of an optional voice recording in app sandbox storage,
+  /// e.g. `mood_voices/some-uuid.m4a`.
+  TextColumn get voiceNotePath => text().nullable()();
+
   DateTimeColumn get createdAt => dateTime()();
 
   /// Used to resolve conflicts when importing a backup file.
@@ -66,6 +70,33 @@ class MoodEntryActivities extends Table {
 
   @override
   Set<Column> get primaryKey => {moodEntryId, activityId};
+}
+
+/// Static catalog of detailed emotions grouped under the 5 mood scores.
+class SubEmotions extends Table {
+  IntColumn get id => integer().autoIncrement()();
+
+  TextColumn get name => text().unique()();
+
+  /// Emoji character or app asset code used by the UI.
+  TextColumn get emoji => text()();
+
+  /// 1 = Awful ... 5 = Excellent
+  IntColumn get parentMoodScore => integer().customConstraint(
+    'NOT NULL CHECK (parent_mood_score BETWEEN 1 AND 5)',
+  )();
+}
+
+/// Many-to-many join table between MoodEntries and SubEmotions.
+class MoodEntrySubEmotions extends Table {
+  IntColumn get moodEntryId =>
+      integer().references(MoodEntries, #id, onDelete: KeyAction.cascade)();
+
+  IntColumn get subEmotionId =>
+      integer().references(SubEmotions, #id, onDelete: KeyAction.cascade)();
+
+  @override
+  Set<Column> get primaryKey => {moodEntryId, subEmotionId};
 }
 
 /// Reference to an optional photo attached to an entry.

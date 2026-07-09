@@ -22,8 +22,9 @@ class AppColors {
   // TODO: #22C55E is the proposed replacement for the original export,
   // where "Green" incorrectly duplicated primaryPurple (#8B4CFC).
   // Confirm the final chart green with design before shipping analytics.
-  static const Color chartGreen =
-      Color(0xFF22C55E); // 75% — pending design confirmation
+  static const Color chartGreen = Color(
+    0xFF22C55E,
+  ); // 75% — pending design confirmation
   static const Color chartRed = Color(0xFFFF1F11); // 75%
   static const Color chartBlue = Color(0xFF3686FF); // 75%
   static const Color chartOrange = Color(0xFFFF5C00); // 75%

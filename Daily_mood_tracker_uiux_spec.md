@@ -21,8 +21,10 @@ Semantic colors map directly to the **5 mood levels**. The background colors (ch
 | **Awful**     | 1     | Overwhelmed, angry, sad    | `#FCA5A5` (Blush Red)   | `#991B1B`    | `#991B1B` (Red 800)             |
 
 - **Backgrounds:** Light Mode `#F8FAFC` (Slate 50). Dark Mode `#0F172A` (Slate 900).
-- **Typography:** `Inter` or `Plus Jakarta Sans`.
+- **Typography:** `Inter` or `Plus Jakarta Sans` — this is the official product typeface (see Style Guide §2.1, which was previously out of sync and has now been corrected to match).
 - **QA rule:** Run contrast checks (e.g., using Stark or the WebAIM Contrast Checker) on every text-on-background color pair before merging UI, rather than relying solely on visual judgment.
+
+> **Chart color usage note (added in this revision):** The mood-level palette above is what the **Weekly Trend line chart** (Screen B) uses to render mood data over time, so the chart stays visually consistent with the mood chips shown on entries. The separate 4-color "Chart Colors" set defined in the Style Guide (§1.2) is reserved for **generic analytics visuals only** — e.g., an activity-correlation chart — and should not be used for the mood trend line.
 
 ---
 
@@ -172,3 +174,10 @@ Semantic colors map directly to the **5 mood levels**. The background colors (ch
 - **(New) Avoid Confirmation Fatigue:** Do not show too many consecutive confirmation dialogs (e.g., confirm delete → confirm again → toast notification) — maximum of 1 confirmation layer for destructive actions.
 
 ---
+
+## Changelog (this revision)
+
+| Change                                             | Reason                                                                                            |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Added a note clarifying font matches Style Guide   | Style Guide previously said "Pangram," now corrected to match this document                       |
+| Added "Chart color usage note" under Design Tokens | It was unclear which palette (mood-level vs. generic Chart Colors) renders the Weekly Trend chart |

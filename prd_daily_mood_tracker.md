@@ -2,7 +2,7 @@
 
 ## "Daily Mood: Tracker & Diary"
 
-**Version:** 1.0
+**Version:** 1.1 (Updated — see changelog at bottom)
 **Status:** Draft — MVP
 **Product Type:** Mobile app (iOS + Android), Offline-First
 
@@ -42,10 +42,12 @@ A private mood-journaling app, requiring no account and no server, that helps us
 | User retention      | D30 Retention                                            | ≥ 10%                                      |
 | Regular usage level | Average entries/user/week                                | ≥ 4 entries                                |
 | Logging speed       | Average time to complete 1 entry                         | ≤ 10 seconds (excluding note-writing time) |
-| Stable experience   | Crash-free session rate                                  | ≥ 99.5%                                    |
+| Stable experience   | Crash-free session rate\*                                | ≥ 99.5%                                    |
 | Data reliability    | Number of data-loss incidents from backup/restore errors | 0                                          |
 
-> Note: since the app has no server, the above metrics can only be measured if there is an opt-in local analytics layer (see section 8), following privacy-first principles (opt-in, anonymous).
+> \* **Measurement note (added in this revision):** the MVP has no in-app crash reporting SDK (per Privacy Policy §4 and §8 below — any crash SDK is opt-in and only planned for a later version). Until that opt-in layer exists, this metric should be tracked via **store-provided data only** — Google Play Console's crash/ANR stats and Xcode Organizer's crash reports — both of which are provided by the OS/store and require no in-app SDK or additional user data collection. Once opt-in crash reporting ships, this can be supplemented with in-app data, but only from users who've opted in, so treat any such sample as directional, not comprehensive.
+
+> Note: since the app has no server, the other metrics above can only be measured if there is an opt-in local analytics layer (see section 8), following privacy-first principles (opt-in, anonymous).
 
 ---
 
@@ -108,3 +110,11 @@ A private mood-journaling app, requiring no account and no server, that helps us
 - Is a local notification to remind users to log their mood daily needed? (Affects the permission requested during onboarding)
 - What is the attachment photo size limit before warning the user?
 - What is the default language when the app cannot detect the system locale?
+
+---
+
+## Changelog (v1.0 → v1.1)
+
+| Change                                                                | Reason                                                                                                  |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Added measurement footnote to the Crash-free session rate metric (§4) | Metric target existed with no way to measure it in the MVP, since no crash SDK is integrated pre-launch |

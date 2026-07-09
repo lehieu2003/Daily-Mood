@@ -2,6 +2,8 @@
 
 ## "Daily Mood: Tracker & Diary"
 
+**Version:** 1.1 (Updated — see changelog at bottom)
+
 ---
 
 ## 1. Summary (Short, Easy to Understand)
@@ -17,10 +19,13 @@
 | Mood score, journal notes                          | Local database (SQLite, encrypted with SQLCipher) on the device                                                                                                           | No                                                                                      |
 | Activity tags (default + custom)                   | Local database on the device                                                                                                                                              | No                                                                                      |
 | Attached photos                                    | App's private sandbox file folder on the device                                                                                                                           | No                                                                                      |
+| Voice recording file (Voice Note)                  | Separate file folder within the app's sandbox on the device                                                                                                               | No — the app only records audio when you actively tap the Mic button in the interface   |
 | PIN / biometric data                               | PIN is hashed and stored in Keystore (Android) / Keychain (iOS); biometrics are processed entirely by the OS — the app never receives or stores raw fingerprint/face data | No — the app has no access to raw biometric data                                        |
 | Backup file (JSON/CSV) when you actively export it | You choose where to save it (Google Drive, iCloud, device storage, sending via another app, etc.)                                                                         | Only when and where **you choose** to save it — outside the app's control once exported |
 
-## | Voice recording file (Voice Note) | Separate file folder within the app's sandbox on the device | No | The app only records audio when you actively tap the Mic button in the interface. |
+> **Formatting fix (this revision):** the Voice Note row was previously broken out into a stray heading fragment below the table instead of being a proper row inside it, which meant it likely wasn't rendering as part of the table. It's now merged in correctly above.
+
+---
 
 ## 3. What We Do NOT Do
 
@@ -40,7 +45,7 @@ If the app integrates stability-measurement tools (e.g., crash reporting) or ano
 - Any data collected (if enabled) will **never** include: journal content, photos, specific daily mood scores, or any personal content.
 - Anonymous data may include: number of app crashes, OS version, device type (for technical debugging) — none of it tied to user identity.
 
-> **Current MVP status:** No analytics/crash reporting has been integrated yet. This section applies if added in a later version, and the policy will be updated with clear in-app notice before activation.
+> **Current MVP status:** No analytics/crash reporting has been integrated yet. This section applies if added in a later version, and the policy will be updated with clear in-app notice before activation. (See PRD §4 for how the crash-free-rate goal is measured in the meantime, via store-provided crash data rather than an in-app SDK.)
 
 ---
 
@@ -106,3 +111,12 @@ If you have questions about this privacy policy, please contact: [Fill in offici
 - [ ] Confirm the app does not use any third-party SDK that silently collects data (carefully check packages such as crash reporting, ad SDKs if added later).
 - [ ] If targeting the Vietnamese market: cross-check against Decree 13/2023/NĐ-CP on personal data protection.
 - [ ] If targeting the EU market: cross-check against GDPR (especially the "right to erasure" — the app already satisfies this via the local data deletion function).
+
+---
+
+## Changelog (this revision)
+
+| Change                                                        | Reason                                                                                                             |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Merged the Voice Note row into the main data table (§2)       | Was previously a broken standalone line (`## \| ... \|`) sitting outside the table, likely not rendering correctly |
+| Added cross-reference to PRD §4 in the analytics section (§4) | Connects the "no crash SDK in MVP" statement here to how that metric gets measured in practice                     |

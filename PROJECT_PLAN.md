@@ -20,8 +20,8 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | Overall MVP status | Foundation in progress |
 | Current active phase | Phase 1 - Local Foundation, Encryption, Database |
 | Last updated | 2026-07-09 |
-| Latest verification | `dart format lib test`, `flutter test`, and `flutter analyze` passed |
-| Main next task | Add migration tests for schema version 2 and old-to-new database upgrades |
+| Latest verification | `dart format lib test`, `flutter test`, and `flutter analyze` passed after P1.7 |
+| Main next task | Continue P1.4 SQLCipher encrypted connection device/platform verification |
 | Known blockers | Real privacy-policy effective date/contact; final chart green; Gradient 1 confirmation; WCAG contrast pass |
 
 ## Update Rules
@@ -53,7 +53,7 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | P1.4 | SQLCipher encrypted connection | In Progress | Database/security layer | Encrypted DB opens using secure key storage on target platforms | Needs device/platform verification. |
 | P1.5 | Default activity seed data | Done | Database seed logic | Seven default activities are seeded on first create | Existing test covers count. |
 | P1.6 | Complete target schema | Done | Database tables | Schema includes voice note path, sub-emotions, and entry-sub-emotion junction | Added schema version 2 with `voiceNotePath`, `SubEmotions`, and `MoodEntrySubEmotions`; tests/analyze pass. |
-| P1.7 | Migration strategy and tests | Not Started | Database migrations/tests | Migration tests preserve sample data across schema versions | Required before release once schema changes. |
+| P1.7 | Migration strategy and tests | Done | Database migrations/tests | Migration tests preserve sample data across schema versions | Schema version 1 to 2 upgrade coverage passes. |
 
 ## Phase 2 - Mood Logging Flow
 
@@ -132,6 +132,9 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | 2026-07-09 | `dart format lib test` | Passed | Reported by user, 0 files changed. |
 | 2026-07-09 | `flutter test` | Passed | Reported by user, all tests passed. |
 | 2026-07-09 | `flutter analyze` | Passed | Reported by user, no issues found. |
+| 2026-07-09 | `dart format lib test` | Passed | Reported by user after P1.7; formatted 3 files. |
+| 2026-07-09 | `flutter test` | Passed | Reported by user after P1.7; 3 tests passed. |
+| 2026-07-09 | `flutter analyze` | Passed | Reported by user after P1.7; no issues found. |
 
 ## Reference Docs
 

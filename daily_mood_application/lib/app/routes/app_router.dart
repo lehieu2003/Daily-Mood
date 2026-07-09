@@ -9,6 +9,7 @@ import '../../core/security/pin_repository.dart';
 import '../../features/settings/lock/lock_screen.dart';
 import '../../features/settings/pin_setup/pin_setup_cubit.dart';
 import '../../features/settings/pin_setup/pin_setup_screen.dart';
+import '../../features/shell/main_shell.dart';
 
 abstract final class AppRoutes {
   static const splash = '/splash';
@@ -67,7 +68,7 @@ GoRouter buildAppRouter(AppLockCubit lockCubit, PinRepository pinRepository) {
       ),
       GoRoute(
         path: AppRoutes.home,
-        builder: (context, state) => const _HomePlaceholder(),
+        builder: (context, state) => const MainShell(),
       ),
       GoRoute(
         path: AppRoutes.quickLog,

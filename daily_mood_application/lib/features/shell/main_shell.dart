@@ -1,0 +1,160 @@
+import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../app/routes/app_router.dart';
+
+/// Persistent bottom-nav shell built on `animated_notch_bottom_bar`.
+///
+/// Home / Stats / History / Setting live in a [PageView] driven by a
+/// [PageController]; [NotchBottomBarController] animates the notch to
+/// match. "Add mood" (index 2) is NOT a tab — it's a floating action
+/// item that pushes the existing [AppRoutes.quickLog] route, then snaps
+/// the notch back to whichever tab the PageView is still showing.
+///
+/// Drop-in replacement for the old `_HomePlaceholder` — mount it at
+/// [AppRoutes.home] and nothing else in the router needs to change.
+class MainShell extends StatefulWidget {
+  const MainShell({super.key});
+
+  @override
+  State<MainShell> createState() => _MainShellState();
+}
+
+class _MainShellState extends State<MainShell> {
+  final _pageController = PageController(initialPage: 0);
+  final _notchController = NotchBottomBarController(index: 0);
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _onTap(int index) {
+    if (index == 2) {
+      // "Add mood" is an action, not a page: push Quick Log and, once
+      // the user comes back, snap the notch to the real tab underneath.
+      final currentTab = _pageController.page?.round() ?? 0;
+      context.push(AppRoutes.quickLog).then((_) {
+        if (mounted) _notchController.jumpTo(currentTab);
+      });
+      return;
+    }
+    _pageController.jumpToPage(index);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final primary = Theme.of(context).colorScheme.primary;
+
+    return Scaffold(
+      extendBody: true,
+      body: PageView(
+        controller: _pageController,
+        physics: const NeverScrollableScrollPhysics(),
+        children: const [
+          _HomeTab(),
+          _StatsTab(),
+          SizedBox.shrink(), // index 2 slot — "Add mood" never renders a page
+          _HistoryTab(),
+          _SettingTab(),
+        ],
+      ),
+      bottomNavigationBar: AnimatedNotchBottomBar(
+        kIconSize: 30,
+        notchBottomBarController: _notchController,
+        color: Colors.white,
+        notchColor: primary,
+        showLabel: true,
+        durationInMilliSeconds: 300,
+        itemLabelStyle: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+        ),
+        elevation: 4,
+        kBottomRadius: 24,
+        bottomBarItems: [
+          const BottomBarItem(
+            inActiveItem: Icon(Icons.home_outlined, color: Colors.grey),
+            activeItem: Icon(Icons.home, color: Colors.black87),
+            itemLabel: 'Home',
+          ),
+          const BottomBarItem(
+            inActiveItem: Icon(Icons.bar_chart_outlined, color: Colors.grey),
+            activeItem: Icon(Icons.bar_chart, color: Colors.black87),
+            itemLabel: 'Stats',
+          ),
+          const BottomBarItem(
+            inActiveItem: Icon(Icons.add, color: Colors.white),
+            activeItem: Icon(Icons.add, color: Colors.white),
+            itemLabel: 'Add mood',
+          ),
+          const BottomBarItem(
+            inActiveItem: Icon(Icons.history, color: Colors.grey),
+            activeItem: Icon(Icons.history, color: Colors.black87),
+            itemLabel: 'History',
+          ),
+          const BottomBarItem(
+            inActiveItem: Icon(Icons.settings_outlined, color: Colors.grey),
+            activeItem: Icon(Icons.settings, color: Colors.black87),
+            itemLabel: 'Setting',
+          ),
+        ],
+        onTap: _onTap,
+      ),
+    );
+  }
+}
+
+// --- Tab placeholders ---------------------------------------------------
+// Swap each of these for the real screens later; the shell/nav logic
+// above won't need to change when you do.
+
+class _HomeTab extends StatelessWidget {
+  const _HomeTab();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Daily Mood')),
+      body: const Center(child: Text('Home — TODO')),
+    );
+  }
+}
+
+class _StatsTab extends StatelessWidget {
+  const _StatsTab();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Stats')),
+      body: const Center(child: Text('Stats — TODO')),
+    );
+  }
+}
+
+class _HistoryTab extends StatelessWidget {
+  const _HistoryTab();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('History')),
+      body: const Center(child: Text('History — TODO')),
+    );
+  }
+}
+
+class _SettingTab extends StatelessWidget {
+  const _SettingTab();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Setting')),
+      body: const Center(child: Text('Setting — TODO')),
+    );
+  }
+}

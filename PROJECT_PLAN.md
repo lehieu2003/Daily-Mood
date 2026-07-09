@@ -20,8 +20,8 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | Overall MVP status | Foundation in progress |
 | Current active phase | Phase 1 - Local Foundation, Encryption, Database |
 | Last updated | 2026-07-09 |
-| Latest verification | `dart format lib test`, `flutter test`, and `flutter analyze` passed after P1.7 |
-| Main next task | Continue P1.4 SQLCipher encrypted connection device/platform verification |
+| Latest verification | Pending after main shell color-token cleanup |
+| Main next task | Run `dart format lib test` and `flutter analyze` |
 | Known blockers | Real privacy-policy effective date/contact; final chart green; Gradient 1 confirmation; WCAG contrast pass |
 
 ## Update Rules
@@ -135,6 +135,7 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | 2026-07-09 | `dart format lib test` | Passed | Reported by user after P1.7; formatted 3 files. |
 | 2026-07-09 | `flutter test` | Passed | Reported by user after P1.7; 3 tests passed. |
 | 2026-07-09 | `flutter analyze` | Passed | Reported by user after P1.7; no issues found. |
+| 2026-07-09 | Main shell color-token cleanup | Pending | Run `dart format lib test` and `flutter analyze`. |
 
 ## Reference Docs
 

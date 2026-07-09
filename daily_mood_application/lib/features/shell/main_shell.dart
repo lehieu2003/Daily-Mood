@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/routes/app_router.dart';
+import '../../app/theme/app_colors.dart';
 
 /// Persistent bottom-nav shell built on `animated_notch_bottom_bar`.
 ///
@@ -46,7 +47,9 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
-    final primary = Theme.of(context).colorScheme.primary;
+    final colorScheme = Theme.of(context).colorScheme;
+    final inactiveItemColor = AppColors.textTertiary;
+    final activeItemColor = AppColors.textPrimary;
 
     return Scaffold(
       extendBody: true,
@@ -62,10 +65,10 @@ class _MainShellState extends State<MainShell> {
         ],
       ),
       bottomNavigationBar: AnimatedNotchBottomBar(
-        kIconSize: 30,
+        kIconSize: 20,
         notchBottomBarController: _notchController,
-        color: Colors.white,
-        notchColor: primary,
+        color: colorScheme.surface,
+        notchColor: colorScheme.primary,
         showLabel: true,
         durationInMilliSeconds: 300,
         itemLabelStyle: const TextStyle(
@@ -75,29 +78,35 @@ class _MainShellState extends State<MainShell> {
         elevation: 4,
         kBottomRadius: 24,
         bottomBarItems: [
-          const BottomBarItem(
-            inActiveItem: Icon(Icons.home_outlined, color: Colors.grey),
-            activeItem: Icon(Icons.home, color: Colors.black87),
+          BottomBarItem(
+            inActiveItem: Icon(Icons.home_outlined, color: inactiveItemColor),
+            activeItem: Icon(Icons.home, color: activeItemColor),
             itemLabel: 'Home',
           ),
-          const BottomBarItem(
-            inActiveItem: Icon(Icons.bar_chart_outlined, color: Colors.grey),
-            activeItem: Icon(Icons.bar_chart, color: Colors.black87),
+          BottomBarItem(
+            inActiveItem: Icon(
+              Icons.bar_chart_outlined,
+              color: inactiveItemColor,
+            ),
+            activeItem: Icon(Icons.bar_chart, color: activeItemColor),
             itemLabel: 'Stats',
           ),
-          const BottomBarItem(
-            inActiveItem: Icon(Icons.add, color: Colors.white),
-            activeItem: Icon(Icons.add, color: Colors.white),
+          BottomBarItem(
+            inActiveItem: Icon(Icons.add, color: inactiveItemColor),
+            activeItem: Icon(Icons.add, color: activeItemColor),
             itemLabel: 'Add mood',
           ),
-          const BottomBarItem(
-            inActiveItem: Icon(Icons.history, color: Colors.grey),
-            activeItem: Icon(Icons.history, color: Colors.black87),
+          BottomBarItem(
+            inActiveItem: Icon(Icons.history, color: inactiveItemColor),
+            activeItem: Icon(Icons.history, color: activeItemColor),
             itemLabel: 'History',
           ),
-          const BottomBarItem(
-            inActiveItem: Icon(Icons.settings_outlined, color: Colors.grey),
-            activeItem: Icon(Icons.settings, color: Colors.black87),
+          BottomBarItem(
+            inActiveItem: Icon(
+              Icons.settings_outlined,
+              color: inactiveItemColor,
+            ),
+            activeItem: Icon(Icons.settings, color: activeItemColor),
             itemLabel: 'Setting',
           ),
         ],

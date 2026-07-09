@@ -3,6 +3,7 @@
 ## "Daily Mood: Tracker & Diary"
 
 **Version:** 1.1 (Updated — see changelog at bottom)
+**Effective Date:** TODO — fill before publication
 
 ---
 
@@ -99,7 +100,7 @@ If this policy changes (e.g., when adding cloud sync features in a later version
 
 ## 10. Contact
 
-If you have questions about this privacy policy, please contact: [Fill in official support email/channel]
+If you have questions about this privacy policy, please contact: TODO — fill in the official support email or support channel before publication.
 
 ---
 

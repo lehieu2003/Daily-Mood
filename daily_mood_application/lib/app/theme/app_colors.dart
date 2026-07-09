@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Design tokens — Colors
-/// Source: style_guide.md v1.0
+/// Source: style_guide.md v1.1
 ///
 /// NOTE: A few values in the source guide are flagged as unconfirmed.
 /// They are implemented here exactly as written, with TODOs so the
@@ -19,11 +19,11 @@ class AppColors {
   // ---------------------------------------------------------------------
   // 1.2 Chart Colors — always used at 75% opacity per the guide.
   // ---------------------------------------------------------------------
-  // TODO: "chartGreen" hex (#8B4CFC) is identical to primaryPurple in the
-  // source guide. The name says "Green" but the hex is purple — confirm
-  // with design whether this was a mistake during Figma export before
-  // shipping charts with this token.
-  static const Color chartGreen = Color(0xFF8B4CFC); // 75% — see TODO above
+  // TODO: #22C55E is the proposed replacement for the original export,
+  // where "Green" incorrectly duplicated primaryPurple (#8B4CFC).
+  // Confirm the final chart green with design before shipping analytics.
+  static const Color chartGreen =
+      Color(0xFF22C55E); // 75% — pending design confirmation
   static const Color chartRed = Color(0xFFFF1F11); // 75%
   static const Color chartBlue = Color(0xFF3686FF); // 75%
   static const Color chartOrange = Color(0xFFFF5C00); // 75%
@@ -32,10 +32,10 @@ class AppColors {
 
   /// Convenience list for iterating chart colors (already at 75% opacity).
   static List<Color> get chartPalette => [
-    chartGreen.withOpacity(chartOpacity),
-    chartRed.withOpacity(chartOpacity),
-    chartBlue.withOpacity(chartOpacity),
-    chartOrange.withOpacity(chartOpacity),
+    chartGreen.withValues(alpha: chartOpacity),
+    chartRed.withValues(alpha: chartOpacity),
+    chartBlue.withValues(alpha: chartOpacity),
+    chartOrange.withValues(alpha: chartOpacity),
   ];
 
   // ---------------------------------------------------------------------
@@ -45,9 +45,9 @@ class AppColors {
   // ---------------------------------------------------------------------
   static const Color _textBase = Color(0xFF100F11);
 
-  static Color get textPrimary => _textBase.withOpacity(1.0); // 100%
-  static Color get textSecondary => _textBase.withOpacity(0.74); // 74%
-  static Color get textTertiary => _textBase.withOpacity(0.64); // 64%
+  static Color get textPrimary => _textBase.withValues(alpha: 1.0); // 100%
+  static Color get textSecondary => _textBase.withValues(alpha: 0.74); // 74%
+  static Color get textTertiary => _textBase.withValues(alpha: 0.64); // 64%
   // TODO: WCAG AA contrast for textTertiary (64%) against real
   // backgrounds is flagged as unverified in the guide — check before
   // using it for anything except placeholders/captions on light bg.
@@ -88,8 +88,8 @@ class AppColors {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      const Color(0xFFBACFFF).withOpacity(0.67),
-      const Color(0xFFFFCEB7).withOpacity(1.0),
+      const Color(0xFFBACFFF).withValues(alpha: 0.67),
+      const Color(0xFFFFCEB7).withValues(alpha: 1.0),
     ],
   );
 
@@ -97,10 +97,10 @@ class AppColors {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      const Color(0xFFD0CFE9).withOpacity(0.34),
-      const Color(0xFFFFCEB7).withOpacity(1.0),
-      const Color(0xFFDF2771).withOpacity(0.55),
-      const Color(0xFFBAE6FF).withOpacity(0.67),
+      const Color(0xFFD0CFE9).withValues(alpha: 0.34),
+      const Color(0xFFFFCEB7).withValues(alpha: 1.0),
+      const Color(0xFFDF2771).withValues(alpha: 0.55),
+      const Color(0xFFBAE6FF).withValues(alpha: 0.67),
     ],
   );
 }

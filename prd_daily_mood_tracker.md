@@ -67,7 +67,7 @@ A private mood-journaling app, requiring no account and no server, that helps us
 - Smart reminders (based on app usage patterns).
 - Sharing data with a therapist/third party.
 - Home screen widget.
-- Multiple languages (MVP is Vietnamese + English only).
+- Additional languages beyond the initial Vietnamese + English target.
 - Login / account of any kind.
 
 ---

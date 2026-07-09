@@ -140,7 +140,7 @@ Semantic colors map directly to the **5 mood levels**. The background colors (ch
 
 **Note on attached photos (item 4):**
 
-- Photos are **not stored as a blob in SQLite** — the actual file is saved to a local folder via `path_provider` (e.g., `/app_documents/mood_photos/{entryId}.jpg`), with the DB only storing the **relative path**, not the absolute path (to avoid broken references when the app updates or the container ID changes).
+- Photos are **not stored as a blob in SQLite** — the actual file is saved to a local folder via `path_provider` (e.g., `/app_documents/mood_photos/{uuid}.jpg`), with the DB only storing the **relative path**, not the absolute path (to avoid broken references when the app updates or the container ID changes).
 - When exporting/backing up to JSON, photos are packaged separately (zipped alongside the JSON) or converted to base64 if the file is small — this needs to be clearly decided in Phase 4 (Backup/Restore) to avoid a bloated JSON or lost photos during restore.
 - Compress photos before saving (e.g., resize to max 1080px on the long edge, ~80% quality) to avoid the app's storage footprint growing over time.
 

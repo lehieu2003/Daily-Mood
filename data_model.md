@@ -140,7 +140,7 @@ Stores a reference to attached photos (actual images are stored in the file syst
 
 ### 2.5 `SubEmotions`
 
-Catalog of detailed emotions belonging to the 5 main Mood groups (static seed data)[cite: 5].
+Catalog of detailed emotions belonging to the 5 main Mood groups (static seed data).
 
 | Column            | Data Type | Constraints               | Notes                                                            |
 | ----------------- | --------- | ------------------------- | ---------------------------------------------------------------- |
@@ -151,13 +151,13 @@ Catalog of detailed emotions belonging to the 5 main Mood groups (static seed da
 
 ### 2.6 `MoodEntrySubEmotions` (Junction Table)
 
-Many-to-many relationship between log entries (`MoodEntries`) and detailed emotions (`SubEmotions`)[cite: 5].
+Many-to-many relationship between log entries (`MoodEntries`) and detailed emotions (`SubEmotions`).
 
 | Column         | Data Type | Constraints                             | Notes                                       |
 | -------------- | --------- | --------------------------------------- | ------------------------------------------- |
 | `moodEntryId`  | INTEGER   | FK → MoodEntries.id, ON DELETE CASCADE  |                                             |
 | `subEmotionId` | INTEGER   | FK → SubEmotions.id, ON DELETE CASCADE  |                                             |
-|                |           | PRIMARY KEY (moodEntryId, subEmotionId) | Composite key, prevents duplicates[cite: 5] |
+|                |           | PRIMARY KEY (moodEntryId, subEmotionId) | Composite key, prevents duplicates          |
 
 **Photo file handling rules:**
 

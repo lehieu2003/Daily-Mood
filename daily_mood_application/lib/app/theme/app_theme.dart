@@ -3,7 +3,7 @@ import 'app_colors.dart';
 import 'app_typography.dart';
 
 /// App-wide ThemeData built from the design tokens in
-/// app_colors.dart and app_typography.dart (style_guide.md v1.0).
+/// app_colors.dart and app_typography.dart (style_guide.md v1.1).
 class AppTheme {
   AppTheme._();
 
@@ -71,7 +71,7 @@ class AppTheme {
 
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.lavender.withOpacity(0.3),
+        fillColor: AppColors.lavender.withValues(alpha: 0.3),
         hintStyle: AppTypography.subText2Regular.copyWith(
           color: AppColors.textTertiary,
         ),
@@ -88,7 +88,7 @@ class AppTheme {
       ),
 
       dividerTheme: DividerThemeData(
-        color: AppColors.textTertiary.withOpacity(0.15),
+        color: AppColors.textTertiary.withValues(alpha: 0.15),
         thickness: 1,
       ),
     );

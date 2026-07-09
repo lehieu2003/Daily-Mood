@@ -2,22 +2,22 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 /// Design tokens — Typography
-/// Source: style_guide.md v1.0
+/// Source: style_guide.md v1.1
 ///
-/// TODO: The guide names the font "Pangram". "Pangram" is a classic
-/// example sentence used to preview typefaces (e.g. "The quick brown
-/// fox..."), not a font-family name itself — this may just be
-/// placeholder/demo text from the design file rather than the real
-/// font. Confirm the actual font family (and add it under
-/// pubspec.yaml -> flutter -> fonts) before shipping. Using
-/// `fontFamilyFallback` below so the app degrades gracefully to the
-/// platform default until this is confirmed.
+/// Inter is the primary product typeface. Add bundled font assets under
+/// pubspec.yaml -> flutter -> fonts before shipping if the app must render
+/// exactly the same on every platform.
 class AppTypography {
   AppTypography._();
 
-  static const String fontFamily = 'Pangram'; // TODO: confirm real font name
+  static const String fontFamily = 'Inter';
 
-  static const List<String> _fallback = ['Roboto', 'Helvetica Neue', 'Arial'];
+  static const List<String> _fallback = [
+    'Plus Jakarta Sans',
+    'Roboto',
+    'Helvetica Neue',
+    'Arial',
+  ];
 
   // ---------------------------------------------------------------------
   // 2.2 Headings

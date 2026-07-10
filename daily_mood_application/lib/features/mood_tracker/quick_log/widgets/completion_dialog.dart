@@ -18,6 +18,7 @@ class QuickLogCompletionDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final option = moodOptions.where((mood) => mood.score == moodScore).first;
+    final copy = _copyForMood(moodScore);
 
     return Dialog(
       insetPadding: const EdgeInsets.all(26),
@@ -48,21 +49,21 @@ class QuickLogCompletionDialog extends StatelessWidget {
             ),
             const SizedBox(height: 28),
             Text(
-              "You're on a good way!",
+              copy.title,
               textAlign: TextAlign.center,
               style: AppTypography.heading1,
             ),
             const SizedBox(height: 4),
             Text(
-              'Your day is going\namazing',
+              copy.highlight,
               textAlign: TextAlign.center,
               style: AppTypography.heading1.copyWith(
-                color: AppColors.primaryPurple,
+                color: copy.highlightColor,
               ),
             ),
             const SizedBox(height: 18),
             Text(
-              'Keep tracking your mood to know how to improve your mental health.',
+              copy.body,
               textAlign: TextAlign.center,
               style: AppTypography.subText2Regular,
             ),
@@ -84,4 +85,57 @@ class QuickLogCompletionDialog extends StatelessWidget {
       ),
     );
   }
+
+  _CompletionCopy _copyForMood(int moodScore) {
+    return switch (moodScore) {
+      1 => const _CompletionCopy(
+        title: 'That sounds really hard.',
+        highlight: 'Thank you for\nchecking in',
+        body:
+            'Give yourself a little care. Tracking this moment can help you spot what supports you next.',
+        highlightColor: Color(0xFFEF4444),
+      ),
+      2 => const _CompletionCopy(
+        title: 'You made space for it.',
+        highlight: 'A tough mood\nis still valid',
+        body:
+            'Noticing what is going on is a useful step. Keep tracking gently, one entry at a time.',
+        highlightColor: Color(0xFFF97316),
+      ),
+      3 => const _CompletionCopy(
+        title: 'You checked in.',
+        highlight: 'A neutral day\nstill matters',
+        body:
+            'Small notes like this help you understand your patterns over time.',
+        highlightColor: Color(0xFFCA8A04),
+      ),
+      4 => const _CompletionCopy(
+        title: "You're on a good way!",
+        highlight: 'Your day is going\nwell',
+        body:
+            'Keep tracking your mood to understand what helps you feel steady.',
+        highlightColor: AppColors.primaryPurple,
+      ),
+      _ => const _CompletionCopy(
+        title: 'That is great to see!',
+        highlight: 'Your day is going\namazing',
+        body: 'Capture what helped today so you can return to it later.',
+        highlightColor: AppColors.primaryPurple,
+      ),
+    };
+  }
+}
+
+class _CompletionCopy {
+  const _CompletionCopy({
+    required this.title,
+    required this.highlight,
+    required this.body,
+    required this.highlightColor,
+  });
+
+  final String title;
+  final String highlight;
+  final String body;
+  final Color highlightColor;
 }

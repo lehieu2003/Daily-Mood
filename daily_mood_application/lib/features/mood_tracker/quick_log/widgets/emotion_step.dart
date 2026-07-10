@@ -28,7 +28,10 @@ class EmotionStep extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const QuickLogSearchField(hintText: 'Search emotions'),
+        const QuickLogSearchField(
+          fieldKey: ValueKey('quick_log_emotion_search_field'),
+          hintText: 'Search emotions',
+        ),
         const SizedBox(height: 18),
         _SectionLabel(
           label: selectedIds.isEmpty

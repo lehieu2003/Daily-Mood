@@ -21,7 +21,7 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | Current active phase | Phase 2 - Mood Logging Flow |
 | Last updated | 2026-07-10 |
 | Latest verification | P2.3 format, targeted tests, and `flutter analyze` passed |
-| Main next task | P2.4 Custom activity tag flow |
+| Main next task | Run P2.4 verification commands |
 | Known blockers | Real privacy-policy effective date/contact; final chart green; Gradient 1 confirmation; WCAG contrast pass |
 
 ## Update Rules
@@ -65,7 +65,7 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | P2.1 | Mood form state model | Done | Mood tracker feature | Form can hold mood score, sub-emotions, tags, note, photo path, and voice path | Added `MoodFormState`, `MoodFormCubit`, and focused cubit tests. |
 | P2.2 | Quick-log screen UI | Done | Mood tracker feature | User can enter the quick-log flow from app routes | Redesigned as a 4-step flow matching the provided mockup, uses bundled `assets/emojis`, split files, and idempotent default reason seeding. |
 | P2.3 | Mood entry persistence | Done | Mood DAO/form logic | Saving creates a mood entry and selected tag links | Quick-log Save persists mood score, note, selected reasons, selected sub-emotions, and voice path through `MoodEntryDao`; user-reported format, targeted tests, and analyze passed. |
-| P2.4 | Custom activity tag flow | Not Started | Mood tracker/database | User can add a valid custom tag with 20-character max and category | Enforce 30 custom tag limit. |
+| P2.4 | Custom activity tag flow | Review | Mood tracker/database | User can add a valid custom tag with 20-character max and category | Reasons step can create custom `Other` reasons through `ActivityDao`, selects the new reason after creation, and DAO tests cover validation plus the 30 custom tag limit; awaiting user-run verification. |
 | P2.5 | Photo and voice attachment flow | Not Started | Mood tracker/media storage | Relative media paths are stored and files stay in app sandbox | Voice duration max is 3 minutes per UI spec. |
 
 ## Phase 3 - Dashboard & History

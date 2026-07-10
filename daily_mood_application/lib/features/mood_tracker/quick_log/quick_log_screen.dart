@@ -13,6 +13,7 @@ import 'widgets/reason_step.dart';
 class QuickLogScreen extends StatefulWidget {
   const QuickLogScreen({
     required this.activities,
+    required this.onCreateReason,
     required this.onSave,
     this.onCancel,
     this.onDone,
@@ -20,6 +21,7 @@ class QuickLogScreen extends StatefulWidget {
   });
 
   final Stream<List<Activity>> activities;
+  final Future<int> Function(String name) onCreateReason;
   final Future<void> Function(MoodFormState state) onSave;
   final VoidCallback? onCancel;
   final VoidCallback? onDone;
@@ -166,6 +168,7 @@ class _QuickLogScreenState extends State<QuickLogScreen> {
       2 => ReasonStep(
         activities: widget.activities,
         selectedIds: state.selectedActivityIds,
+        onCreateReason: widget.onCreateReason,
       ),
       3 => NoteStep(state: state),
       _ => MoodStep(selectedMoodScore: state.moodScore),

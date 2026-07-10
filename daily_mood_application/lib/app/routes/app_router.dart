@@ -80,6 +80,12 @@ GoRouter buildAppRouter(AppLockCubit lockCubit, PinRepository pinRepository) {
           create: (_) => MoodFormCubit(),
           child: QuickLogScreen(
             activities: context.read<ActivityDao>().watchActiveActivities(),
+            onCreateReason: (name) {
+              return context.read<ActivityDao>().createCustomActivity(
+                name: name,
+                category: 'Other',
+              );
+            },
             onSave: (formState) async {
               await context.read<MoodEntryDao>().createEntry(
                 moodScore: formState.moodScore!,

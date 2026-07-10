@@ -2,6 +2,7 @@ import 'package:daily_mood_application/core/database/app_database.dart';
 import 'package:daily_mood_application/features/mood_tracker/cubit/mood_form_cubit.dart';
 import 'package:daily_mood_application/features/mood_tracker/cubit/mood_form_state.dart';
 import 'package:daily_mood_application/features/mood_tracker/quick_log/quick_log_screen.dart';
+import 'package:daily_mood_application/features/mood_tracker/quick_log/widgets/completion_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -12,6 +13,7 @@ void main() {
   ) async {
     final cubit = MoodFormCubit();
     MoodFormState? savedState;
+    var nextReasonId = 2;
     var donePressed = false;
     addTearDown(cubit.close);
 
@@ -31,6 +33,7 @@ void main() {
                 createdAt: DateTime(2026, 7, 9),
               ),
             ]),
+            onCreateReason: (name) async => nextReasonId++,
             onSave: (state) async => savedState = state,
             onDone: () => donePressed = true,
           ),
@@ -63,6 +66,47 @@ void main() {
 
     expect(find.textContaining("What's reason"), findsOneWidget);
     expect(find.text('Work'), findsWidgets);
+    expect(
+      find.byKey(const ValueKey('quick_log_reason_search_field')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('quick_log_add_reason_field')),
+      findsNothing,
+    );
+
+    await tester.tap(find.byKey(const ValueKey('quick_log_more_reason')).first);
+    await tester.pump();
+    expect(
+      find.byKey(const ValueKey('quick_log_add_reason_field')),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(const ValueKey('quick_log_more_reason')).first);
+    await tester.pump();
+    expect(
+      find.byKey(const ValueKey('quick_log_add_reason_field')),
+      findsNothing,
+    );
+
+    await tester.tap(find.byKey(const ValueKey('quick_log_more_reason')).first);
+    await tester.pump();
+    expect(
+      find.byKey(const ValueKey('quick_log_add_reason_field')),
+      findsOneWidget,
+    );
+
+    await tester.enterText(
+      find.byKey(const ValueKey('quick_log_add_reason_field')),
+      'Reading',
+    );
+    await tester.tap(find.byKey(const ValueKey('quick_log_confirm_reason')));
+    await tester.pump();
+    expect(cubit.state.selectedActivityIds, contains(2));
+    expect(
+      find.byKey(const ValueKey('quick_log_add_reason_field')),
+      findsNothing,
+    );
+
     await tester.ensureVisible(find.byKey(const ValueKey('reason_1')).first);
     await tester.tap(find.byKey(const ValueKey('reason_1')).first);
     await tester.pump();
@@ -76,11 +120,13 @@ void main() {
 
     expect(cubit.state.selectedSubEmotionIds, contains(10));
     expect(cubit.state.selectedActivityIds, contains(1));
+    expect(cubit.state.selectedActivityIds, contains(2));
     expect(cubit.state.note, 'Had a steady day.');
     expect(savedState, isNotNull);
     expect(savedState!.moodScore, 4);
     expect(savedState!.selectedSubEmotionIds, contains(10));
     expect(savedState!.selectedActivityIds, contains(1));
+    expect(savedState!.selectedActivityIds, contains(2));
     expect(savedState!.normalizedNote, 'Had a steady day.');
     expect(find.text("You're on a good way!"), findsOneWidget);
 
@@ -88,5 +134,17 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(donePressed, isTrue);
+  });
+
+  testWidgets('completion dialog copy changes with low mood', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: QuickLogCompletionDialog(moodScore: 1, onDismissed: () {}),
+      ),
+    );
+
+    expect(find.text('That sounds really hard.'), findsOneWidget);
+    expect(find.text('Thank you for\nchecking in'), findsOneWidget);
+    expect(find.text('Your day is going\namazing'), findsNothing);
   });
 }

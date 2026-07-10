@@ -20,6 +20,7 @@ void main() {
         moodScore: 4,
         note: 'Had a steady day.',
         voiceNotePath: 'mood_voices/entry.m4a',
+        photoRelativePath: 'mood_photos/entry.jpg',
         activityIds: [workActivity.id],
         subEmotionIds: [calmSubEmotion.id],
       );
@@ -42,6 +43,11 @@ void main() {
       expect(subEmotionLinks, hasLength(1));
       expect(subEmotionLinks.single.moodEntryId, entryId);
       expect(subEmotionLinks.single.subEmotionId, calmSubEmotion.id);
+
+      final photos = await db.select(db.moodPhotos).get();
+      expect(photos, hasLength(1));
+      expect(photos.single.moodEntryId, entryId);
+      expect(photos.single.relativePath, 'mood_photos/entry.jpg');
     } finally {
       await db.close();
     }

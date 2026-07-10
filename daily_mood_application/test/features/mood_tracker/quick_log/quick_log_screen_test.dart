@@ -34,6 +34,8 @@ void main() {
               ),
             ]),
             onCreateReason: (name) async => nextReasonId++,
+            onPickPhoto: () async => 'mood_photos/test.jpg',
+            onTranscribeVoice: () async => 'Voice generated note.',
             onSave: (state) async => savedState = state,
             onDone: () => donePressed = true,
           ),
@@ -114,20 +116,32 @@ void main() {
     await tester.pump();
 
     expect(find.text('Any thing you want to add'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('quick_log_attach_photo')));
+    await tester.pump();
     await tester.enterText(find.byType(TextFormField), 'Had a steady day.');
+    await tester.tap(find.byKey(const ValueKey('quick_log_transcribe_voice')));
+    await tester.pump();
+    expect(cubit.state.note, 'Had a steady day. Voice generated note.');
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
 
     expect(cubit.state.selectedSubEmotionIds, contains(10));
     expect(cubit.state.selectedActivityIds, contains(1));
     expect(cubit.state.selectedActivityIds, contains(2));
-    expect(cubit.state.note, 'Had a steady day.');
+    expect(cubit.state.photoRelativePath, 'mood_photos/test.jpg');
+    expect(cubit.state.voiceNoteRelativePath, isNull);
+    expect(cubit.state.note, 'Had a steady day. Voice generated note.');
     expect(savedState, isNotNull);
     expect(savedState!.moodScore, 4);
     expect(savedState!.selectedSubEmotionIds, contains(10));
     expect(savedState!.selectedActivityIds, contains(1));
     expect(savedState!.selectedActivityIds, contains(2));
-    expect(savedState!.normalizedNote, 'Had a steady day.');
+    expect(savedState!.photoRelativePath, 'mood_photos/test.jpg');
+    expect(savedState!.voiceNoteRelativePath, isNull);
+    expect(
+      savedState!.normalizedNote,
+      'Had a steady day. Voice generated note.',
+    );
     expect(find.text("You're on a good way!"), findsOneWidget);
 
     await tester.tap(find.text('Got it'));

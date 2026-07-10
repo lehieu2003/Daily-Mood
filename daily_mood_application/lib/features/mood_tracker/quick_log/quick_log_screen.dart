@@ -14,6 +14,8 @@ class QuickLogScreen extends StatefulWidget {
   const QuickLogScreen({
     required this.activities,
     required this.onCreateReason,
+    required this.onPickPhoto,
+    required this.onTranscribeVoice,
     required this.onSave,
     this.onCancel,
     this.onDone,
@@ -22,6 +24,8 @@ class QuickLogScreen extends StatefulWidget {
 
   final Stream<List<Activity>> activities;
   final Future<int> Function(String name) onCreateReason;
+  final Future<String?> Function() onPickPhoto;
+  final Future<String?> Function() onTranscribeVoice;
   final Future<void> Function(MoodFormState state) onSave;
   final VoidCallback? onCancel;
   final VoidCallback? onDone;
@@ -170,7 +174,11 @@ class _QuickLogScreenState extends State<QuickLogScreen> {
         selectedIds: state.selectedActivityIds,
         onCreateReason: widget.onCreateReason,
       ),
-      3 => NoteStep(state: state),
+      3 => NoteStep(
+        state: state,
+        onPickPhoto: widget.onPickPhoto,
+        onTranscribeVoice: widget.onTranscribeVoice,
+      ),
       _ => MoodStep(selectedMoodScore: state.moodScore),
     };
   }

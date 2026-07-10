@@ -41,6 +41,7 @@ class MoodEntryDao extends DatabaseAccessor<AppDatabase>
     required int moodScore,
     String? note,
     String? voiceNotePath,
+    String? photoRelativePath,
     required List<int> activityIds,
     List<int> subEmotionIds = const [],
   }) async {
@@ -88,6 +89,16 @@ class MoodEntryDao extends DatabaseAccessor<AppDatabase>
                 .toList(),
           );
         });
+      }
+
+      if (photoRelativePath != null) {
+        await into(attachedDatabase.moodPhotos).insert(
+          MoodPhotosCompanion.insert(
+            moodEntryId: entryId,
+            relativePath: photoRelativePath,
+            createdAt: now,
+          ),
+        );
       }
 
       return entryId;

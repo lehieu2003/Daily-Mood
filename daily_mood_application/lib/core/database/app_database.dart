@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqlcipher_flutter_libs/sqlcipher_flutter_libs.dart';
@@ -51,6 +52,7 @@ class AppDatabase extends _$AppDatabase {
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
+      await _seedDefaultActivities();
     },
   );
 
@@ -66,24 +68,34 @@ class AppDatabase extends _$AppDatabase {
       ('Nutrition', 'Health'),
       ('Family', 'Life'),
       ('Hobbies', 'Life'),
+      ('Self esteem', 'Life'),
+      ('Breakup', 'Life'),
+      ('Weather', 'Other'),
+      ('Wife', 'Life'),
+      ('Party', 'Life'),
+      ('Love', 'Life'),
+      ('Food', 'Health'),
     ];
 
-    await batch((b) {
-      b.insertAll(
-        activities,
-        defaults
-            .map(
-              (entry) => ActivitiesCompanion.insert(
-                uuid: uuid.v4(),
-                name: entry.$1,
-                category: entry.$2,
-                isCustom: const Value(false),
-                createdAt: now,
-              ),
-            )
-            .toList(),
+    for (final entry in defaults) {
+      await into(activities).insert(
+        ActivitiesCompanion.insert(
+          uuid: uuid.v4(),
+          name: entry.$1,
+          category: entry.$2,
+          isCustom: const Value(false),
+          createdAt: now,
+        ),
+        mode: InsertMode.insertOrIgnore,
       );
-    });
+    }
+
+    final seededActivities = await select(activities).get();
+    debugPrint(
+      '[DailyMood][reasons] activities table count after seed: '
+      '${seededActivities.length}; names: '
+      '${seededActivities.map((activity) => activity.name).join(', ')}',
+    );
   }
 }
 
@@ -92,7 +104,7 @@ LazyDatabase _openEncryptedConnection() {
     // Ensures the correct SQLCipher-enabled sqlite3 binaries are loaded
     // on both Android and iOS before opening any connection.
     await applyWorkaroundToOpenSqlCipherOnOldAndroidVersions();
-    open.overrideFor(OperatingSystem.android, openCipherOnAndroid);
+    _setupSqlCipherForCurrentIsolate();
 
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, 'daily_mood.db'));
@@ -101,6 +113,7 @@ LazyDatabase _openEncryptedConnection() {
 
     return NativeDatabase.createInBackground(
       file,
+      isolateSetup: _setupSqlCipherForCurrentIsolate,
       setup: (rawDb) {
         rawDb.execute("PRAGMA key = '$passphrase';");
         // Sanity check: this throws if the key is wrong / db is corrupt,
@@ -109,4 +122,8 @@ LazyDatabase _openEncryptedConnection() {
       },
     );
   });
+}
+
+void _setupSqlCipherForCurrentIsolate() {
+  open.overrideFor(OperatingSystem.android, openCipherOnAndroid);
 }

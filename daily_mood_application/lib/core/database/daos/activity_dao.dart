@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
 import '../app_database.dart';
@@ -25,7 +26,14 @@ class ActivityDao extends DatabaseAccessor<AppDatabase>
     final query = select(activities)
       ..where((t) => t.isArchived.equals(false))
       ..orderBy([(t) => OrderingTerm.asc(t.category)]);
-    return query.watch();
+    return query.watch().map((rows) {
+      debugPrint(
+        '[DailyMood][reasons] watchActiveActivities emitted '
+        '${rows.length} rows: '
+        '${rows.map((activity) => '${activity.id}:${activity.name}').join(', ')}',
+      );
+      return rows;
+    });
   }
 
   Future<int> createCustomActivity({

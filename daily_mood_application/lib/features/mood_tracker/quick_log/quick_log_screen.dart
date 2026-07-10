@@ -1,0 +1,151 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../core/database/app_database.dart';
+import '../cubit/mood_form_cubit.dart';
+import '../cubit/mood_form_state.dart';
+import 'widgets/completion_dialog.dart';
+import 'widgets/emotion_step.dart';
+import 'widgets/mood_step.dart';
+import 'widgets/note_step.dart';
+import 'widgets/quick_log_step_shell.dart';
+import 'widgets/reason_step.dart';
+
+class QuickLogScreen extends StatefulWidget {
+  const QuickLogScreen({
+    required this.activities,
+    this.onCancel,
+    this.onDone,
+    super.key,
+  });
+
+  final Stream<List<Activity>> activities;
+  final VoidCallback? onCancel;
+  final VoidCallback? onDone;
+
+  @override
+  State<QuickLogScreen> createState() => _QuickLogScreenState();
+}
+
+class _QuickLogScreenState extends State<QuickLogScreen> {
+  static const _lastStepIndex = 3;
+
+  int _stepIndex = 0;
+
+  void _goBack() {
+    if (_stepIndex == 0) return;
+    setState(() => _stepIndex--);
+  }
+
+  void _goForward() {
+    if (_stepIndex == _lastStepIndex) return;
+    setState(() => _stepIndex++);
+  }
+
+  void _close() {
+    final cancel = widget.onCancel;
+    if (cancel != null) {
+      cancel();
+      return;
+    }
+    Navigator.of(context).maybePop();
+  }
+
+  Future<void> _showCompletionDialog(int moodScore) async {
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return QuickLogCompletionDialog(
+          moodScore: moodScore,
+          onDismissed: () => Navigator.of(dialogContext).pop(),
+        );
+      },
+    );
+
+    widget.onDone?.call();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<MoodFormCubit, MoodFormState>(
+      builder: (context, state) {
+        return QuickLogStepShell(
+          stepLabel: '${_stepIndex + 1}/4',
+          title: _titleForStep(_stepIndex, state),
+          subtitle: _subtitleForStep(_stepIndex),
+          primaryLabel: _stepIndex == _lastStepIndex ? 'Save' : 'Continue',
+          onPrimaryPressed: _primaryActionForStep(state),
+          secondaryLabel: _stepIndex == _lastStepIndex ? 'Skip and Save' : null,
+          onSecondaryPressed: state.moodScore == null
+              ? null
+              : () => _showCompletionDialog(state.moodScore!),
+          onBack: _stepIndex == 0 ? null : _goBack,
+          onClose: _close,
+          child: _childForStep(state),
+        );
+      },
+    );
+  }
+
+  String _titleForStep(int stepIndex, MoodFormState state) {
+    return switch (stepIndex) {
+      0 => "What's your mood now?",
+      1 => 'Choose the emotions that make\nyou feel ${_moodLabel(state)}',
+      2 => "What's reason making you feel\nthis way?",
+      3 => 'Any thing you want to add',
+      _ => "What's your mood now?",
+    };
+  }
+
+  String _subtitleForStep(int stepIndex) {
+    return switch (stepIndex) {
+      0 =>
+        'Select mood that reflects the most how you are\nfeeling at this moment.',
+      1 => 'Select at least 1 emotion',
+      2 => 'Select reasons that reflected your emotions',
+      3 => 'Add your notes on any thought that reflating your mood',
+      _ => '',
+    };
+  }
+
+  String _moodLabel(MoodFormState state) {
+    return switch (state.moodScore) {
+      1 => 'awful',
+      2 => 'bad',
+      3 => 'neutral',
+      4 => 'good',
+      5 => 'amazing',
+      _ => 'neutral',
+    };
+  }
+
+  VoidCallback? _primaryActionForStep(MoodFormState state) {
+    return switch (_stepIndex) {
+      0 => state.moodScore == null ? null : _goForward,
+      1 => state.selectedSubEmotionIds.isEmpty ? null : _goForward,
+      2 => state.selectedActivityIds.isEmpty ? null : _goForward,
+      3 =>
+        state.moodScore == null
+            ? null
+            : () => _showCompletionDialog(state.moodScore!),
+      _ => null,
+    };
+  }
+
+  Widget _childForStep(MoodFormState state) {
+    return switch (_stepIndex) {
+      0 => MoodStep(selectedMoodScore: state.moodScore),
+      1 => EmotionStep(
+        selectedMoodScore: state.moodScore,
+        selectedIds: state.selectedSubEmotionIds,
+      ),
+      2 => ReasonStep(
+        activities: widget.activities,
+        selectedIds: state.selectedActivityIds,
+      ),
+      3 => NoteStep(state: state),
+      _ => MoodStep(selectedMoodScore: state.moodScore),
+    };
+  }
+}

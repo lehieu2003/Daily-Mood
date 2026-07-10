@@ -11,7 +11,24 @@ void main() {
 
     try {
       final activities = await db.select(db.activities).get();
-      expect(activities.length, 7);
+      expect(activities.length, 14);
+      expect(
+        activities.map((activity) => activity.name),
+        containsAll([
+          'Work',
+          'Family',
+          'Self esteem',
+          'Sleep',
+          'Social',
+          'Hobbies',
+          'Breakup',
+          'Weather',
+          'Wife',
+          'Party',
+          'Love',
+          'Food',
+        ]),
+      );
 
       final moodEntryColumns = await db
           .customSelect('PRAGMA table_info(mood_entries)')
@@ -60,13 +77,20 @@ void main() {
       expect(entries.single.voiceNotePath, isNull);
 
       final activities = await db.select(db.activities).get();
-      expect(activities, hasLength(1));
-      expect(activities.single.uuid, 'activity-1');
+      expect(activities, hasLength(14));
+      expect(
+        activities.map((activity) => activity.uuid),
+        contains('activity-1'),
+      );
+      expect(
+        activities.map((activity) => activity.name),
+        containsAll(['Work', 'Self esteem', 'Sleep', 'Food']),
+      );
 
       final links = await db.select(db.moodEntryActivities).get();
       expect(links, hasLength(1));
       expect(links.single.moodEntryId, entries.single.id);
-      expect(links.single.activityId, activities.single.id);
+      expect(links.single.activityId, 1);
 
       final photos = await db.select(db.moodPhotos).get();
       expect(photos, hasLength(1));

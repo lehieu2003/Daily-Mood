@@ -65,7 +65,7 @@ class _MainShellState extends State<MainShell> {
         ],
       ),
       bottomNavigationBar: AnimatedNotchBottomBar(
-        kIconSize: 20,
+        kIconSize: 30,
         notchBottomBarController: _notchController,
         color: colorScheme.surface,
         notchColor: colorScheme.primary,

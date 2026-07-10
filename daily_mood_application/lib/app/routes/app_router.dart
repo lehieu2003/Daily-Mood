@@ -6,6 +6,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/security/app_lock_cubit.dart';
 import '../../core/security/pin_repository.dart';
+import '../../core/database/daos/activity_dao.dart';
+import '../../features/mood_tracker/cubit/mood_form_cubit.dart';
+import '../../features/mood_tracker/quick_log/quick_log_screen.dart';
 import '../../features/settings/lock/lock_screen.dart';
 import '../../features/settings/pin_setup/pin_setup_cubit.dart';
 import '../../features/settings/pin_setup/pin_setup_screen.dart';
@@ -72,7 +75,13 @@ GoRouter buildAppRouter(AppLockCubit lockCubit, PinRepository pinRepository) {
       ),
       GoRoute(
         path: AppRoutes.quickLog,
-        builder: (context, state) => const _QuickLogPlaceholder(),
+        builder: (context, state) => BlocProvider(
+          create: (_) => MoodFormCubit(),
+          child: QuickLogScreen(
+            activities: context.read<ActivityDao>().watchActiveActivities(),
+            onDone: () => context.pop(),
+          ),
+        ),
       ),
     ],
   );
@@ -101,33 +110,5 @@ class _SplashPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(body: Center(child: CircularProgressIndicator()));
-  }
-}
-
-// Placeholders — swap these for the real Dashboard / Quick-Log screens
-// once they're built.
-class _HomePlaceholder extends StatelessWidget {
-  const _HomePlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Daily Mood')),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () => context.read<AppLockCubit>().lockManually(),
-          child: const Text('Lock now'),
-        ),
-      ),
-    );
-  }
-}
-
-class _QuickLogPlaceholder extends StatelessWidget {
-  const _QuickLogPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: Text('Quick log — TODO')));
   }
 }

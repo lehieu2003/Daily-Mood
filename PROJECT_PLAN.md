@@ -17,11 +17,11 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 
 | Field | Value |
 | --- | --- |
-| Overall MVP status | Foundation in progress |
-| Current active phase | Phase 1 - Local Foundation, Encryption, Database |
-| Last updated | 2026-07-09 |
-| Latest verification | Pending after main shell color-token cleanup |
-| Main next task | Run `dart format lib test` and `flutter analyze` |
+| Overall MVP status | Mood logging in progress |
+| Current active phase | Phase 2 - Mood Logging Flow |
+| Last updated | 2026-07-10 |
+| Latest verification | P2.2 `flutter test` and `flutter analyze` passed |
+| Main next task | P2.3 Mood entry persistence |
 | Known blockers | Real privacy-policy effective date/contact; final chart green; Gradient 1 confirmation; WCAG contrast pass |
 
 ## Update Rules
@@ -29,6 +29,9 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 - Set a task to `In Progress` before starting meaningful implementation.
 - Set a task to `Review` when implementation is complete but not verified.
 - Set a task to `Done` only after the acceptance check passes.
+- For this project, after implementation reaches `Review`, the user manually runs the relevant Flutter verification commands, including `flutter test` and `flutter analyze`, then reports the results. Record those user-reported results in the Verification Log before moving the task to `Done`.
+- When formatting is needed, provide the exact Flutter/Dart format command for the user to run manually instead of running it directly.
+- Do not put all logic and UI in one large file. Split feature code into maintainable files by responsibility, such as screen, state, models/data definitions, reusable widgets, and persistence logic.
 - Add blockers in the task notes and in the Current Snapshot if they affect the next task.
 - Every completed implementation task must update this file in the same change.
 - Keep this tracker aligned with the PRD, data model, UI/UX spec, style guide, and privacy policy.
@@ -59,8 +62,8 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 
 | ID | Task | Status | Main files/areas | Acceptance check | Notes |
 | --- | --- | --- | --- | --- | --- |
-| P2.1 | Mood form state model | Not Started | Mood tracker feature | Form can hold mood score, sub-emotions, tags, note, photo path, and voice path | Existing mood form files are empty. |
-| P2.2 | Quick-log screen UI | Not Started | Mood tracker feature | User can enter the quick-log flow from app routes | Current route is a placeholder. |
+| P2.1 | Mood form state model | Done | Mood tracker feature | Form can hold mood score, sub-emotions, tags, note, photo path, and voice path | Added `MoodFormState`, `MoodFormCubit`, and focused cubit tests. |
+| P2.2 | Quick-log screen UI | Done | Mood tracker feature | User can enter the quick-log flow from app routes | Redesigned as a 4-step flow matching the provided mockup, uses bundled `assets/emojis`, split files, and idempotent default reason seeding. |
 | P2.3 | Mood entry persistence | Not Started | Mood DAO/form logic | Saving creates a mood entry and selected tag links | Must use UUID and updatedAt consistently. |
 | P2.4 | Custom activity tag flow | Not Started | Mood tracker/database | User can add a valid custom tag with 20-character max and category | Enforce 30 custom tag limit. |
 | P2.5 | Photo and voice attachment flow | Not Started | Mood tracker/media storage | Relative media paths are stored and files stay in app sandbox | Voice duration max is 3 minutes per UI spec. |
@@ -135,7 +138,10 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | 2026-07-09 | `dart format lib test` | Passed | Reported by user after P1.7; formatted 3 files. |
 | 2026-07-09 | `flutter test` | Passed | Reported by user after P1.7; 3 tests passed. |
 | 2026-07-09 | `flutter analyze` | Passed | Reported by user after P1.7; no issues found. |
-| 2026-07-09 | Main shell color-token cleanup | Pending | Run `dart format lib test` and `flutter analyze`. |
+| 2026-07-09 | Main shell color-token cleanup | Passed | Reported by user after stale `_HomePlaceholder` removal; `flutter analyze` found no issues. |
+| 2026-07-09 | `flutter test test/features/mood_tracker/cubit/mood_form_cubit_test.dart` | Passed | Reported by user after P2.1; 12 tests passed. |
+| 2026-07-10 | `flutter test` | Passed | Reported by user after P2.2; all tests passed. |
+| 2026-07-10 | `flutter analyze` | Passed | Reported by user after P2.2; no issues found. |
 
 ## Reference Docs
 

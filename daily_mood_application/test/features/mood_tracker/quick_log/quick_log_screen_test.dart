@@ -1,4 +1,4 @@
-import 'package:daily_mood_application/core/database/app_database.dart';
+import 'package:daily_mood_application/domain/models/mood_activity.dart';
 import 'package:daily_mood_application/features/mood_tracker/cubit/mood_form_cubit.dart';
 import 'package:daily_mood_application/features/mood_tracker/cubit/mood_form_state.dart';
 import 'package:daily_mood_application/features/mood_tracker/quick_log/quick_log_screen.dart';
@@ -23,14 +23,11 @@ void main() {
           value: cubit,
           child: QuickLogScreen(
             activities: Stream.value([
-              Activity(
+              MoodActivity(
                 id: 1,
-                uuid: 'activity-work',
                 name: 'Work',
                 category: 'Life',
                 isCustom: false,
-                isArchived: false,
-                createdAt: DateTime(2026, 7, 9),
               ),
             ]),
             onCreateReason: (name) async => nextReasonId++,

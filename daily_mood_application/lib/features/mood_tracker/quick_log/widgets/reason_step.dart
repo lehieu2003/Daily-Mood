@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_typography.dart';
-import '../../../../core/database/app_database.dart';
+import '../../../../domain/models/mood_activity.dart';
 import '../../cubit/mood_form_cubit.dart';
 import 'search_field.dart';
 
@@ -14,7 +14,7 @@ class ReasonStep extends StatefulWidget {
     super.key,
   });
 
-  final Stream<List<Activity>> activities;
+  final Stream<List<MoodActivity>> activities;
   final Set<int> selectedIds;
   final Future<int> Function(String name) onCreateReason;
 
@@ -36,7 +36,7 @@ class _ReasonStepState extends State<ReasonStep> {
     super.dispose();
   }
 
-  Future<void> _addReason(List<Activity> allReasons) async {
+  Future<void> _addReason(List<MoodActivity> allReasons) async {
     final name = _addController.text.trim();
     if (name.isEmpty || _isAdding) return;
 
@@ -45,7 +45,7 @@ class _ReasonStepState extends State<ReasonStep> {
       return;
     }
 
-    Activity? existing;
+    MoodActivity? existing;
     for (final reason in allReasons) {
       if (reason.name.toLowerCase() == name.toLowerCase()) {
         existing = reason;
@@ -99,10 +99,10 @@ class _ReasonStepState extends State<ReasonStep> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<Activity>>(
+    return StreamBuilder<List<MoodActivity>>(
       stream: widget.activities,
       builder: (context, snapshot) {
-        final allReasons = snapshot.data ?? const <Activity>[];
+        final allReasons = snapshot.data ?? const <MoodActivity>[];
         final visibleReasons = _query.isEmpty
             ? allReasons
             : allReasons
@@ -197,7 +197,7 @@ class _ReasonChipWrap extends StatelessWidget {
     required this.onMorePressed,
   });
 
-  final List<Activity> reasons;
+  final List<MoodActivity> reasons;
   final Set<int> selectedIds;
   final VoidCallback? onMorePressed;
 

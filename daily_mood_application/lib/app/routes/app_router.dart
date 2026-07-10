@@ -6,8 +6,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/security/app_lock_cubit.dart';
 import '../../core/security/pin_repository.dart';
-import '../../core/database/daos/activity_dao.dart';
-import '../../core/database/daos/mood_entry_dao.dart';
+import '../../data/repositories/activity_repository.dart';
+import '../../data/repositories/mood_entry_repository.dart';
 import '../../features/mood_tracker/cubit/mood_form_cubit.dart';
 import '../../features/mood_tracker/quick_log/quick_log_media_service.dart';
 import '../../features/mood_tracker/quick_log/quick_log_screen.dart';
@@ -85,17 +85,18 @@ GoRouter buildAppRouter(AppLockCubit lockCubit, PinRepository pinRepository) {
           return BlocProvider(
             create: (_) => MoodFormCubit(),
             child: QuickLogScreen(
-              activities: context.read<ActivityDao>().watchActiveActivities(),
+              activities: context
+                  .read<ActivityRepository>()
+                  .watchActiveActivities(),
               onCreateReason: (name) {
-                return context.read<ActivityDao>().createCustomActivity(
+                return context.read<ActivityRepository>().createCustomActivity(
                   name: name,
-                  category: 'Other',
                 );
               },
               onPickPhoto: mediaService.pickPhoto,
               onTranscribeVoice: voiceInputService.listenForText,
               onSave: (formState) async {
-                await context.read<MoodEntryDao>().createEntry(
+                await context.read<MoodEntryRepository>().createEntry(
                   moodScore: formState.moodScore!,
                   note: formState.normalizedNote,
                   voiceNotePath: formState.voiceNoteRelativePath,

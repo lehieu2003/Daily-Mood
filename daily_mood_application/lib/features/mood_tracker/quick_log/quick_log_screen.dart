@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../core/database/app_database.dart';
+import '../../../domain/models/mood_activity.dart';
 import '../cubit/mood_form_cubit.dart';
 import '../cubit/mood_form_state.dart';
 import 'widgets/completion_dialog.dart';
@@ -22,7 +22,7 @@ class QuickLogScreen extends StatefulWidget {
     super.key,
   });
 
-  final Stream<List<Activity>> activities;
+  final Stream<List<MoodActivity>> activities;
   final Future<int> Function(String name) onCreateReason;
   final Future<String?> Function() onPickPhoto;
   final Future<String?> Function() onTranscribeVoice;

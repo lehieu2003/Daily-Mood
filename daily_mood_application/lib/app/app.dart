@@ -7,6 +7,10 @@ import '../core/database/daos/activity_dao.dart';
 import '../core/database/daos/mood_entry_dao.dart';
 import '../core/security/app_lock_cubit.dart';
 import '../core/security/pin_repository.dart';
+import '../data/repositories/activity_repository.dart';
+import '../data/repositories/mood_entry_repository.dart';
+import '../data/services/activity_local_service.dart';
+import '../data/services/mood_entry_local_service.dart';
 import 'routes/app_router.dart';
 
 /// Root widget.
@@ -28,6 +32,8 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   late final AppDatabase _database;
   late final MoodEntryDao _moodEntryDao;
   late final ActivityDao _activityDao;
+  late final MoodEntryRepository _moodEntryRepository;
+  late final ActivityRepository _activityRepository;
   late final PinRepository _pinRepository;
   late final AppLockCubit _lockCubit;
   late final GoRouter _router;
@@ -40,6 +46,12 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     _database = AppDatabase();
     _moodEntryDao = MoodEntryDao(_database);
     _activityDao = ActivityDao(_database);
+    _moodEntryRepository = MoodEntryRepository(
+      localService: MoodEntryLocalService(moodEntryDao: _moodEntryDao),
+    );
+    _activityRepository = ActivityRepository(
+      localService: ActivityLocalService(activityDao: _activityDao),
+    );
     _pinRepository = PinRepository();
     _lockCubit = AppLockCubit(pinRepository: _pinRepository);
     _router = buildAppRouter(_lockCubit, _pinRepository);
@@ -73,8 +85,12 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider<AppDatabase>.value(value: _database),
-        RepositoryProvider<MoodEntryDao>.value(value: _moodEntryDao),
-        RepositoryProvider<ActivityDao>.value(value: _activityDao),
+        RepositoryProvider<MoodEntryRepository>.value(
+          value: _moodEntryRepository,
+        ),
+        RepositoryProvider<ActivityRepository>.value(
+          value: _activityRepository,
+        ),
         RepositoryProvider<PinRepository>.value(value: _pinRepository),
       ],
       child: BlocProvider<AppLockCubit>.value(

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/routes/app_router.dart';
 import '../../app/theme/app_colors.dart';
+import '../dashboard/dashboard_screen.dart';
 
 /// Persistent bottom-nav shell built on `animated_notch_bottom_bar`.
 ///
@@ -57,7 +58,7 @@ class _MainShellState extends State<MainShell> {
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
         children: const [
-          _HomeTab(),
+          DashboardScreen(),
           _StatsTab(),
           SizedBox.shrink(), // index 2 slot — "Add mood" never renders a page
           _HistoryTab(),
@@ -119,18 +120,6 @@ class _MainShellState extends State<MainShell> {
 // --- Tab placeholders ---------------------------------------------------
 // Swap each of these for the real screens later; the shell/nav logic
 // above won't need to change when you do.
-
-class _HomeTab extends StatelessWidget {
-  const _HomeTab();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Daily Mood')),
-      body: const Center(child: Text('Home — TODO')),
-    );
-  }
-}
 
 class _StatsTab extends StatelessWidget {
   const _StatsTab();

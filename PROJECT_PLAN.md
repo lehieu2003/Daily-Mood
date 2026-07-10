@@ -17,11 +17,11 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 
 | Field | Value |
 | --- | --- |
-| Overall MVP status | Mood logging in progress |
-| Current active phase | Phase 2 - Mood Logging Flow |
+| Overall MVP status | Dashboard home complete |
+| Current active phase | Phase 3 - Dashboard & History |
 | Last updated | 2026-07-10 |
-| Latest verification | P2.5 `flutter pub get`, format, targeted tests, and `flutter analyze` passed |
-| Main next task | P3.1 - Replace home placeholder |
+| Latest verification | P3.1 user-reported format, targeted dashboard test, full tests, and `flutter analyze` passed |
+| Main next task | P3.2 - History stream |
 | Known blockers | Real privacy-policy effective date/contact; final chart green; Gradient 1 confirmation; WCAG contrast pass |
 
 ## Update Rules
@@ -72,7 +72,7 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 
 | ID | Task | Status | Main files/areas | Acceptance check | Notes |
 | --- | --- | --- | --- | --- | --- |
-| P3.1 | Replace home placeholder | Not Started | Dashboard feature | Home shows real dashboard instead of lock-only placeholder | Should include empty state. |
+| P3.1 | Replace home placeholder | Done | Dashboard feature | Home shows real dashboard instead of lock-only placeholder | Added `DashboardScreen`, wired Home tab to recent mood entries, split dashboard UI/helpers into focused files, and restyled the dashboard toward the supplied reference UI. User-reported verification passed. |
 | P3.2 | History stream | Not Started | Dashboard/database | Entries render from a Drift stream and update after save/delete | Filter soft-deleted entries. |
 | P3.3 | Weekly trend entry point | Not Started | Dashboard/analytics | Trend section hides until at least 3 entries exist | Chart implementation is Phase 4. |
 | P3.4 | Entry detail/edit/delete | Not Started | Dashboard/mood tracker | User can view, edit, soft-delete, and restore if supported | Hard-delete cleanup policy still open. |
@@ -149,6 +149,10 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | 2026-07-10 | `dart format lib test` | Passed | Reported by user after P2.5 photo and speech-to-text note flow. |
 | 2026-07-10 | `flutter test test/features/mood_tracker/quick_log/quick_log_screen_test.dart test/core/database/daos/mood_entry_dao_test.dart test/features/mood_tracker/cubit/mood_form_cubit_test.dart` | Passed | Reported by user after P2.5. |
 | 2026-07-10 | `flutter analyze` | Passed | Reported by user after P2.5 deprecation cleanup; no issues found. |
+| 2026-07-10 | `dart format lib\features\dashboard test\features\dashboard\dashboard_screen_test.dart` | Passed | Reported by user after P3.1 dashboard restyle. |
+| 2026-07-10 | `flutter test test\features\dashboard\dashboard_screen_test.dart` | Passed | Reported by user after P3.1 dashboard overflow fixes. |
+| 2026-07-10 | `flutter test` | Passed | Reported by user after P3.1. |
+| 2026-07-10 | `flutter analyze` | Passed | Reported by user after P3.1. |
 
 ## Reference Docs
 

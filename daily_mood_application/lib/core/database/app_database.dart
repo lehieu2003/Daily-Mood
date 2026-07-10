@@ -42,6 +42,7 @@ class AppDatabase extends _$AppDatabase {
     onCreate: (Migrator m) async {
       await m.createAll();
       await _seedDefaultActivities();
+      await _seedDefaultSubEmotions();
     },
     onUpgrade: (Migrator m, int from, int to) async {
       if (from < 2) {
@@ -53,6 +54,7 @@ class AppDatabase extends _$AppDatabase {
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
       await _seedDefaultActivities();
+      await _seedDefaultSubEmotions();
     },
   );
 
@@ -96,6 +98,38 @@ class AppDatabase extends _$AppDatabase {
       '${seededActivities.length}; names: '
       '${seededActivities.map((activity) => activity.name).join(', ')}',
     );
+  }
+
+  Future<void> _seedDefaultSubEmotions() async {
+    final defaults = <(int, String, String, int)>[
+      (1, 'Angry', 'pouting-face', 1),
+      (2, 'Overwhelmed', 'woozy-face', 1),
+      (3, 'Sad', 'disappointed-face', 1),
+      (4, 'Anxious', 'anxious-face-with-sweat', 2),
+      (5, 'Tired', 'grinning-face-with-sweat', 2),
+      (6, 'Down', 'nauseated-face', 2),
+      (7, 'Neutral', 'neutral-face', 3),
+      (8, 'Confused', 'confused-face', 3),
+      (9, 'Routine', 'face-with-open-mouth', 3),
+      (10, 'Calm', 'smiling-face-with-halo', 4),
+      (11, 'Satisfied', 'smiling-face-with-hearts', 4),
+      (12, 'Stable', 'hugging-face', 4),
+      (13, 'Excited', 'winking-face-with-tongue', 5),
+      (14, 'Proud', 'smiling-face-with-heart-eyes', 5),
+      (15, 'Energized', 'star-struck', 5),
+    ];
+
+    for (final entry in defaults) {
+      await into(subEmotions).insert(
+        SubEmotionsCompanion.insert(
+          id: Value(entry.$1),
+          name: entry.$2,
+          emoji: entry.$3,
+          parentMoodScore: entry.$4,
+        ),
+        mode: InsertMode.insertOrIgnore,
+      );
+    }
   }
 }
 

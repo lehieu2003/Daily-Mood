@@ -20,8 +20,8 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | Overall MVP status | Mood logging in progress |
 | Current active phase | Phase 2 - Mood Logging Flow |
 | Last updated | 2026-07-10 |
-| Latest verification | P2.2 `flutter test` and `flutter analyze` passed |
-| Main next task | P2.3 Mood entry persistence |
+| Latest verification | P2.3 format, targeted tests, and `flutter analyze` passed |
+| Main next task | P2.4 Custom activity tag flow |
 | Known blockers | Real privacy-policy effective date/contact; final chart green; Gradient 1 confirmation; WCAG contrast pass |
 
 ## Update Rules
@@ -64,7 +64,7 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | --- | --- | --- | --- | --- | --- |
 | P2.1 | Mood form state model | Done | Mood tracker feature | Form can hold mood score, sub-emotions, tags, note, photo path, and voice path | Added `MoodFormState`, `MoodFormCubit`, and focused cubit tests. |
 | P2.2 | Quick-log screen UI | Done | Mood tracker feature | User can enter the quick-log flow from app routes | Redesigned as a 4-step flow matching the provided mockup, uses bundled `assets/emojis`, split files, and idempotent default reason seeding. |
-| P2.3 | Mood entry persistence | Not Started | Mood DAO/form logic | Saving creates a mood entry and selected tag links | Must use UUID and updatedAt consistently. |
+| P2.3 | Mood entry persistence | Done | Mood DAO/form logic | Saving creates a mood entry and selected tag links | Quick-log Save persists mood score, note, selected reasons, selected sub-emotions, and voice path through `MoodEntryDao`; user-reported format, targeted tests, and analyze passed. |
 | P2.4 | Custom activity tag flow | Not Started | Mood tracker/database | User can add a valid custom tag with 20-character max and category | Enforce 30 custom tag limit. |
 | P2.5 | Photo and voice attachment flow | Not Started | Mood tracker/media storage | Relative media paths are stored and files stay in app sandbox | Voice duration max is 3 minutes per UI spec. |
 
@@ -142,6 +142,9 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | 2026-07-09 | `flutter test test/features/mood_tracker/cubit/mood_form_cubit_test.dart` | Passed | Reported by user after P2.1; 12 tests passed. |
 | 2026-07-10 | `flutter test` | Passed | Reported by user after P2.2; all tests passed. |
 | 2026-07-10 | `flutter analyze` | Passed | Reported by user after P2.2; no issues found. |
+| 2026-07-10 | `dart format lib test` | Passed | Reported by user after P2.3; all relevant files formatted. |
+| 2026-07-10 | `flutter test test/core/database/app_database_test.dart test/core/database/daos/mood_entry_dao_test.dart test/features/mood_tracker/quick_log/quick_log_screen_test.dart` | Passed | Reported by user after P2.3 persistence and sub-emotion seeding fixes. |
+| 2026-07-10 | `flutter analyze` | Passed | Reported by user after P2.3; no issues found. |
 
 ## Reference Docs
 

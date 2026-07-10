@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/security/app_lock_cubit.dart';
 import '../../core/security/pin_repository.dart';
 import '../../core/database/daos/activity_dao.dart';
+import '../../core/database/daos/mood_entry_dao.dart';
 import '../../features/mood_tracker/cubit/mood_form_cubit.dart';
 import '../../features/mood_tracker/quick_log/quick_log_screen.dart';
 import '../../features/settings/lock/lock_screen.dart';
@@ -79,6 +80,15 @@ GoRouter buildAppRouter(AppLockCubit lockCubit, PinRepository pinRepository) {
           create: (_) => MoodFormCubit(),
           child: QuickLogScreen(
             activities: context.read<ActivityDao>().watchActiveActivities(),
+            onSave: (formState) async {
+              await context.read<MoodEntryDao>().createEntry(
+                moodScore: formState.moodScore!,
+                note: formState.normalizedNote,
+                voiceNotePath: formState.voiceNoteRelativePath,
+                activityIds: formState.selectedActivityIds.toList(),
+                subEmotionIds: formState.selectedSubEmotionIds.toList(),
+              );
+            },
             onDone: () => context.pop(),
           ),
         ),

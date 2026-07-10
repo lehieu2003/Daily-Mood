@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../../core/database/app_database.dart';
 import '../cubit/mood_form_cubit.dart';
 import '../cubit/mood_form_state.dart';
@@ -14,12 +13,14 @@ import 'widgets/reason_step.dart';
 class QuickLogScreen extends StatefulWidget {
   const QuickLogScreen({
     required this.activities,
+    required this.onSave,
     this.onCancel,
     this.onDone,
     super.key,
   });
 
   final Stream<List<Activity>> activities;
+  final Future<void> Function(MoodFormState state) onSave;
   final VoidCallback? onCancel;
   final VoidCallback? onDone;
 
@@ -31,6 +32,7 @@ class _QuickLogScreenState extends State<QuickLogScreen> {
   static const _lastStepIndex = 3;
 
   int _stepIndex = 0;
+  bool _isSaving = false;
 
   void _goBack() {
     if (_stepIndex == 0) return;
@@ -66,6 +68,30 @@ class _QuickLogScreenState extends State<QuickLogScreen> {
     widget.onDone?.call();
   }
 
+  Future<void> _saveAndComplete() async {
+    final state = context.read<MoodFormCubit>().state;
+    final moodScore = state.moodScore;
+    if (moodScore == null || _isSaving) return;
+
+    setState(() => _isSaving = true);
+    try {
+      await widget.onSave(state);
+      if (!mounted) return;
+      await _showCompletionDialog(moodScore);
+    } catch (error, stackTrace) {
+      debugPrint('[DailyMood][quick-log] Could not save mood entry: $error');
+      debugPrintStack(stackTrace: stackTrace);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not save mood entry')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<MoodFormCubit, MoodFormState>(
@@ -77,9 +103,7 @@ class _QuickLogScreenState extends State<QuickLogScreen> {
           primaryLabel: _stepIndex == _lastStepIndex ? 'Save' : 'Continue',
           onPrimaryPressed: _primaryActionForStep(state),
           secondaryLabel: _stepIndex == _lastStepIndex ? 'Skip and Save' : null,
-          onSecondaryPressed: state.moodScore == null
-              ? null
-              : () => _showCompletionDialog(state.moodScore!),
+          onSecondaryPressed: state.moodScore == null ? null : _saveAndComplete,
           onBack: _stepIndex == 0 ? null : _goBack,
           onClose: _close,
           child: _childForStep(state),
@@ -121,14 +145,13 @@ class _QuickLogScreenState extends State<QuickLogScreen> {
   }
 
   VoidCallback? _primaryActionForStep(MoodFormState state) {
+    if (_isSaving) return null;
+
     return switch (_stepIndex) {
       0 => state.moodScore == null ? null : _goForward,
       1 => state.selectedSubEmotionIds.isEmpty ? null : _goForward,
       2 => state.selectedActivityIds.isEmpty ? null : _goForward,
-      3 =>
-        state.moodScore == null
-            ? null
-            : () => _showCompletionDialog(state.moodScore!),
+      3 => state.moodScore == null ? null : _saveAndComplete,
       _ => null,
     };
   }

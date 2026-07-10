@@ -40,7 +40,9 @@ class MoodEntryDao extends DatabaseAccessor<AppDatabase>
   Future<int> createEntry({
     required int moodScore,
     String? note,
+    String? voiceNotePath,
     required List<int> activityIds,
+    List<int> subEmotionIds = const [],
   }) async {
     final now = DateTime.now();
 
@@ -50,6 +52,7 @@ class MoodEntryDao extends DatabaseAccessor<AppDatabase>
           uuid: _uuid.v4(),
           moodScore: moodScore,
           note: Value(note),
+          voiceNotePath: Value(voiceNotePath),
           createdAt: now,
           updatedAt: now,
         ),
@@ -64,6 +67,22 @@ class MoodEntryDao extends DatabaseAccessor<AppDatabase>
                   (activityId) => MoodEntryActivitiesCompanion.insert(
                     moodEntryId: entryId,
                     activityId: activityId,
+                  ),
+                )
+                .toList(),
+          );
+        });
+      }
+
+      if (subEmotionIds.isNotEmpty) {
+        await batch((b) {
+          b.insertAll(
+            attachedDatabase.moodEntrySubEmotions,
+            subEmotionIds
+                .map(
+                  (subEmotionId) => MoodEntrySubEmotionsCompanion.insert(
+                    moodEntryId: entryId,
+                    subEmotionId: subEmotionId,
                   ),
                 )
                 .toList(),

@@ -48,6 +48,13 @@ void main() {
         tableRows.map((row) => row.data['name']),
         containsAll(['sub_emotions', 'mood_entry_sub_emotions']),
       );
+
+      final subEmotions = await db.select(db.subEmotions).get();
+      expect(subEmotions, hasLength(15));
+      expect(
+        subEmotions.map((subEmotion) => subEmotion.name),
+        containsAll(['Calm', 'Satisfied', 'Energized']),
+      );
     } finally {
       await db.close();
     }
@@ -116,19 +123,25 @@ void main() {
         containsAll(['sub_emotions', 'mood_entry_sub_emotions']),
       );
 
-      await db.customStatement(
-        "INSERT INTO sub_emotions (name, emoji, parent_mood_score) "
-        "VALUES ('Calm', 'calm', 4)",
-      );
+      final calmSubEmotion = await (db.select(
+        db.subEmotions,
+      )..where((subEmotion) => subEmotion.name.equals('Calm'))).getSingle();
       await db.customStatement(
         "INSERT INTO mood_entry_sub_emotions (mood_entry_id, sub_emotion_id) "
-        "VALUES (${entries.single.id}, 1)",
+        "VALUES (${entries.single.id}, ${calmSubEmotion.id})",
       );
 
       final subEmotionLinks = await db
           .customSelect('SELECT COUNT(*) AS count FROM mood_entry_sub_emotions')
           .getSingle();
       expect(subEmotionLinks.data['count'], 1);
+
+      final subEmotions = await db.select(db.subEmotions).get();
+      expect(subEmotions, hasLength(15));
+      expect(
+        subEmotions.map((subEmotion) => subEmotion.name),
+        containsAll(['Calm', 'Satisfied', 'Energized']),
+      );
     } finally {
       await db.close();
       await tempDir.delete(recursive: true);

@@ -17,11 +17,11 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 
 | Field | Value |
 | --- | --- |
-| Overall MVP status | Analytics edge-case tests complete |
-| Current active phase | Phase 3 - Dashboard & History |
-| Last updated | 2026-07-11 |
-| Latest verification | P4.5 user-reported format, targeted analytics tests, full tests, and `flutter analyze` passed |
-| Main next task | P5.4 - Settings screen |
+| Overall MVP status | Settings screen complete |
+| Current active phase | Phase 5 - App Lock, Settings, Data Control |
+| Last updated | 2026-07-12 |
+| Latest verification | P5.4 user-reported format, targeted settings tests, full tests, and `flutter analyze` passed |
+| Main next task | P5.5 - Delete all data |
 | Known blockers | Real privacy-policy effective date/contact; final chart green; Gradient 1 confirmation; WCAG contrast pass |
 
 ## Update Rules
@@ -94,7 +94,7 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | P5.1 | PIN setup flow | In Progress | Settings/security | User can set and verify a PIN | Foundation exists; needs full manual/device checks. |
 | P5.2 | Lock screen flow | In Progress | Settings/security/routes | Locked routes redirect correctly and unlock returns to app | Foundation exists. |
 | P5.3 | Biometric lifecycle behavior | In Progress | Security/app lifecycle | Biometric prompt respects foreground cooldown and avoids prompt spam | Needs platform testing. |
-| P5.4 | Settings screen | Not Started | Settings feature | User can access lock, export/import, delete data, and haptics settings | No real settings dashboard yet. |
+| P5.4 | Settings screen | Done | Settings feature | User can access lock, export/import, delete data, and haptics settings | Added real settings dashboard, haptics preference persistence, lock-now action, visible export/import/delete entry points, and widget tests. User-reported verification passed. |
 | P5.5 | Delete all data | Not Started | Settings/security/database | User can permanently remove local data and reset encryption material intentionally | Must be destructive only after confirmation. |
 
 ## Phase 6 - Backup, Export, Import
@@ -186,6 +186,10 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | 2026-07-11 | `flutter test test\data\repositories\mood_analytics_repository_test.dart` | Passed | Reported by user after P4.5. |
 | 2026-07-11 | `flutter test` | Passed | Reported by user after P4.5. |
 | 2026-07-11 | `flutter analyze` | Passed | Reported by user after P4.5. |
+| 2026-07-12 | `dart format lib\features\settings lib\features\shell\main_shell.dart test\features\settings` | Passed | Reported by user after P5.4 settings screen. |
+| 2026-07-12 | `flutter test test\features\settings\settings_screen_test.dart` | Passed | Reported by user after P5.4. |
+| 2026-07-12 | `flutter test` | Passed | Reported by user after P5.4. |
+| 2026-07-12 | `flutter analyze` | Passed | Reported by user after P5.4. |
 
 ## Reference Docs
 

@@ -7,6 +7,7 @@ import '../../app/theme/app_colors.dart';
 import '../analytics/stats_screen.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../dashboard/history_screen.dart';
+import '../settings/settings_screen.dart';
 
 /// Persistent bottom-nav shell built on `animated_notch_bottom_bar`.
 ///
@@ -69,7 +70,7 @@ class _MainShellState extends State<MainShell> {
           const StatsScreen(),
           const SizedBox.shrink(),
           const HistoryScreen(),
-          const _SettingTab(),
+          const SettingsScreen(),
         ],
       ),
       bottomNavigationBar: AnimatedNotchBottomBar(
@@ -120,18 +121,6 @@ class _MainShellState extends State<MainShell> {
         ],
         onTap: _onTap,
       ),
-    );
-  }
-}
-
-class _SettingTab extends StatelessWidget {
-  const _SettingTab();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Setting')),
-      body: const Center(child: Text('Setting — TODO')),
     );
   }
 }

@@ -41,6 +41,47 @@ void main() {
     expect(find.text('Strong morning.'), findsOneWidget);
     expect(find.text('Tense evening.'), findsOneWidget);
   });
+
+  testWidgets('opens entry detail sheet and soft-deletes entry', (tester) async {
+    int? deletedId;
+    final now = DateTime.now();
+    final entries = [
+      _entry(
+        id: 1,
+        moodScore: 5,
+        note: 'Strong morning.',
+        createdAt: now,
+      ),
+    ];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: HistoryScreen(
+          entries: Stream.value(entries),
+          onUpdateEntry: ({
+            required int id,
+            required int moodScore,
+            required String note,
+          }) async {},
+          onDeleteEntry: (id) async {
+            deletedId = id;
+          },
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await tester.tap(find.byKey(const ValueKey('history_entry_tile_1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('entry_detail_delete_button')));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('entry_detail_confirm_delete_button')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(deletedId, 1);
+  });
 }
 
 MoodEntryModel _entry({

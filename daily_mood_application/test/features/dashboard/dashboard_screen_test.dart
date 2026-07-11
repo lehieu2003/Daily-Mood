@@ -97,6 +97,58 @@ void main() {
 
     expect(trendOpened, isTrue);
   });
+
+  testWidgets('opens entry detail sheet and saves edits', (tester) async {
+    int? updatedId;
+    int? updatedScore;
+    String? updatedNote;
+    final now = DateTime.now();
+    final entries = [
+      _entry(
+        id: 1,
+        moodScore: 3,
+        note: 'Steady afternoon.',
+        createdAt: now,
+      ),
+    ];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DashboardScreen(
+          entries: Stream.value(entries),
+          onUpdateEntry: ({
+            required int id,
+            required int moodScore,
+            required String note,
+          }) async {
+            updatedId = id;
+            updatedScore = moodScore;
+            updatedNote = note;
+          },
+          onDeleteEntry: (_) async {},
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('dashboard_entry_card_1')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('dashboard_entry_card_1')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('entry_mood_score_4')));
+    await tester.enterText(
+      find.byKey(const ValueKey('entry_detail_note_field')),
+      'Edited note',
+    );
+    await tester.tap(find.byKey(const ValueKey('entry_detail_save_button')));
+    await tester.pumpAndSettle();
+
+    expect(updatedId, 1);
+    expect(updatedScore, 4);
+    expect(updatedNote, 'Edited note');
+  });
 }
 
 MoodEntryModel _entry({

@@ -7,8 +7,10 @@ import '../../data/repositories/mood_entry_repository.dart';
 import '../../domain/models/mood_entry.dart';
 import 'dashboard_formatters.dart';
 import 'dashboard_palette.dart';
+import 'entry_detail_actions.dart';
 import 'widgets/dashboard_empty_state.dart';
 import 'widgets/dashboard_header.dart';
+import 'widgets/entry_detail_sheet.dart';
 import 'widgets/mood_entry_card.dart';
 import 'widgets/nature_tip_card.dart';
 import 'widgets/today_check_in_section.dart';
@@ -16,10 +18,18 @@ import 'widgets/weekly_trend_entry_card.dart';
 import 'widgets/week_mood_selector.dart';
 
 class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({super.key, this.entries, this.onOpenTrend});
+  const DashboardScreen({
+    super.key,
+    this.entries,
+    this.onOpenTrend,
+    this.onUpdateEntry,
+    this.onDeleteEntry,
+  });
 
   final Stream<List<MoodEntryModel>>? entries;
   final VoidCallback? onOpenTrend;
+  final EntryUpdateAction? onUpdateEntry;
+  final EntryDeleteAction? onDeleteEntry;
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +83,8 @@ class DashboardScreen extends StatelessWidget {
                                 _DashboardContent(
                                   entries: recentEntries,
                                   onOpenTrend: onOpenTrend,
+                                  onUpdateEntry: onUpdateEntry,
+                                  onDeleteEntry: onDeleteEntry,
                                 ),
                             ]),
                           ),
@@ -112,10 +124,17 @@ class _DashboardLoading extends StatelessWidget {
 }
 
 class _DashboardContent extends StatelessWidget {
-  const _DashboardContent({required this.entries, this.onOpenTrend});
+  const _DashboardContent({
+    required this.entries,
+    this.onOpenTrend,
+    this.onUpdateEntry,
+    this.onDeleteEntry,
+  });
 
   final List<MoodEntryModel> entries;
   final VoidCallback? onOpenTrend;
+  final EntryUpdateAction? onUpdateEntry;
+  final EntryDeleteAction? onDeleteEntry;
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +156,10 @@ class _DashboardContent extends StatelessWidget {
           const SizedBox(height: 14),
         ],
         for (var index = 0; index < latestEntries.length; index++) ...[
-          MoodEntryCard(entry: latestEntries[index]),
+          MoodEntryCard(
+            entry: latestEntries[index],
+            onOpenDetail: () => _openEntryDetail(context, latestEntries[index]),
+          ),
           const SizedBox(height: 14),
           if (index == 0) ...[
             const NatureTipCard(),
@@ -145,6 +167,24 @@ class _DashboardContent extends StatelessWidget {
           ],
         ],
       ],
+    );
+  }
+
+  Future<void> _openEntryDetail(
+    BuildContext context,
+    MoodEntryModel entry,
+  ) {
+    final updateEntry = onUpdateEntry;
+    final deleteEntry = onDeleteEntry;
+    final repository = updateEntry == null || deleteEntry == null
+        ? context.read<MoodEntryRepository>()
+        : null;
+
+    return showEntryDetailSheet(
+      context: context,
+      entry: entry,
+      onUpdateEntry: updateEntry ?? repository!.updateEntry,
+      onDeleteEntry: deleteEntry ?? repository!.softDeleteEntry,
     );
   }
 }

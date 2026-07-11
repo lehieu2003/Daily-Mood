@@ -28,4 +28,20 @@ final class MoodEntryLocalService {
       subEmotionIds: subEmotionIds,
     );
   }
+
+  Future<void> updateEntry({
+    required int id,
+    required int moodScore,
+    required String note,
+  }) {
+    return _moodEntryDao.updateEntry(
+      id: id,
+      moodScore: moodScore,
+      note: note,
+    );
+  }
+
+  Future<void> softDeleteEntry(int id) {
+    return _moodEntryDao.softDeleteEntry(id);
+  }
 }

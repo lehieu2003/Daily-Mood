@@ -10,10 +10,12 @@ class HistoryEntryGroup extends StatelessWidget {
     required this.date,
     required this.entries,
     super.key,
+    this.onOpenEntry,
   });
 
   final DateTime date;
   final List<MoodEntryModel> entries;
+  final ValueChanged<MoodEntryModel>? onOpenEntry;
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +39,12 @@ class HistoryEntryGroup extends StatelessWidget {
           child: Column(
             children: [
               for (var index = 0; index < entries.length; index++) ...[
-                HistoryEntryTile(entry: entries[index]),
+                HistoryEntryTile(
+                  entry: entries[index],
+                  onOpenDetail: onOpenEntry == null
+                      ? null
+                      : () => onOpenEntry!(entries[index]),
+                ),
                 if (index != entries.length - 1)
                   const Divider(
                     height: 1,

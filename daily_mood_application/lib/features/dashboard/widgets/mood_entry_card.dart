@@ -5,22 +5,26 @@ import '../dashboard_formatters.dart';
 import '../dashboard_palette.dart';
 
 class MoodEntryCard extends StatelessWidget {
-  const MoodEntryCard({required this.entry, super.key});
+  const MoodEntryCard({required this.entry, super.key, this.onOpenDetail});
 
   final MoodEntryModel entry;
+  final VoidCallback? onOpenDetail;
 
   @override
   Widget build(BuildContext context) {
     final note = entry.note?.trim();
     final title = moodLabel(entry.moodScore);
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: DashboardPalette.surface,
+    return Material(
+      color: DashboardPalette.surface,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        key: ValueKey('dashboard_entry_card_${entry.id}'),
+        onTap: onOpenDetail,
         borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -53,7 +57,7 @@ class MoodEntryCard extends StatelessWidget {
                 ),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: onOpenDetail,
                 style: TextButton.styleFrom(
                   minimumSize: const Size(44, 36),
                   padding: EdgeInsets.zero,
@@ -123,6 +127,8 @@ class MoodEntryCard extends StatelessWidget {
             ),
           ],
         ],
+          ),
+        ),
       ),
     );
   }

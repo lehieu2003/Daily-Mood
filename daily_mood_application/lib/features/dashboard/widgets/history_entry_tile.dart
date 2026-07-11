@@ -5,17 +5,21 @@ import '../dashboard_formatters.dart';
 import '../dashboard_palette.dart';
 
 class HistoryEntryTile extends StatelessWidget {
-  const HistoryEntryTile({required this.entry, super.key});
+  const HistoryEntryTile({required this.entry, super.key, this.onOpenDetail});
 
   final MoodEntryModel entry;
+  final VoidCallback? onOpenDetail;
 
   @override
   Widget build(BuildContext context) {
     final note = entry.note?.trim();
 
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Row(
+    return InkWell(
+      key: ValueKey('history_entry_tile_${entry.id}'),
+      onTap: onOpenDetail,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _HistoryMoodFace(score: entry.moodScore),
@@ -62,6 +66,7 @@ class HistoryEntryTile extends StatelessWidget {
             ),
           ),
         ],
+        ),
       ),
     );
   }

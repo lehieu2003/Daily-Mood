@@ -32,6 +32,22 @@ final class MoodEntryRepository {
     );
   }
 
+  Future<void> updateEntry({
+    required int id,
+    required int moodScore,
+    required String note,
+  }) {
+    return _localService.updateEntry(
+      id: id,
+      moodScore: moodScore,
+      note: note,
+    );
+  }
+
+  Future<void> softDeleteEntry(int id) {
+    return _localService.softDeleteEntry(id);
+  }
+
   MoodEntryModel _toDomain(db.MoodEntry entry) {
     return MoodEntryModel(
       id: entry.id,

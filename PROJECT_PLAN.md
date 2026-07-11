@@ -17,11 +17,11 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 
 | Field | Value |
 | --- | --- |
-| Overall MVP status | Weekly trend entry point complete |
+| Overall MVP status | Entry detail/edit/delete complete |
 | Current active phase | Phase 3 - Dashboard & History |
 | Last updated | 2026-07-11 |
-| Latest verification | P3.3 user-reported format, targeted dashboard tests, full tests, and `flutter analyze` passed |
-| Main next task | P3.4 - Entry detail/edit/delete |
+| Latest verification | P3.4 user-reported format, targeted dashboard/history tests, full tests, and `flutter analyze` passed |
+| Main next task | P4.1 - Weekly mood trend query |
 | Known blockers | Real privacy-policy effective date/contact; final chart green; Gradient 1 confirmation; WCAG contrast pass |
 
 ## Update Rules
@@ -75,7 +75,7 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | P3.1 | Replace home placeholder | Done | Dashboard feature | Home shows real dashboard instead of lock-only placeholder | Added `DashboardScreen`, wired Home tab to recent mood entries, split dashboard UI/helpers into focused files, and restyled the dashboard toward the supplied reference UI. User-reported verification passed. |
 | P3.2 | History stream | Done | Dashboard/database | Entries render from a Drift stream and update after save/delete | Added `HistoryScreen` backed by the existing non-deleted mood entry stream, grouped entries by day, and replaced the History tab placeholder. User-reported verification passed. |
 | P3.3 | Weekly trend entry point | Done | Dashboard/analytics | Trend section hides until at least 3 entries exist | Added a dashboard weekly-trend entry card that appears only after 3 entries and opens the Stats tab. Chart implementation remains Phase 4. User-reported verification passed. |
-| P3.4 | Entry detail/edit/delete | Not Started | Dashboard/mood tracker | User can view, edit, soft-delete, and restore if supported | Hard-delete cleanup policy still open. |
+| P3.4 | Entry detail/edit/delete | Done | Dashboard/mood tracker | User can view, edit, soft-delete, and restore if supported | Added shared entry detail sheet for dashboard/history, repository update/delete actions, and widget tests. Restore is deferred because deleted entries are not exposed in the current app surface; hard-delete cleanup policy still open. User-reported verification passed. |
 
 ## Phase 4 - Offline Insights & Analytics
 
@@ -161,6 +161,10 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | 2026-07-11 | `flutter test test\features\dashboard\dashboard_screen_test.dart` | Passed | Reported by user after P3.3. |
 | 2026-07-11 | `flutter test` | Passed | Reported by user after P3.3. |
 | 2026-07-11 | `flutter analyze` | Passed | Reported by user after P3.3. |
+| 2026-07-11 | `dart format lib\features\dashboard lib\data test\features\dashboard` | Passed | Reported by user after P3.4 entry detail/edit/delete. |
+| 2026-07-11 | `flutter test test\features\dashboard\dashboard_screen_test.dart test\features\dashboard\history_screen_test.dart` | Passed | Reported by user after P3.4. |
+| 2026-07-11 | `flutter test` | Passed | Reported by user after P3.4. |
+| 2026-07-11 | `flutter analyze` | Passed | Reported by user after P3.4. |
 
 ## Reference Docs
 

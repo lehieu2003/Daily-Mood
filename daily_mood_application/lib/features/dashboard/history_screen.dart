@@ -4,13 +4,22 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/repositories/mood_entry_repository.dart';
 import '../../domain/models/mood_entry.dart';
 import 'dashboard_palette.dart';
+import 'entry_detail_actions.dart';
+import 'widgets/entry_detail_sheet.dart';
 import 'widgets/history_empty_state.dart';
 import 'widgets/history_entry_group.dart';
 
 class HistoryScreen extends StatelessWidget {
-  const HistoryScreen({super.key, this.entries});
+  const HistoryScreen({
+    super.key,
+    this.entries,
+    this.onUpdateEntry,
+    this.onDeleteEntry,
+  });
 
   final Stream<List<MoodEntryModel>>? entries;
+  final EntryUpdateAction? onUpdateEntry;
+  final EntryDeleteAction? onDeleteEntry;
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +68,10 @@ class HistoryScreen extends StatelessWidget {
                               if (historyEntries.isEmpty)
                                 const HistoryEmptyState()
                               else
-                                ..._buildHistoryGroups(historyEntries),
+                                ..._buildHistoryGroups(
+                                  context,
+                                  historyEntries,
+                                ),
                             ]),
                           ),
                         ),
@@ -75,7 +87,10 @@ class HistoryScreen extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildHistoryGroups(List<MoodEntryModel> entries) {
+  List<Widget> _buildHistoryGroups(
+    BuildContext context,
+    List<MoodEntryModel> entries,
+  ) {
     final groupedEntries = <DateTime, List<MoodEntryModel>>{};
 
     for (final entry in entries) {
@@ -86,10 +101,32 @@ class HistoryScreen extends StatelessWidget {
 
     return [
       for (final group in groupedEntries.entries) ...[
-        HistoryEntryGroup(date: group.key, entries: group.value),
+        HistoryEntryGroup(
+          date: group.key,
+          entries: group.value,
+          onOpenEntry: (entry) => _openEntryDetail(context, entry),
+        ),
         const SizedBox(height: 18),
       ],
     ];
+  }
+
+  Future<void> _openEntryDetail(
+    BuildContext context,
+    MoodEntryModel entry,
+  ) {
+    final updateEntry = onUpdateEntry;
+    final deleteEntry = onDeleteEntry;
+    final repository = updateEntry == null || deleteEntry == null
+        ? context.read<MoodEntryRepository>()
+        : null;
+
+    return showEntryDetailSheet(
+      context: context,
+      entry: entry,
+      onUpdateEntry: updateEntry ?? repository!.updateEntry,
+      onDeleteEntry: deleteEntry ?? repository!.softDeleteEntry,
+    );
   }
 }
 

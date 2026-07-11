@@ -70,6 +70,62 @@ void main() {
       await db.close();
     }
   });
+
+  test('returns monthly heatmap points with sparse-day averages', () async {
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final dao = MoodEntryDao(db);
+    final repository = MoodAnalyticsRepository(
+      localService: MoodAnalyticsLocalService(moodEntryDao: dao),
+    );
+    final month = DateTime(2026, 7);
+
+    try {
+      await _insertEntry(
+        db,
+        id: 1,
+        moodScore: 5,
+        createdAt: DateTime(2026, 7, 1, 9),
+      );
+      await _insertEntry(
+        db,
+        id: 2,
+        moodScore: 3,
+        createdAt: DateTime(2026, 7, 1, 20),
+      );
+      await _insertEntry(
+        db,
+        id: 3,
+        moodScore: 2,
+        createdAt: DateTime(2026, 7, 15, 12),
+      );
+      await _insertEntry(
+        db,
+        id: 4,
+        moodScore: 1,
+        createdAt: DateTime(2026, 7, 20, 12),
+        isDeleted: true,
+      );
+      await _insertEntry(
+        db,
+        id: 5,
+        moodScore: 5,
+        createdAt: DateTime(2026, 8, 1, 9),
+      );
+
+      final days = await repository.watchMonthlyMoodHeatmap(month).first;
+
+      expect(days, hasLength(31));
+      expect(days.first.date, DateTime(2026, 7, 1));
+      expect(days.last.date, DateTime(2026, 7, 31));
+      expect(days[0].averageMood, 4);
+      expect(days[0].entryCount, 2);
+      expect(days[1].averageMood, isNull);
+      expect(days[14].averageMood, 2);
+      expect(days[19].averageMood, isNull);
+    } finally {
+      await db.close();
+    }
+  });
 }
 
 Future<void> _insertEntry(
@@ -79,14 +135,16 @@ Future<void> _insertEntry(
   required DateTime createdAt,
   bool isDeleted = false,
 }) {
-  return db.into(db.moodEntries).insert(
-    MoodEntriesCompanion.insert(
-      id: Value(id),
-      uuid: 'entry-$id',
-      moodScore: moodScore,
-      createdAt: createdAt,
-      updatedAt: createdAt,
-      isDeleted: Value(isDeleted),
-    ),
-  );
+  return db
+      .into(db.moodEntries)
+      .insert(
+        MoodEntriesCompanion.insert(
+          id: Value(id),
+          uuid: 'entry-$id',
+          moodScore: moodScore,
+          createdAt: createdAt,
+          updatedAt: createdAt,
+          isDeleted: Value(isDeleted),
+        ),
+      );
 }

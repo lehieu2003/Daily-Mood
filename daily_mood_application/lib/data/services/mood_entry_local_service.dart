@@ -34,11 +34,7 @@ final class MoodEntryLocalService {
     required int moodScore,
     required String note,
   }) {
-    return _moodEntryDao.updateEntry(
-      id: id,
-      moodScore: moodScore,
-      note: note,
-    );
+    return _moodEntryDao.updateEntry(id: id, moodScore: moodScore, note: note);
   }
 
   Future<void> softDeleteEntry(int id) {

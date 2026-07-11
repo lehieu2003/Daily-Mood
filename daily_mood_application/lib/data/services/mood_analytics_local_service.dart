@@ -1,4 +1,5 @@
 import '../../core/database/daos/mood_entry_dao.dart';
+import '../../domain/models/monthly_mood_day.dart';
 import '../../domain/models/weekly_mood_point.dart';
 
 final class MoodAnalyticsLocalService {
@@ -26,6 +27,35 @@ final class MoodAnalyticsLocalService {
       return [
         for (final day in scoresByDay.entries)
           WeeklyMoodPoint(
+            date: day.key,
+            averageMood: day.value.isEmpty ? null : _average(day.value),
+            entryCount: day.value.length,
+          ),
+      ];
+    });
+  }
+
+  Stream<List<MonthlyMoodDay>> watchMonthlyMoodHeatmap(DateTime month) {
+    final localMonth = month.toLocal();
+    final start = DateTime(localMonth.year, localMonth.month);
+    final end = DateTime(localMonth.year, localMonth.month + 1);
+    final dayCount = end.difference(start).inDays;
+
+    return _moodEntryDao.watchEntriesBetween(start, end).map((entries) {
+      final scoresByDay = <DateTime, List<int>>{
+        for (var offset = 0; offset < dayCount; offset++)
+          start.add(Duration(days: offset)): <int>[],
+      };
+
+      for (final entry in entries) {
+        final created = entry.createdAt.toLocal();
+        final day = DateTime(created.year, created.month, created.day);
+        scoresByDay[day]?.add(entry.moodScore);
+      }
+
+      return [
+        for (final day in scoresByDay.entries)
+          MonthlyMoodDay(
             date: day.key,
             averageMood: day.value.isEmpty ? null : _average(day.value),
             entryCount: day.value.length,

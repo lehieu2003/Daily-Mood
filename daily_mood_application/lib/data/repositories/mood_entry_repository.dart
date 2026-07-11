@@ -37,11 +37,7 @@ final class MoodEntryRepository {
     required int moodScore,
     required String note,
   }) {
-    return _localService.updateEntry(
-      id: id,
-      moodScore: moodScore,
-      note: note,
-    );
+    return _localService.updateEntry(id: id, moodScore: moodScore, note: note);
   }
 
   Future<void> softDeleteEntry(int id) {

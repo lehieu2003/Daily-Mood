@@ -42,4 +42,10 @@ class DbKeyManager {
   static Future<void> deleteKey() async {
     await _storage.delete(key: _keyStorageKey);
   }
+
+  static String generateReplacementKey() => _generateSecureKey();
+
+  static Future<void> storeReplacementKey(String key) async {
+    await _storage.write(key: _keyStorageKey, value: key);
+  }
 }

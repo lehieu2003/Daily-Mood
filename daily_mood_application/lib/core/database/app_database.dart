@@ -131,6 +131,23 @@ class AppDatabase extends _$AppDatabase {
       );
     }
   }
+
+  Future<void> deleteAllLocalData() {
+    return transaction(() async {
+      await delete(moodPhotos).go();
+      await delete(moodEntrySubEmotions).go();
+      await delete(moodEntryActivities).go();
+      await delete(moodEntries).go();
+      await delete(activities).go();
+      await delete(subEmotions).go();
+      await _seedDefaultActivities();
+      await _seedDefaultSubEmotions();
+    });
+  }
+
+  Future<void> rekey(String passphrase) {
+    return customStatement("PRAGMA rekey = '$passphrase';");
+  }
 }
 
 LazyDatabase _openEncryptedConnection() {

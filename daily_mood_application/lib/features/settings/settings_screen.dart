@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../core/database/app_database.dart';
 import '../../core/security/app_lock_cubit.dart';
+import 'data/local_data_reset_service.dart';
 import 'data/settings_preferences_repository.dart';
+import 'state/delete_all_data_cubit.dart';
+import 'state/delete_all_data_state.dart';
 import 'state/settings_preferences_cubit.dart';
 import 'state/settings_preferences_state.dart';
 import 'widgets/settings_divider.dart';
@@ -17,6 +21,8 @@ class SettingsScreen extends StatelessWidget {
     this.onExportData,
     this.onImportData,
     this.onDeleteData,
+    this.dataResetService,
+    this.onDataDeleted,
   }) : _preferencesRepository = preferencesRepository;
 
   final SettingsPreferencesRepository? _preferencesRepository;
@@ -24,6 +30,8 @@ class SettingsScreen extends StatelessWidget {
   final VoidCallback? onExportData;
   final VoidCallback? onImportData;
   final VoidCallback? onDeleteData;
+  final LocalDataResetService? dataResetService;
+  final VoidCallback? onDataDeleted;
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +44,8 @@ class SettingsScreen extends StatelessWidget {
         onExportData: onExportData,
         onImportData: onImportData,
         onDeleteData: onDeleteData,
+        dataResetService: dataResetService,
+        onDataDeleted: onDataDeleted,
       ),
     );
   }
@@ -47,12 +57,16 @@ class _SettingsView extends StatelessWidget {
     this.onExportData,
     this.onImportData,
     this.onDeleteData,
+    this.dataResetService,
+    this.onDataDeleted,
   });
 
   final VoidCallback? onLockNow;
   final VoidCallback? onExportData;
   final VoidCallback? onImportData;
   final VoidCallback? onDeleteData;
+  final LocalDataResetService? dataResetService;
+  final VoidCallback? onDataDeleted;
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +148,7 @@ class _SettingsView extends StatelessWidget {
                         'Permanent local reset will require confirmation.',
                     isDestructive: true,
                     onTap:
-                        onDeleteData ?? () => _showDeletePreviewDialog(context),
+                        onDeleteData ?? () => _showDeleteAllDataDialog(context),
                   ),
                 ],
               ),
@@ -181,19 +195,132 @@ class _SettingsView extends StatelessWidget {
     );
   }
 
-  Future<void> _showDeletePreviewDialog(BuildContext context) {
+  Future<void> _showDeleteAllDataDialog(BuildContext context) {
+    final settingsContext = context;
+    final resetService =
+        dataResetService ??
+        DriftLocalDataResetService(
+          database: settingsContext.read<AppDatabase>(),
+        );
+
     return showDialog<void>(
-      context: context,
-      builder: (context) {
+      context: settingsContext,
+      builder: (dialogContext) {
+        return BlocProvider(
+          create: (_) => DeleteAllDataCubit(resetService: resetService),
+          child: _DeleteAllDataDialog(
+            onDeleted: () {
+              Navigator.of(dialogContext).pop();
+              ScaffoldMessenger.of(settingsContext).showSnackBar(
+                const SnackBar(content: Text('Local data deleted.')),
+              );
+              final deletedCallback = onDataDeleted;
+              if (deletedCallback != null) {
+                deletedCallback();
+              } else {
+                settingsContext.read<AppLockCubit>().lockManually();
+              }
+            },
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _DeleteAllDataDialog extends StatefulWidget {
+  const _DeleteAllDataDialog({required this.onDeleted});
+
+  final VoidCallback onDeleted;
+
+  @override
+  State<_DeleteAllDataDialog> createState() => _DeleteAllDataDialogState();
+}
+
+class _DeleteAllDataDialogState extends State<_DeleteAllDataDialog> {
+  static const _confirmationText = 'DELETE';
+
+  final _controller = TextEditingController();
+  bool _canDelete = false;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onConfirmationChanged(String value) {
+    setState(() => _canDelete = value.trim() == _confirmationText);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return BlocConsumer<DeleteAllDataCubit, DeleteAllDataState>(
+      listenWhen: (previous, current) => previous.status != current.status,
+      listener: (context, state) {
+        if (state.isSuccess) {
+          widget.onDeleted();
+        }
+      },
+      builder: (context, state) {
         return AlertDialog(
           title: const Text('Delete all local data'),
-          content: const Text(
-            'The permanent reset flow is scheduled for the next data-control slice.',
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'This permanently removes mood entries, notes, media links, and custom tags from this device.',
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Type DELETE to confirm.',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                key: const ValueKey('delete_all_data_confirmation_field'),
+                controller: _controller,
+                enabled: !state.isDeleting,
+                textCapitalization: TextCapitalization.characters,
+                onChanged: _onConfirmationChanged,
+                decoration: const InputDecoration(hintText: 'DELETE'),
+              ),
+              if (state.errorMessage != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  state.errorMessage!,
+                  style: TextStyle(color: theme.colorScheme.error),
+                ),
+              ],
+            ],
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
+              onPressed: state.isDeleting
+                  ? null
+                  : () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              key: const ValueKey('delete_all_data_confirm_button'),
+              style: FilledButton.styleFrom(
+                backgroundColor: theme.colorScheme.error,
+                foregroundColor: theme.colorScheme.onError,
+              ),
+              onPressed: !_canDelete || state.isDeleting
+                  ? null
+                  : context.read<DeleteAllDataCubit>().deleteAllData,
+              child: state.isDeleting
+                  ? const SizedBox.square(
+                      dimension: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Delete'),
             ),
           ],
         );

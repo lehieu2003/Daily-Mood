@@ -7,6 +7,34 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('returns stable empty analytics datasets', () async {
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final dao = MoodEntryDao(db);
+    final repository = MoodAnalyticsRepository(
+      localService: MoodAnalyticsLocalService(moodEntryDao: dao),
+    );
+
+    try {
+      final weekly = await repository
+          .watchWeeklyMoodTrend(DateTime(2026, 7, 6))
+          .first;
+      final monthly = await repository
+          .watchMonthlyMoodHeatmap(DateTime(2026, 7))
+          .first;
+      final correlations = await repository
+          .watchActivityMoodCorrelations()
+          .first;
+
+      expect(weekly, hasLength(7));
+      expect(weekly.every((point) => !point.hasEntries), isTrue);
+      expect(monthly, hasLength(31));
+      expect(monthly.every((day) => !day.hasEntries), isTrue);
+      expect(correlations, isEmpty);
+    } finally {
+      await db.close();
+    }
+  });
+
   test('returns seven weekly trend points with sparse-day averages', () async {
     final db = AppDatabase.forTesting(NativeDatabase.memory());
     final dao = MoodEntryDao(db);
@@ -175,6 +203,112 @@ void main() {
       await db.close();
     }
   });
+
+  test('orders tied activity correlations by mood then name', () async {
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final dao = MoodEntryDao(db);
+    final repository = MoodAnalyticsRepository(
+      localService: MoodAnalyticsLocalService(moodEntryDao: dao),
+    );
+
+    try {
+      final family = await _activity(db, 'Family');
+      final sleep = await _activity(db, 'Sleep');
+      final work = await _activity(db, 'Work');
+
+      await dao.createEntry(
+        moodScore: 4,
+        note: 'Family good.',
+        activityIds: [family.id],
+      );
+      await dao.createEntry(
+        moodScore: 4,
+        note: 'Sleep good.',
+        activityIds: [sleep.id],
+      );
+      await dao.createEntry(
+        moodScore: 5,
+        note: 'Work great.',
+        activityIds: [work.id],
+      );
+
+      final correlations = await repository
+          .watchActivityMoodCorrelations()
+          .first;
+
+      expect(correlations.map((correlation) => correlation.activityName), [
+        'Work',
+        'Family',
+        'Sleep',
+      ]);
+    } finally {
+      await db.close();
+    }
+  });
+
+  test('respects activity correlation limit', () async {
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final dao = MoodEntryDao(db);
+    final repository = MoodAnalyticsRepository(
+      localService: MoodAnalyticsLocalService(moodEntryDao: dao),
+    );
+
+    try {
+      for (final name in ['Work', 'Sleep', 'Family']) {
+        final activity = await _activity(db, name);
+        await dao.createEntry(
+          moodScore: 3,
+          note: '$name entry.',
+          activityIds: [activity.id],
+        );
+      }
+
+      final correlations = await repository
+          .watchActivityMoodCorrelations(limit: 2)
+          .first;
+
+      expect(correlations, hasLength(2));
+    } finally {
+      await db.close();
+    }
+  });
+
+  test(
+    'handles large local histories without losing weekly or monthly shape',
+    () async {
+      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final dao = MoodEntryDao(db);
+      final repository = MoodAnalyticsRepository(
+        localService: MoodAnalyticsLocalService(moodEntryDao: dao),
+      );
+
+      try {
+        for (var index = 0; index < 120; index++) {
+          await _insertEntry(
+            db,
+            id: index + 1,
+            moodScore: (index % 5) + 1,
+            createdAt: DateTime(2026, 7, 1).add(Duration(hours: index * 6)),
+          );
+        }
+
+        final weekly = await repository
+            .watchWeeklyMoodTrend(DateTime(2026, 7, 6))
+            .first;
+        final monthly = await repository
+            .watchMonthlyMoodHeatmap(DateTime(2026, 7))
+            .first;
+
+        expect(weekly, hasLength(7));
+        expect(weekly.any((point) => point.entryCount > 1), isTrue);
+        expect(monthly, hasLength(31));
+        expect(monthly.first.entryCount, 4);
+        expect(monthly.last.entryCount, 0);
+      } finally {
+        await db.close();
+      }
+    },
+  );
 }
 
 Future<void> _insertEntry(

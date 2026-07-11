@@ -17,11 +17,11 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 
 | Field | Value |
 | --- | --- |
-| Overall MVP status | Monthly calendar heatmap complete |
+| Overall MVP status | Activity correlation chart complete |
 | Current active phase | Phase 3 - Dashboard & History |
 | Last updated | 2026-07-11 |
-| Latest verification | P4.3 user-reported format, targeted analytics tests, full tests, and `flutter analyze` passed |
-| Main next task | P4.4 - Activity correlation chart |
+| Latest verification | P4.4 user-reported format, targeted analytics tests, full tests, and `flutter analyze` passed |
+| Main next task | P4.5 - Analytics edge-case tests |
 | Known blockers | Real privacy-policy effective date/contact; final chart green; Gradient 1 confirmation; WCAG contrast pass |
 
 ## Update Rules
@@ -84,7 +84,7 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | P4.1 | Weekly mood trend query | Done | Analytics/database | Query handles days with no entries and produces expected averages | Added analytics model, local service, repository provider, and focused test for sparse weekly averages. User-reported verification passed. |
 | P4.2 | Weekly trend chart | Done | Analytics UI | Chart renders non-empty data correctly and hides invalid states | Replaced Stats placeholder with analytics screen, added weekly trend chart using mood-level colors, hides chart until at least 3 weekly entries exist, pinned compatible `fl_chart`, and added widget tests. User-reported verification passed. |
 | P4.3 | Monthly calendar heatmap | Done | Analytics UI | Calendar displays month mood intensity with correct colors | Added monthly heatmap data points, calendar UI using mood-level colors plus numeric mood values, empty state, and focused tests. User-reported verification passed. |
-| P4.4 | Activity correlation chart | Not Started | Analytics/database/UI | Activity-mood relationship is calculated locally and rendered | Generic chart palette applies here. |
+| P4.4 | Activity correlation chart | Done | Analytics/database/UI | Activity-mood relationship is calculated locally and rendered | Added local activity-mood aggregation, generic-palette horizontal bar chart with labels/values, empty state, and focused tests. User-reported verification passed. |
 | P4.5 | Analytics edge-case tests | Not Started | Tests | Covers empty data, sparse days, ties, and large local histories | Required before analytics is Done. |
 
 ## Phase 5 - App Lock, Settings, Data Control
@@ -178,6 +178,10 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | 2026-07-11 | `flutter test test\data\repositories\mood_analytics_repository_test.dart test\features\analytics\stats_screen_test.dart` | Passed | Reported by user after P4.3. |
 | 2026-07-11 | `flutter test` | Passed | Reported by user after P4.3. |
 | 2026-07-11 | `flutter analyze` | Passed | Reported by user after P4.3. |
+| 2026-07-11 | `dart format lib\core\database\daos lib\data lib\domain lib\features\analytics test\data test\features\analytics` | Passed | Reported by user after P4.4 activity correlation chart. |
+| 2026-07-11 | `flutter test test\data\repositories\mood_analytics_repository_test.dart test\features\analytics\stats_screen_test.dart` | Passed | Reported by user after P4.4. |
+| 2026-07-11 | `flutter test` | Passed | Reported by user after P4.4. |
+| 2026-07-11 | `flutter analyze` | Passed | Reported by user after P4.4. |
 
 ## Reference Docs
 

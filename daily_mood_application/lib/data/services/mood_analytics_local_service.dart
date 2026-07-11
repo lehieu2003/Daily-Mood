@@ -1,4 +1,5 @@
 import '../../core/database/daos/mood_entry_dao.dart';
+import '../../domain/models/activity_mood_correlation.dart';
 import '../../domain/models/monthly_mood_day.dart';
 import '../../domain/models/weekly_mood_point.dart';
 
@@ -59,6 +60,24 @@ final class MoodAnalyticsLocalService {
             date: day.key,
             averageMood: day.value.isEmpty ? null : _average(day.value),
             entryCount: day.value.length,
+          ),
+      ];
+    });
+  }
+
+  Stream<List<ActivityMoodCorrelation>> watchActivityMoodCorrelations({
+    int limit = 6,
+  }) {
+    return _moodEntryDao.watchActivityMoodCorrelationRows(limit: limit).map((
+      rows,
+    ) {
+      return [
+        for (final row in rows)
+          ActivityMoodCorrelation(
+            activityId: row.read<int>('activity_id'),
+            activityName: row.read<String>('activity_name'),
+            entryCount: row.read<int>('entry_count'),
+            averageMood: row.read<double>('average_mood'),
           ),
       ];
     });

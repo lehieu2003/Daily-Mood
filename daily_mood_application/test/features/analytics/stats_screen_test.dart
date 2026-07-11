@@ -1,3 +1,4 @@
+import 'package:daily_mood_application/domain/models/activity_mood_correlation.dart';
 import 'package:daily_mood_application/domain/models/monthly_mood_day.dart';
 import 'package:daily_mood_application/domain/models/weekly_mood_point.dart';
 import 'package:daily_mood_application/features/analytics/stats_screen.dart';
@@ -21,6 +22,7 @@ void main() {
             _point(6, averageMood: null, entryCount: 0),
           ]),
           monthlyHeatmap: Stream.value(_monthlyDays(hasEntries: false)),
+          activityCorrelations: Stream.value(const []),
           focusedMonth: DateTime(2026, 7),
         ),
       ),
@@ -35,6 +37,10 @@ void main() {
     expect(find.byKey(const ValueKey('weekly_trend_line_chart')), findsNothing);
     expect(
       find.byKey(const ValueKey('monthly_heatmap_empty_state')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('activity_correlation_empty_state')),
       findsOneWidget,
     );
   });
@@ -55,6 +61,7 @@ void main() {
             _point(6, averageMood: null, entryCount: 0),
           ]),
           monthlyHeatmap: Stream.value(_monthlyDays(hasEntries: true)),
+          activityCorrelations: Stream.value(_activityCorrelations()),
           focusedMonth: DateTime(2026, 7),
         ),
       ),
@@ -90,6 +97,7 @@ void main() {
             _point(6, averageMood: null, entryCount: 0),
           ]),
           monthlyHeatmap: Stream.value(_monthlyDays(hasEntries: true)),
+          activityCorrelations: Stream.value(_activityCorrelations()),
           focusedMonth: DateTime(2026, 7),
         ),
       ),
@@ -105,6 +113,46 @@ void main() {
     expect(
       find.byKey(const ValueKey('monthly_heatmap_day_2026-7-1')),
       findsOneWidget,
+    );
+  });
+
+  testWidgets('renders activity correlation chart with labels and values', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: StatsScreen(
+          weeklyTrend: Stream.value([
+            _point(0, averageMood: 4, entryCount: 2),
+            _point(1, averageMood: null, entryCount: 0),
+            _point(2, averageMood: 3, entryCount: 1),
+            _point(3, averageMood: null, entryCount: 0),
+            _point(4, averageMood: null, entryCount: 0),
+            _point(5, averageMood: null, entryCount: 0),
+            _point(6, averageMood: null, entryCount: 0),
+          ]),
+          monthlyHeatmap: Stream.value(_monthlyDays(hasEntries: true)),
+          activityCorrelations: Stream.value(_activityCorrelations()),
+          focusedMonth: DateTime(2026, 7),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -520));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Activity impact'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('activity_correlation_chart')),
+      findsOneWidget,
+    );
+    expect(find.text('Work'), findsOneWidget);
+    expect(find.text('4.0 avg'), findsOneWidget);
+    expect(find.text('2 entries'), findsWidgets);
+    expect(
+      find.byKey(const ValueKey('activity_correlation_empty_state')),
+      findsNothing,
     );
   });
 }
@@ -129,5 +177,22 @@ List<MonthlyMoodDay> _monthlyDays({required bool hasEntries}) {
         averageMood: hasEntries && offset == 0 ? 4 : null,
         entryCount: hasEntries && offset == 0 ? 2 : 0,
       ),
+  ];
+}
+
+List<ActivityMoodCorrelation> _activityCorrelations() {
+  return const [
+    ActivityMoodCorrelation(
+      activityId: 1,
+      activityName: 'Work',
+      entryCount: 2,
+      averageMood: 4,
+    ),
+    ActivityMoodCorrelation(
+      activityId: 2,
+      activityName: 'Sleep',
+      entryCount: 1,
+      averageMood: 2,
+    ),
   ];
 }

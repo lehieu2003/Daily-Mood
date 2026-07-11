@@ -126,6 +126,55 @@ void main() {
       await db.close();
     }
   });
+
+  test('returns activity mood correlations ordered by usage', () async {
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final dao = MoodEntryDao(db);
+    final repository = MoodAnalyticsRepository(
+      localService: MoodAnalyticsLocalService(moodEntryDao: dao),
+    );
+
+    try {
+      final work = await _activity(db, 'Work');
+      final sleep = await _activity(db, 'Sleep');
+
+      await dao.createEntry(
+        moodScore: 5,
+        note: 'Focused morning.',
+        activityIds: [work.id],
+      );
+      await dao.createEntry(
+        moodScore: 3,
+        note: 'Steady afternoon.',
+        activityIds: [work.id],
+      );
+      await dao.createEntry(
+        moodScore: 2,
+        note: 'Poor sleep.',
+        activityIds: [sleep.id],
+      );
+      final deletedId = await dao.createEntry(
+        moodScore: 1,
+        note: 'Deleted work entry.',
+        activityIds: [work.id],
+      );
+      await dao.softDeleteEntry(deletedId);
+
+      final correlations = await repository
+          .watchActivityMoodCorrelations()
+          .first;
+
+      expect(correlations, hasLength(2));
+      expect(correlations[0].activityName, 'Work');
+      expect(correlations[0].entryCount, 2);
+      expect(correlations[0].averageMood, 4);
+      expect(correlations[1].activityName, 'Sleep');
+      expect(correlations[1].entryCount, 1);
+      expect(correlations[1].averageMood, 2);
+    } finally {
+      await db.close();
+    }
+  });
 }
 
 Future<void> _insertEntry(
@@ -147,4 +196,10 @@ Future<void> _insertEntry(
           isDeleted: Value(isDeleted),
         ),
       );
+}
+
+Future<Activity> _activity(AppDatabase db, String name) {
+  return (db.select(
+    db.activities,
+  )..where((activity) => activity.name.equals(name))).getSingle();
 }

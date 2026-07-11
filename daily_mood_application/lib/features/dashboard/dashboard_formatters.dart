@@ -34,6 +34,18 @@ String formatCompactDate(DateTime date) {
   return '${days[date.weekday - 1]}, ${date.day} ${_shortMonth(date.month)}';
 }
 
+String historyGroupLabel(DateTime date) {
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  final localDate = date.toLocal();
+  final day = DateTime(localDate.year, localDate.month, localDate.day);
+
+  if (day == today) return 'Today';
+  if (day == today.subtract(const Duration(days: 1))) return 'Yesterday';
+
+  return '${_shortMonth(day.month)} ${day.day}, ${day.year}';
+}
+
 String formatEntryDate(DateTime date) {
   final now = DateTime.now();
   final local = date.toLocal();

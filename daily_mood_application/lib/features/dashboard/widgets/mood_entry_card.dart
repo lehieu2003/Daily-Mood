@@ -148,10 +148,7 @@ class _MoodFace extends StatelessWidget {
       width: 42,
       height: 42,
       alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
       child: Text(face, style: const TextStyle(fontSize: 23)),
     );
   }

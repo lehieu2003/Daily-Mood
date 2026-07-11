@@ -28,11 +28,7 @@ class NatureTipCard extends StatelessWidget {
                   ),
                 ),
               ),
-              Icon(
-                Icons.lightbulb_outline,
-                color: Color(0xFFFFB31A),
-                size: 15,
-              ),
+              Icon(Icons.lightbulb_outline, color: Color(0xFFFFB31A), size: 15),
               SizedBox(width: 4),
               Text(
                 'Tip',

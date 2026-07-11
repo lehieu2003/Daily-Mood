@@ -48,7 +48,9 @@ class _DayMood extends StatelessWidget {
             width: 42,
             height: 64,
             decoration: BoxDecoration(
-              color: selected ? DashboardPalette.purple : DashboardPalette.surface,
+              color: selected
+                  ? DashboardPalette.purple
+                  : DashboardPalette.surface,
               borderRadius: BorderRadius.circular(21),
               boxShadow: [
                 BoxShadow(
@@ -64,7 +66,9 @@ class _DayMood extends StatelessWidget {
                 Text(
                   day,
                   style: TextStyle(
-                    color: selected ? Colors.white70 : DashboardPalette.mutedText,
+                    color: selected
+                        ? Colors.white70
+                        : DashboardPalette.mutedText,
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                   ),

@@ -92,7 +92,7 @@ class _DashboardLoading extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Padding(
       padding: EdgeInsets.symmetric(vertical: 64),
-          child: Center(
+      child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

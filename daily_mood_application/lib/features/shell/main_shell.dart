@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/routes/app_router.dart';
 import '../../app/theme/app_colors.dart';
 import '../dashboard/dashboard_screen.dart';
+import '../dashboard/history_screen.dart';
 
 /// Persistent bottom-nav shell built on `animated_notch_bottom_bar`.
 ///
@@ -50,7 +51,7 @@ class _MainShellState extends State<MainShell> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final inactiveItemColor = AppColors.textTertiary;
-    final activeItemColor = AppColors.textPrimary;
+    final activeItemColor = AppColors.primaryPurple;
 
     return Scaffold(
       extendBody: true,
@@ -61,7 +62,7 @@ class _MainShellState extends State<MainShell> {
           DashboardScreen(),
           _StatsTab(),
           SizedBox.shrink(), // index 2 slot — "Add mood" never renders a page
-          _HistoryTab(),
+          HistoryScreen(),
           _SettingTab(),
         ],
       ),
@@ -129,18 +130,6 @@ class _StatsTab extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Stats')),
       body: const Center(child: Text('Stats — TODO')),
-    );
-  }
-}
-
-class _HistoryTab extends StatelessWidget {
-  const _HistoryTab();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('History')),
-      body: const Center(child: Text('History — TODO')),
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/routes/app_router.dart';
 import '../../app/theme/app_colors.dart';
+import '../analytics/stats_screen.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../dashboard/history_screen.dart';
 
@@ -65,7 +66,7 @@ class _MainShellState extends State<MainShell> {
         physics: const NeverScrollableScrollPhysics(),
         children: [
           DashboardScreen(onOpenTrend: _openStatsTab),
-          const _StatsTab(),
+          const StatsScreen(),
           const SizedBox.shrink(),
           const HistoryScreen(),
           const _SettingTab(),
@@ -119,22 +120,6 @@ class _MainShellState extends State<MainShell> {
         ],
         onTap: _onTap,
       ),
-    );
-  }
-}
-
-// --- Tab placeholders ---------------------------------------------------
-// Swap each of these for the real screens later; the shell/nav logic
-// above won't need to change when you do.
-
-class _StatsTab extends StatelessWidget {
-  const _StatsTab();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Stats')),
-      body: const Center(child: Text('Stats — TODO')),
     );
   }
 }

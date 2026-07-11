@@ -17,11 +17,11 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 
 | Field | Value |
 | --- | --- |
-| Overall MVP status | Weekly mood trend query complete |
+| Overall MVP status | Weekly trend chart complete |
 | Current active phase | Phase 3 - Dashboard & History |
 | Last updated | 2026-07-11 |
-| Latest verification | P4.1 user-reported format, targeted analytics test, full tests, and `flutter analyze` passed |
-| Main next task | P4.2 - Weekly trend chart |
+| Latest verification | P4.2 user-reported format, targeted analytics widget test, full tests, and `flutter analyze` passed |
+| Main next task | P4.3 - Monthly calendar heatmap |
 | Known blockers | Real privacy-policy effective date/contact; final chart green; Gradient 1 confirmation; WCAG contrast pass |
 
 ## Update Rules
@@ -82,7 +82,7 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | ID | Task | Status | Main files/areas | Acceptance check | Notes |
 | --- | --- | --- | --- | --- | --- |
 | P4.1 | Weekly mood trend query | Done | Analytics/database | Query handles days with no entries and produces expected averages | Added analytics model, local service, repository provider, and focused test for sparse weekly averages. User-reported verification passed. |
-| P4.2 | Weekly trend chart | Not Started | Analytics UI | Chart renders non-empty data correctly and hides invalid states | Needs visual QA. |
+| P4.2 | Weekly trend chart | Done | Analytics UI | Chart renders non-empty data correctly and hides invalid states | Replaced Stats placeholder with analytics screen, added weekly trend chart using mood-level colors, hides chart until at least 3 weekly entries exist, pinned compatible `fl_chart`, and added widget tests. User-reported verification passed. |
 | P4.3 | Monthly calendar heatmap | Not Started | Analytics UI | Calendar displays month mood intensity with correct colors | Uses local database only. |
 | P4.4 | Activity correlation chart | Not Started | Analytics/database/UI | Activity-mood relationship is calculated locally and rendered | Generic chart palette applies here. |
 | P4.5 | Analytics edge-case tests | Not Started | Tests | Covers empty data, sparse days, ties, and large local histories | Required before analytics is Done. |
@@ -169,6 +169,11 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | 2026-07-11 | `flutter test test\data\repositories\mood_analytics_repository_test.dart` | Passed | Reported by user after P4.1 import conflict fix. |
 | 2026-07-11 | `flutter test` | Passed | Reported by user after P4.1. |
 | 2026-07-11 | `flutter analyze` | Passed | Reported by user after P4.1. |
+| 2026-07-11 | `flutter pub get` | Passed | Reported by user after pinning compatible `fl_chart` for P4.2. |
+| 2026-07-11 | `dart format lib\features\analytics lib\features\shell\main_shell.dart test\features\analytics` | Passed | Reported by user after P4.2 weekly trend chart. |
+| 2026-07-11 | `flutter test test\features\analytics\stats_screen_test.dart` | Passed | Reported by user after P4.2. |
+| 2026-07-11 | `flutter test` | Passed | Reported by user after P4.2. |
+| 2026-07-11 | `flutter analyze` | Passed | Reported by user after P4.2. |
 
 ## Reference Docs
 

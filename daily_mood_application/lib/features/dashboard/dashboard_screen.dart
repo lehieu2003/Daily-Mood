@@ -12,12 +12,14 @@ import 'widgets/dashboard_header.dart';
 import 'widgets/mood_entry_card.dart';
 import 'widgets/nature_tip_card.dart';
 import 'widgets/today_check_in_section.dart';
+import 'widgets/weekly_trend_entry_card.dart';
 import 'widgets/week_mood_selector.dart';
 
 class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({super.key, this.entries});
+  const DashboardScreen({super.key, this.entries, this.onOpenTrend});
 
   final Stream<List<MoodEntryModel>>? entries;
+  final VoidCallback? onOpenTrend;
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +70,10 @@ class DashboardScreen extends StatelessWidget {
                                       context.push(AppRoutes.quickLog),
                                 )
                               else
-                                _DashboardContent(entries: recentEntries),
+                                _DashboardContent(
+                                  entries: recentEntries,
+                                  onOpenTrend: onOpenTrend,
+                                ),
                             ]),
                           ),
                         ),
@@ -107,9 +112,10 @@ class _DashboardLoading extends StatelessWidget {
 }
 
 class _DashboardContent extends StatelessWidget {
-  const _DashboardContent({required this.entries});
+  const _DashboardContent({required this.entries, this.onOpenTrend});
 
   final List<MoodEntryModel> entries;
+  final VoidCallback? onOpenTrend;
 
   @override
   Widget build(BuildContext context) {
@@ -123,6 +129,13 @@ class _DashboardContent extends StatelessWidget {
           onLogMood: () => context.push(AppRoutes.quickLog),
         ),
         const SizedBox(height: 18),
+        if (entries.length >= 3) ...[
+          WeeklyTrendEntryCard(
+            entries: entries,
+            onOpenTrend: onOpenTrend ?? () {},
+          ),
+          const SizedBox(height: 14),
+        ],
         for (var index = 0; index < latestEntries.length; index++) ...[
           MoodEntryCard(entry: latestEntries[index]),
           const SizedBox(height: 14),

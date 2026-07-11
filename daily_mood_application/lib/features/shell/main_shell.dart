@@ -47,6 +47,11 @@ class _MainShellState extends State<MainShell> {
     _pageController.jumpToPage(index);
   }
 
+  void _openStatsTab() {
+    _pageController.jumpToPage(1);
+    _notchController.jumpTo(1);
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -58,12 +63,12 @@ class _MainShellState extends State<MainShell> {
       body: PageView(
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
-        children: const [
-          DashboardScreen(),
-          _StatsTab(),
-          SizedBox.shrink(), // index 2 slot — "Add mood" never renders a page
-          HistoryScreen(),
-          _SettingTab(),
+        children: [
+          DashboardScreen(onOpenTrend: _openStatsTab),
+          const _StatsTab(),
+          const SizedBox.shrink(),
+          const HistoryScreen(),
+          const _SettingTab(),
         ],
       ),
       bottomNavigationBar: AnimatedNotchBottomBar(

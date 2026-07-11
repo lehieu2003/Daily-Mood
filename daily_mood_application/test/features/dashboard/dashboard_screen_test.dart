@@ -45,6 +45,57 @@ void main() {
     expect(find.textContaining('Had a fantastic coding run.'), findsOneWidget);
     expect(find.textContaining('Steady afternoon.'), findsOneWidget);
     expect(find.text('Connect with nature'), findsOneWidget);
+    expect(find.byKey(const ValueKey('weekly_trend_entry_card')), findsNothing);
+  });
+
+  testWidgets('shows weekly trend entry point after three entries', (
+    tester,
+  ) async {
+    var trendOpened = false;
+    final now = DateTime.now();
+    final entries = [
+      _entry(
+        id: 1,
+        moodScore: 5,
+        note: 'Strong morning.',
+        createdAt: now,
+      ),
+      _entry(
+        id: 2,
+        moodScore: 4,
+        note: 'Good lunch.',
+        createdAt: now.subtract(const Duration(hours: 2)),
+      ),
+      _entry(
+        id: 3,
+        moodScore: 3,
+        note: 'Steady evening.',
+        createdAt: now.subtract(const Duration(days: 1)),
+      ),
+    ];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DashboardScreen(
+          entries: Stream.value(entries),
+          onOpenTrend: () => trendOpened = true,
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.byKey(const ValueKey('weekly_trend_entry_card')), findsOneWidget);
+    expect(find.text('Weekly trend'), findsOneWidget);
+    expect(find.text('3 entries ready - Average 4.0'), findsOneWidget);
+
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('weekly_trend_entry_card')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('weekly_trend_entry_card')));
+    await tester.pump();
+
+    expect(trendOpened, isTrue);
   });
 }
 

@@ -17,11 +17,11 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 
 | Field | Value |
 | --- | --- |
-| Overall MVP status | Backup/restore tests and dashboard mood visuals in review |
+| Overall MVP status | Dashboard mood visuals in review |
 | Current active phase | Phase 6 - Backup, Export, Import |
 | Last updated | 2026-07-13 |
-| Latest verification | P6.4 user-reported format, targeted snapshot/restore/settings tests, and `flutter analyze` passed |
-| Main next task | User verification for P6.5 backup/restore tests and P3.5 dashboard mood visuals |
+| Latest verification | P6.5 user-reported backup/restore verification passed |
+| Main next task | User verification for P3.5 dashboard mood visuals |
 | Known blockers | Real privacy-policy effective date/contact; final chart green; Gradient 1 confirmation; WCAG contrast pass |
 
 ## Update Rules
@@ -106,7 +106,7 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | P6.2 | Import parser | Done | Backup/restore utilities | Valid backup imports without data loss | Added typed JSON/CSV backup parser and focused tests for valid imports, corrupt JSON, unsupported CSV headers, invalid mood scores, absolute media paths, and duplicate UUIDs. User-reported format, targeted tests, and analyze passed. |
 | P6.3 | UUID/timestamp conflict strategy | Done | Backup/restore/database | Newer imported records overwrite, older records are skipped and reported | Added import applicator with transactional insert/update/skip behavior, activity resolution, entry link replacement, photo reference replacement, and focused database tests. User-reported format, targeted tests, and analyze passed. |
 | P6.4 | Automatic pre-import backup | Done | Backup/restore utilities | Import creates rollback snapshot before changing data | Added pre-import JSON rollback snapshots, latest-three pruning, restore orchestration that snapshots before apply, Settings file-picker import flow, and focused tests. User-reported format, targeted tests, and analyze passed. |
-| P6.5 | Backup/restore tests | Review | Tests | Covers duplicates, old files, corrupted files, media references, and rollback | Added broad backup/restore flow tests for JSON restore with media refs, duplicate old/new conflict behavior, corrupted files before mutation, and rollback snapshot contents. Awaiting user-run format, targeted tests, and analyze before Done. |
+| P6.5 | Backup/restore tests | Done | Tests | Covers duplicates, old files, corrupted files, media references, and rollback | Added broad backup/restore flow tests for JSON restore with media refs, duplicate old/new conflict behavior, corrupted files before mutation, and rollback snapshot contents. User-reported verification passed. |
 
 ## Phase 7 - Polish, QA, Store Readiness
 
@@ -207,6 +207,7 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | 2026-07-13 | `dart format lib\features\settings test\features\settings` | Passed | Reported by user after P6.4 import pipeline. |
 | 2026-07-13 | `flutter test test\features\settings\backup_snapshot_service_test.dart test\features\settings\backup_import_restore_service_test.dart test\features\settings\settings_screen_test.dart` | Passed | Reported by user after P6.4. |
 | 2026-07-13 | `flutter analyze` | Passed | Reported by user after P6.4. |
+| 2026-07-13 | P6.5 backup/restore verification | Passed | Reported by user before moving P6.5 to Done. |
 
 ## Reference Docs
 

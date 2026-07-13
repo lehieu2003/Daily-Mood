@@ -9,6 +9,8 @@ final class MoodEntryModel extends Equatable {
     required this.updatedAt,
     this.note,
     this.voiceNotePath,
+    this.activityNames = const [],
+    this.subEmotionNames = const [],
   });
 
   final int id;
@@ -18,6 +20,8 @@ final class MoodEntryModel extends Equatable {
   final DateTime updatedAt;
   final String? note;
   final String? voiceNotePath;
+  final List<String> activityNames;
+  final List<String> subEmotionNames;
 
   @override
   List<Object?> get props => [
@@ -28,5 +32,7 @@ final class MoodEntryModel extends Equatable {
     updatedAt,
     note,
     voiceNotePath,
+    activityNames,
+    subEmotionNames,
   ];
 }

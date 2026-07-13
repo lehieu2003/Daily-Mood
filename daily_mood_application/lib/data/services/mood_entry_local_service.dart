@@ -11,6 +11,10 @@ final class MoodEntryLocalService {
     return _moodEntryDao.watchRecentEntries(limit: limit);
   }
 
+  Stream<List<MoodEntryHistoryRow>> watchHistoryEntries({int limit = 500}) {
+    return _moodEntryDao.watchHistoryEntries(limit: limit);
+  }
+
   Future<int> createEntry({
     required int moodScore,
     String? note,

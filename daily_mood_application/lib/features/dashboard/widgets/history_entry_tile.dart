@@ -62,10 +62,49 @@ class HistoryEntryTile extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
+                if (entry.activityNames.isNotEmpty ||
+                    entry.subEmotionNames.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      for (final name in entry.activityNames.take(3))
+                        _MetadataChip(label: name),
+                      for (final name in entry.subEmotionNames.take(3))
+                        _MetadataChip(label: name),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
         ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MetadataChip extends StatelessWidget {
+  const _MetadataChip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: DashboardPalette.lilacPanel,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: DashboardPalette.deepText,
+          fontSize: 10,
+          fontWeight: FontWeight.w800,
         ),
       ),
     );

@@ -23,6 +23,50 @@ class MoodEntryDao extends DatabaseAccessor<AppDatabase>
     return query.watch();
   }
 
+  Stream<List<MoodEntryHistoryRow>> watchHistoryEntries({int limit = 500}) {
+    return customSelect(
+      '''
+SELECT
+  me.id,
+  me.uuid,
+  me.mood_score,
+  me.note,
+  me.voice_note_path,
+  me.created_at,
+  me.updated_at,
+  me.is_deleted,
+  COALESCE((
+    SELECT GROUP_CONCAT(a.name, char(31))
+    FROM mood_entry_activities mea
+    INNER JOIN activities a ON a.id = mea.activity_id
+    WHERE mea.mood_entry_id = me.id
+    ORDER BY a.name COLLATE NOCASE
+  ), '') AS activity_names,
+  COALESCE((
+    SELECT GROUP_CONCAT(se.name, char(31))
+    FROM mood_entry_sub_emotions mese
+    INNER JOIN sub_emotions se ON se.id = mese.sub_emotion_id
+    WHERE mese.mood_entry_id = me.id
+    ORDER BY se.name COLLATE NOCASE
+  ), '') AS sub_emotion_names
+FROM mood_entries me
+WHERE me.is_deleted = 0
+ORDER BY me.created_at DESC
+LIMIT ?
+''',
+      variables: [Variable<int>(limit)],
+      readsFrom: {
+        moodEntries,
+        activities,
+        moodEntryActivities,
+        attachedDatabase.subEmotions,
+        attachedDatabase.moodEntrySubEmotions,
+      },
+    ).watch().map((rows) {
+      return rows.map(MoodEntryHistoryRow.fromQueryRow).toList(growable: false);
+    });
+  }
+
   Stream<List<MoodEntry>> watchEntriesBetween(DateTime start, DateTime end) {
     final query = select(moodEntries)
       ..where(
@@ -156,5 +200,46 @@ LIMIT ?
     ])..where(moodEntryActivities.moodEntryId.equals(entryId));
 
     return query.map((row) => row.readTable(activities)).get();
+  }
+}
+
+final class MoodEntryHistoryRow {
+  const MoodEntryHistoryRow({
+    required this.entry,
+    required this.activityNames,
+    required this.subEmotionNames,
+  });
+
+  final MoodEntry entry;
+  final List<String> activityNames;
+  final List<String> subEmotionNames;
+
+  factory MoodEntryHistoryRow.fromQueryRow(QueryRow row) {
+    return MoodEntryHistoryRow(
+      entry: MoodEntry(
+        id: row.read<int>('id'),
+        uuid: row.read<String>('uuid'),
+        moodScore: row.read<int>('mood_score'),
+        note: row.readNullable<String>('note'),
+        voiceNotePath: row.readNullable<String>('voice_note_path'),
+        createdAt: row.read<DateTime>('created_at'),
+        updatedAt: row.read<DateTime>('updated_at'),
+        isDeleted: _readBool(row.data['is_deleted']),
+      ),
+      activityNames: _splitNames(row.read<String>('activity_names')),
+      subEmotionNames: _splitNames(row.read<String>('sub_emotion_names')),
+    );
+  }
+
+  static bool _readBool(Object? value) {
+    return value == true || value == 1;
+  }
+
+  static List<String> _splitNames(String value) {
+    if (value.isEmpty) return const [];
+    return value
+        .split('\u001f')
+        .where((name) => name.trim().isNotEmpty)
+        .toList(growable: false);
   }
 }

@@ -42,6 +42,88 @@ void main() {
     expect(find.text('Tense evening.'), findsOneWidget);
   });
 
+  testWidgets('filters history by note, activity, and emotion search', (
+    tester,
+  ) async {
+    final now = DateTime.now();
+    final entries = [
+      _entry(
+        id: 1,
+        moodScore: 5,
+        note: 'Strong morning.',
+        createdAt: now,
+        activityNames: const ['Exercise'],
+        subEmotionNames: const ['Energized'],
+      ),
+      _entry(
+        id: 2,
+        moodScore: 2,
+        note: 'Tense evening.',
+        createdAt: now,
+        activityNames: const ['Work'],
+        subEmotionNames: const ['Anxious'],
+      ),
+    ];
+
+    await tester.pumpWidget(
+      MaterialApp(home: HistoryScreen(entries: Stream.value(entries))),
+    );
+    await tester.pump();
+
+    await tester.enterText(
+      find.byKey(const ValueKey('history_search_field')),
+      'exercise',
+    );
+    await tester.pump();
+
+    expect(find.text('Strong morning.'), findsOneWidget);
+    expect(find.text('Tense evening.'), findsNothing);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('history_search_field')),
+      'anxious',
+    );
+    await tester.pump();
+
+    expect(find.text('Strong morning.'), findsNothing);
+    expect(find.text('Tense evening.'), findsOneWidget);
+  });
+
+  testWidgets('filters history by mood score and date range', (tester) async {
+    final now = DateTime.now();
+    final entries = [
+      _entry(
+        id: 1,
+        moodScore: 5,
+        note: 'Today great.',
+        createdAt: now,
+      ),
+      _entry(
+        id: 2,
+        moodScore: 2,
+        note: 'Old bad.',
+        createdAt: now.subtract(const Duration(days: 8)),
+      ),
+    ];
+
+    await tester.pumpWidget(
+      MaterialApp(home: HistoryScreen(entries: Stream.value(entries))),
+    );
+    await tester.pump();
+
+    await tester.tap(find.byKey(const ValueKey('history_mood_filter_2')));
+    await tester.pump();
+
+    expect(find.text('Today great.'), findsNothing);
+    expect(find.text('Old bad.'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('history_date_filter_today')));
+    await tester.pump();
+
+    expect(find.text('Old bad.'), findsNothing);
+    expect(find.byKey(const ValueKey('history_no_matches_state')), findsOneWidget);
+  });
+
   testWidgets('opens entry detail sheet and soft-deletes entry', (tester) async {
     int? deletedId;
     final now = DateTime.now();
@@ -89,6 +171,8 @@ MoodEntryModel _entry({
   required int moodScore,
   required String note,
   required DateTime createdAt,
+  List<String> activityNames = const [],
+  List<String> subEmotionNames = const [],
 }) {
   return MoodEntryModel(
     id: id,
@@ -97,5 +181,7 @@ MoodEntryModel _entry({
     note: note,
     createdAt: createdAt,
     updatedAt: createdAt,
+    activityNames: activityNames,
+    subEmotionNames: subEmotionNames,
   );
 }

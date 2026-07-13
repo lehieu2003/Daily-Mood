@@ -52,4 +52,40 @@ void main() {
       await db.close();
     }
   });
+
+  test('watches history rows with activity and sub-emotion names', () async {
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final dao = MoodEntryDao(db);
+
+    try {
+      final workActivity = await (db.select(
+        db.activities,
+      )..where((activity) => activity.name.equals('Work'))).getSingle();
+      final calmSubEmotion = await (db.select(
+        db.subEmotions,
+      )..where((subEmotion) => subEmotion.name.equals('Calm'))).getSingle();
+
+      final entryId = await dao.createEntry(
+        moodScore: 4,
+        note: 'Had a steady day.',
+        activityIds: [workActivity.id],
+        subEmotionIds: [calmSubEmotion.id],
+      );
+      final hiddenEntryId = await dao.createEntry(
+        moodScore: 1,
+        note: 'Hidden entry.',
+        activityIds: [workActivity.id],
+      );
+      await dao.softDeleteEntry(hiddenEntryId);
+
+      final rows = await dao.watchHistoryEntries().first;
+
+      expect(rows, hasLength(1));
+      expect(rows.single.entry.id, entryId);
+      expect(rows.single.activityNames, ['Work']);
+      expect(rows.single.subEmotionNames, ['Calm']);
+    } finally {
+      await db.close();
+    }
+  });
 }

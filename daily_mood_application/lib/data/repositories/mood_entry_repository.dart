@@ -14,6 +14,20 @@ final class MoodEntryRepository {
         .map((entries) => entries.map(_toDomain).toList(growable: false));
   }
 
+  Stream<List<MoodEntryModel>> watchHistoryEntries({int limit = 500}) {
+    return _localService.watchHistoryEntries(limit: limit).map((entries) {
+      return entries
+          .map(
+            (row) => _toDomain(
+              row.entry,
+              activityNames: row.activityNames,
+              subEmotionNames: row.subEmotionNames,
+            ),
+          )
+          .toList(growable: false);
+    });
+  }
+
   Future<int> createEntry({
     required int moodScore,
     String? note,
@@ -44,7 +58,11 @@ final class MoodEntryRepository {
     return _localService.softDeleteEntry(id);
   }
 
-  MoodEntryModel _toDomain(db.MoodEntry entry) {
+  MoodEntryModel _toDomain(
+    db.MoodEntry entry, {
+    List<String> activityNames = const [],
+    List<String> subEmotionNames = const [],
+  }) {
     return MoodEntryModel(
       id: entry.id,
       uuid: entry.uuid,
@@ -53,6 +71,8 @@ final class MoodEntryRepository {
       voiceNotePath: entry.voiceNotePath,
       createdAt: entry.createdAt,
       updatedAt: entry.updatedAt,
+      activityNames: activityNames,
+      subEmotionNames: subEmotionNames,
     );
   }
 }

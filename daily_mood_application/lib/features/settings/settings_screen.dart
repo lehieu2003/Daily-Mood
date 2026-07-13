@@ -124,8 +124,7 @@ class _SettingsView extends StatelessWidget {
                     title: 'Export data',
                     subtitle: 'Create a readable JSON or CSV backup file.',
                     onTap:
-                        onExportData ??
-                        () => _showExportFormatDialog(context),
+                        onExportData ?? () => _showExportFormatDialog(context),
                   ),
                   const SettingsDivider(),
                   SettingsTile(
@@ -138,7 +137,7 @@ class _SettingsView extends StatelessWidget {
                         () => _showComingSoon(
                           context,
                           'Import data',
-                          'Backup import and conflict handling are scheduled for Phase 6.',
+                          'Backup file parsing is ready. Restore will be enabled after conflict handling and rollback snapshots are in place.',
                         ),
                   ),
                   const SettingsDivider(),

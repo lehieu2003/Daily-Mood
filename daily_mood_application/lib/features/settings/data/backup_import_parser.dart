@@ -306,11 +306,7 @@ final class BackupImportParser {
     throw BackupImportParseException('$path.$key must be an integer.');
   }
 
-  int _requiredMoodScore(
-    Map<String, Object?> source,
-    String key,
-    String path,
-  ) {
+  int _requiredMoodScore(Map<String, Object?> source, String key, String path) {
     return _validateMoodScore(_requiredInt(source, key, path), '$path.$key');
   }
 
@@ -353,15 +349,20 @@ final class BackupImportParser {
     if (value is! List) {
       throw BackupImportParseException('$path.$key must be a list.');
     }
-    return value.cast<Object?>().asMap().entries.map((entry) {
-      final item = entry.value;
-      if (item is String) {
-        return item;
-      }
-      throw BackupImportParseException(
-        '$path.$key[${entry.key}] must be text.',
-      );
-    }).toList(growable: false);
+    return value
+        .cast<Object?>()
+        .asMap()
+        .entries
+        .map((entry) {
+          final item = entry.value;
+          if (item is String) {
+            return item;
+          }
+          throw BackupImportParseException(
+            '$path.$key[${entry.key}] must be text.',
+          );
+        })
+        .toList(growable: false);
   }
 
   bool? _optionalBool(Map<String, Object?> source, String key, String path) {

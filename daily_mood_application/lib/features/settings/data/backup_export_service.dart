@@ -65,7 +65,8 @@ final class DriftBackupExportService implements BackupExportService {
 
     return BackupExportFile(
       format: format,
-      fileName: 'daily_mood_export_${_timestamp(exportedAt)}.'
+      fileName:
+          'daily_mood_export_${_timestamp(exportedAt)}.'
           '${format.extension}',
       content: content,
     );
@@ -123,18 +124,15 @@ final class _BackupSnapshot {
     AppDatabase database, {
     required DateTime exportedAt,
   }) async {
-    final entries =
-        await (database.select(database.moodEntries)
-              ..orderBy([(row) => OrderingTerm.asc(row.createdAt)]))
-            .get();
-    final activities =
-        await (database.select(database.activities)
-              ..orderBy([(row) => OrderingTerm.asc(row.name)]))
-            .get();
-    final subEmotions =
-        await (database.select(database.subEmotions)
-              ..orderBy([(row) => OrderingTerm.asc(row.id)]))
-            .get();
+    final entries = await (database.select(
+      database.moodEntries,
+    )..orderBy([(row) => OrderingTerm.asc(row.createdAt)])).get();
+    final activities = await (database.select(
+      database.activities,
+    )..orderBy([(row) => OrderingTerm.asc(row.name)])).get();
+    final subEmotions = await (database.select(
+      database.subEmotions,
+    )..orderBy([(row) => OrderingTerm.asc(row.id)])).get();
     final entryActivities = await database
         .select(database.moodEntryActivities)
         .get();
@@ -193,9 +191,9 @@ final class _BackupSnapshot {
       'mediaPackaging': 'relative_paths_only',
       'activities': activities.map(_activityToJson).toList(growable: false),
       'subEmotions': subEmotions.map(_subEmotionToJson).toList(growable: false),
-      'moodEntries': entries.map((entry) => entry.toJson()).toList(
-        growable: false,
-      ),
+      'moodEntries': entries
+          .map((entry) => entry.toJson())
+          .toList(growable: false),
     };
   }
 
@@ -272,12 +270,12 @@ final class _ExportMoodEntry {
       'activityUuids': activities
           .map((activity) => activity.uuid)
           .toList(growable: false),
-      'activities': activities.map((activity) => activity.name).toList(
-        growable: false,
-      ),
-      'subEmotions': subEmotions.map((subEmotion) => subEmotion.name).toList(
-        growable: false,
-      ),
+      'activities': activities
+          .map((activity) => activity.name)
+          .toList(growable: false),
+      'subEmotions': subEmotions
+          .map((subEmotion) => subEmotion.name)
+          .toList(growable: false),
       'createdAt': entry.createdAt.toUtc().toIso8601String(),
       'updatedAt': entry.updatedAt.toUtc().toIso8601String(),
       'isDeleted': entry.isDeleted,

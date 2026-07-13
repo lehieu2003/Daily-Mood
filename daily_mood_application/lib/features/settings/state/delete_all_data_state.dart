@@ -5,8 +5,7 @@ enum DeleteAllDataStatus { idle, deleting, success, failure }
 class DeleteAllDataState extends Equatable {
   const DeleteAllDataState({required this.status, this.errorMessage});
 
-  const DeleteAllDataState.idle()
-    : this(status: DeleteAllDataStatus.idle);
+  const DeleteAllDataState.idle() : this(status: DeleteAllDataStatus.idle);
 
   const DeleteAllDataState.deleting()
     : this(status: DeleteAllDataStatus.deleting);

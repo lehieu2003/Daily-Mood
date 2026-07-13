@@ -110,7 +110,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(exportService.sharedFormats, [BackupExportFormat.json]);
-    expect(find.text('Export file ready: daily_mood_export_test.json'), findsOneWidget);
+    expect(
+      find.text('Export file ready: daily_mood_export_test.json'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('delete data flow requires confirmation before reset', (

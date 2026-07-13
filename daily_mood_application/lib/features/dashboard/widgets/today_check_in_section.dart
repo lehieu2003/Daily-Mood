@@ -7,11 +7,15 @@ import 'dashboard_mood_chart.dart';
 class TodayCheckInSection extends StatelessWidget {
   const TodayCheckInSection({
     required this.entries,
+    required this.selectedDate,
+    required this.today,
     required this.onLogMood,
     super.key,
   });
 
   final List<MoodEntryModel> entries;
+  final DateTime selectedDate;
+  final DateTime today;
   final VoidCallback onLogMood;
 
   @override
@@ -21,10 +25,10 @@ class TodayCheckInSection extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Expanded(
+            Expanded(
               child: Text(
-                "Today's check-in",
-                style: TextStyle(
+                _titleForDate(selectedDate, today),
+                style: const TextStyle(
                   color: DashboardPalette.deepText,
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -101,9 +105,43 @@ class TodayCheckInSection extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         DashboardMoodChart(
-          scores: entries.map((entry) => entry.moodScore).toList(),
+          entries: entries,
         ),
       ],
     );
   }
+}
+
+String _titleForDate(DateTime selectedDate, DateTime today) {
+  final selected = DateTime(
+    selectedDate.year,
+    selectedDate.month,
+    selectedDate.day,
+  );
+  final current = DateTime(today.year, today.month, today.day);
+
+  if (selected == current) return "Today's check-in";
+  if (selected == current.subtract(const Duration(days: 1))) {
+    return "Yesterday's check-in";
+  }
+
+  return '${_shortMonth(selected.month)} ${selected.day} check-in';
+}
+
+String _shortMonth(int month) {
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+  return months[month - 1];
 }

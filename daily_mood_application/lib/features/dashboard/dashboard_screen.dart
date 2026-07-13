@@ -17,24 +17,49 @@ import 'widgets/today_check_in_section.dart';
 import 'widgets/weekly_trend_entry_card.dart';
 import 'widgets/week_mood_selector.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({
     super.key,
     this.entries,
+    this.today,
     this.onOpenTrend,
     this.onUpdateEntry,
     this.onDeleteEntry,
   });
 
   final Stream<List<MoodEntryModel>>? entries;
+  final DateTime? today;
   final VoidCallback? onOpenTrend;
   final EntryUpdateAction? onUpdateEntry;
   final EntryDeleteAction? onDeleteEntry;
 
   @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  late DateTime _selectedDate;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDate = _dateOnly(widget.today ?? DateTime.now());
+  }
+
+  @override
+  void didUpdateWidget(covariant DashboardScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.today != oldWidget.today && widget.today != null) {
+      _selectedDate = _dateOnly(widget.today!);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final stream =
-        entries ?? context.read<MoodEntryRepository>().watchRecentEntries();
+    final stream = widget.entries ??
+        context.read<MoodEntryRepository>().watchRecentEntries();
+    final today = _dateOnly(widget.today ?? DateTime.now());
 
     return Scaffold(
       backgroundColor: DashboardPalette.background,
@@ -68,7 +93,14 @@ class DashboardScreen extends StatelessWidget {
                                     context.push(AppRoutes.quickLog),
                               ),
                               const SizedBox(height: 22),
-                              const WeekMoodSelector(),
+                              WeekMoodSelector(
+                                entries: recentEntries,
+                                today: today,
+                                selectedDate: _selectedDate,
+                                onDateSelected: (date) {
+                                  setState(() => _selectedDate = date);
+                                },
+                              ),
                               const SizedBox(height: 18),
                               if (!snapshot.hasData &&
                                   snapshot.connectionState ==
@@ -82,9 +114,11 @@ class DashboardScreen extends StatelessWidget {
                               else
                                 _DashboardContent(
                                   entries: recentEntries,
-                                  onOpenTrend: onOpenTrend,
-                                  onUpdateEntry: onUpdateEntry,
-                                  onDeleteEntry: onDeleteEntry,
+                                  selectedDate: _selectedDate,
+                                  today: today,
+                                  onOpenTrend: widget.onOpenTrend,
+                                  onUpdateEntry: widget.onUpdateEntry,
+                                  onDeleteEntry: widget.onDeleteEntry,
                                 ),
                             ]),
                           ),
@@ -126,25 +160,34 @@ class _DashboardLoading extends StatelessWidget {
 class _DashboardContent extends StatelessWidget {
   const _DashboardContent({
     required this.entries,
+    required this.selectedDate,
+    required this.today,
     this.onOpenTrend,
     this.onUpdateEntry,
     this.onDeleteEntry,
   });
 
   final List<MoodEntryModel> entries;
+  final DateTime selectedDate;
+  final DateTime today;
   final VoidCallback? onOpenTrend;
   final EntryUpdateAction? onUpdateEntry;
   final EntryDeleteAction? onDeleteEntry;
 
   @override
   Widget build(BuildContext context) {
-    final latestEntries = entries.take(3).toList();
+    final selectedEntries = entries
+        .where((entry) => isToday(entry, now: selectedDate))
+        .toList(growable: false);
+    final latestEntries = selectedEntries.take(3).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         TodayCheckInSection(
-          entries: entries.where(isToday).toList(growable: false),
+          entries: selectedEntries,
+          selectedDate: selectedDate,
+          today: today,
           onLogMood: () => context.push(AppRoutes.quickLog),
         ),
         const SizedBox(height: 18),
@@ -187,4 +230,9 @@ class _DashboardContent extends StatelessWidget {
       onDeleteEntry: deleteEntry ?? repository!.softDeleteEntry,
     );
   }
+}
+
+DateTime _dateOnly(DateTime date) {
+  final local = date.toLocal();
+  return DateTime(local.year, local.month, local.day);
 }

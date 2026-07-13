@@ -17,11 +17,11 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 
 | Field | Value |
 | --- | --- |
-| Overall MVP status | Import pipeline complete |
+| Overall MVP status | Backup/restore tests and dashboard mood visuals in review |
 | Current active phase | Phase 6 - Backup, Export, Import |
 | Last updated | 2026-07-13 |
 | Latest verification | P6.4 user-reported format, targeted snapshot/restore/settings tests, and `flutter analyze` passed |
-| Main next task | P6.5 - Backup/restore tests |
+| Main next task | User verification for P6.5 backup/restore tests and P3.5 dashboard mood visuals |
 | Known blockers | Real privacy-policy effective date/contact; final chart green; Gradient 1 confirmation; WCAG contrast pass |
 
 ## Update Rules
@@ -76,6 +76,7 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | P3.2 | History stream | Done | Dashboard/database | Entries render from a Drift stream and update after save/delete | Added `HistoryScreen` backed by the existing non-deleted mood entry stream, grouped entries by day, and replaced the History tab placeholder. User-reported verification passed. |
 | P3.3 | Weekly trend entry point | Done | Dashboard/analytics | Trend section hides until at least 3 entries exist | Added a dashboard weekly-trend entry card that appears only after 3 entries and opens the Stats tab. Chart implementation remains Phase 4. User-reported verification passed. |
 | P3.4 | Entry detail/edit/delete | Done | Dashboard/mood tracker | User can view, edit, soft-delete, and restore if supported | Added shared entry detail sheet for dashboard/history, repository update/delete actions, and widget tests. Restore is deferred because deleted entries are not exposed in the current app surface; hard-delete cleanup policy still open. User-reported verification passed. |
+| P3.5 | Dynamic dashboard mood visuals | Review | Dashboard UI | Week strip and today mood chart show real logged moods instead of sample data | Replaced hardcoded day/mood samples with entries from the dashboard stream, removed fixed chart scores/times, added an empty chart state, made week days selectable for per-day views, and added focused widget coverage. Awaiting user-run format, targeted dashboard test, and analyze before Done. |
 
 ## Phase 4 - Offline Insights & Analytics
 
@@ -105,7 +106,7 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | P6.2 | Import parser | Done | Backup/restore utilities | Valid backup imports without data loss | Added typed JSON/CSV backup parser and focused tests for valid imports, corrupt JSON, unsupported CSV headers, invalid mood scores, absolute media paths, and duplicate UUIDs. User-reported format, targeted tests, and analyze passed. |
 | P6.3 | UUID/timestamp conflict strategy | Done | Backup/restore/database | Newer imported records overwrite, older records are skipped and reported | Added import applicator with transactional insert/update/skip behavior, activity resolution, entry link replacement, photo reference replacement, and focused database tests. User-reported format, targeted tests, and analyze passed. |
 | P6.4 | Automatic pre-import backup | Done | Backup/restore utilities | Import creates rollback snapshot before changing data | Added pre-import JSON rollback snapshots, latest-three pruning, restore orchestration that snapshots before apply, Settings file-picker import flow, and focused tests. User-reported format, targeted tests, and analyze passed. |
-| P6.5 | Backup/restore tests | Not Started | Tests | Covers duplicates, old files, corrupted files, media references, and rollback | Critical for release. |
+| P6.5 | Backup/restore tests | Review | Tests | Covers duplicates, old files, corrupted files, media references, and rollback | Added broad backup/restore flow tests for JSON restore with media refs, duplicate old/new conflict behavior, corrupted files before mutation, and rollback snapshot contents. Awaiting user-run format, targeted tests, and analyze before Done. |
 
 ## Phase 7 - Polish, QA, Store Readiness
 

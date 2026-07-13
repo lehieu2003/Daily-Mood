@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import '../../app/theme/app_colors.dart';
 import '../../domain/models/mood_entry.dart';
 
-bool isToday(MoodEntryModel entry) {
-  final now = DateTime.now();
+bool isToday(MoodEntryModel entry, {DateTime? now}) {
+  final current = now ?? DateTime.now();
   final date = entry.createdAt;
-  return now.year == date.year &&
-      now.month == date.month &&
-      now.day == date.day;
+  return current.year == date.year &&
+      current.month == date.month &&
+      current.day == date.day;
 }
 
 String formatMonth(DateTime date) {

@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 
+import '../../../domain/models/mood_entry.dart';
 import '../dashboard_palette.dart';
 
 class DashboardMoodChart extends StatelessWidget {
-  const DashboardMoodChart({required this.scores, super.key});
+  const DashboardMoodChart({required this.entries, super.key});
 
-  final List<int> scores;
+  final List<MoodEntryModel> entries;
 
   @override
   Widget build(BuildContext context) {
-    final displayScores = scores.isEmpty
-        ? const [5, 1, 3, 2, 1]
-        : scores.take(5).toList();
-    final labels = const ['10:08', '12:10', '14:40', '18:30', '20:10'];
+    final displayEntries = _displayEntries(entries);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
@@ -32,20 +30,24 @@ class DashboardMoodChart extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          SizedBox(
-            height: 172,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                for (var index = 0; index < 5; index++)
-                  _MoodBar(
-                    score: displayScores[index % displayScores.length],
-                    label: labels[index],
-                  ),
-              ],
+          if (displayEntries.isEmpty)
+            const _EmptyMoodChart()
+          else
+            SizedBox(
+              height: 172,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  for (final entry in displayEntries)
+                    _MoodBar(
+                      score: entry.moodScore,
+                      label: _formatTime(entry.createdAt),
+                      dateKey: _entryKey(entry),
+                    ),
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -53,10 +55,15 @@ class DashboardMoodChart extends StatelessWidget {
 }
 
 class _MoodBar extends StatelessWidget {
-  const _MoodBar({required this.score, required this.label});
+  const _MoodBar({
+    required this.score,
+    required this.label,
+    required this.dateKey,
+  });
 
   final int score;
   final String label;
+  final String dateKey;
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +90,7 @@ class _MoodBar extends StatelessWidget {
     };
 
     return SizedBox(
+      key: ValueKey('dashboard_mood_bar_$dateKey'),
       width: 36,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -115,6 +123,7 @@ class _MoodBar extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             label,
+            key: ValueKey('dashboard_mood_bar_label_$dateKey'),
             style: const TextStyle(
               color: DashboardPalette.mutedText,
               fontSize: 9,
@@ -125,4 +134,50 @@ class _MoodBar extends StatelessWidget {
       ),
     );
   }
+}
+
+class _EmptyMoodChart extends StatelessWidget {
+  const _EmptyMoodChart();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      key: const ValueKey('dashboard_mood_chart_empty'),
+      height: 172,
+      alignment: Alignment.center,
+      child: const Text(
+        'No check-ins today',
+        style: TextStyle(
+          color: DashboardPalette.mutedText,
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
+List<MoodEntryModel> _displayEntries(List<MoodEntryModel> entries) {
+  final sorted = [...entries]
+    ..sort((first, second) => first.createdAt.compareTo(second.createdAt));
+
+  if (sorted.length <= 5) return sorted;
+
+  return sorted.sublist(sorted.length - 5);
+}
+
+String _formatTime(DateTime date) {
+  final local = date.toLocal();
+  final hour = local.hour.toString().padLeft(2, '0');
+  final minute = local.minute.toString().padLeft(2, '0');
+  return '$hour:$minute';
+}
+
+String _entryKey(MoodEntryModel entry) {
+  final local = entry.createdAt.toLocal();
+  final month = local.month.toString().padLeft(2, '0');
+  final day = local.day.toString().padLeft(2, '0');
+  final hour = local.hour.toString().padLeft(2, '0');
+  final minute = local.minute.toString().padLeft(2, '0');
+  return '${local.year}$month${day}_$hour$minute';
 }

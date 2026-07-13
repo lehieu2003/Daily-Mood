@@ -31,6 +31,7 @@ final class BackupImportApplyService implements BackupImportApplier {
 
   final AppDatabase _database;
 
+  @override
   Future<BackupImportApplyResult> apply(ParsedBackup backup) {
     return _database.transaction(() async {
       var insertedActivities = 0;

@@ -57,7 +57,7 @@ class _MainShellState extends State<MainShell> {
   @override
   Widget build(BuildContext context) {
     const inactiveItemColor = AppColors.navInactiveItem;
-    const activeItemColor = AppColors.navActiveItem;
+    const activeItemColor = AppColors.navSurface;
 
     return Scaffold(
       extendBody: true,
@@ -76,7 +76,7 @@ class _MainShellState extends State<MainShell> {
         kIconSize: 30,
         notchBottomBarController: _notchController,
         color: AppColors.navSurface,
-        notchColor: AppColors.navActiveSurface,
+        notchColor: AppColors.primaryPurple,
         showLabel: true,
         durationInMilliSeconds: 300,
         itemLabelStyle: const TextStyle(

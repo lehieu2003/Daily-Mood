@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/database/app_database.dart';
 import '../../core/security/app_lock_cubit.dart';
+import 'data/backup_export_service.dart';
 import 'data/local_data_reset_service.dart';
 import 'data/settings_preferences_repository.dart';
 import 'state/delete_all_data_cubit.dart';
@@ -22,6 +23,7 @@ class SettingsScreen extends StatelessWidget {
     this.onImportData,
     this.onDeleteData,
     this.dataResetService,
+    this.backupExportService,
     this.onDataDeleted,
   }) : _preferencesRepository = preferencesRepository;
 
@@ -31,6 +33,7 @@ class SettingsScreen extends StatelessWidget {
   final VoidCallback? onImportData;
   final VoidCallback? onDeleteData;
   final LocalDataResetService? dataResetService;
+  final BackupExportService? backupExportService;
   final VoidCallback? onDataDeleted;
 
   @override
@@ -45,6 +48,7 @@ class SettingsScreen extends StatelessWidget {
         onImportData: onImportData,
         onDeleteData: onDeleteData,
         dataResetService: dataResetService,
+        backupExportService: backupExportService,
         onDataDeleted: onDataDeleted,
       ),
     );
@@ -58,6 +62,7 @@ class _SettingsView extends StatelessWidget {
     this.onImportData,
     this.onDeleteData,
     this.dataResetService,
+    this.backupExportService,
     this.onDataDeleted,
   });
 
@@ -66,6 +71,7 @@ class _SettingsView extends StatelessWidget {
   final VoidCallback? onImportData;
   final VoidCallback? onDeleteData;
   final LocalDataResetService? dataResetService;
+  final BackupExportService? backupExportService;
   final VoidCallback? onDataDeleted;
 
   @override
@@ -116,14 +122,10 @@ class _SettingsView extends StatelessWidget {
                     key: const ValueKey('settings_export_tile'),
                     icon: Icons.ios_share_outlined,
                     title: 'Export data',
-                    subtitle: 'Create a manual backup file when export lands.',
+                    subtitle: 'Create a readable JSON or CSV backup file.',
                     onTap:
                         onExportData ??
-                        () => _showComingSoon(
-                          context,
-                          'Export data',
-                          'Manual JSON/CSV export is scheduled for Phase 6.',
-                        ),
+                        () => _showExportFormatDialog(context),
                   ),
                   const SettingsDivider(),
                   SettingsTile(
@@ -193,6 +195,63 @@ class _SettingsView extends StatelessWidget {
         );
       },
     );
+  }
+
+  Future<void> _showExportFormatDialog(BuildContext context) {
+    return showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Export data'),
+          content: const Text(
+            'Choose a readable backup format. Photos and voice files are exported as relative path references for now.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              key: const ValueKey('export_csv_button'),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                _exportData(context, BackupExportFormat.csv);
+              },
+              child: const Text('CSV'),
+            ),
+            FilledButton(
+              key: const ValueKey('export_json_button'),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                _exportData(context, BackupExportFormat.json);
+              },
+              child: const Text('JSON'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _exportData(
+    BuildContext context,
+    BackupExportFormat format,
+  ) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final service =
+        backupExportService ??
+        DriftBackupExportService(database: context.read<AppDatabase>());
+
+    try {
+      final file = await service.exportAndShare(format);
+      messenger.showSnackBar(
+        SnackBar(content: Text('Export file ready: ${file.fileName}')),
+      );
+    } catch (_) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Export failed. Please try again.')),
+      );
+    }
   }
 
   Future<void> _showDeleteAllDataDialog(BuildContext context) {

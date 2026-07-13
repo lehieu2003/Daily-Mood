@@ -1,0 +1,96 @@
+import 'dart:convert';
+
+import 'package:daily_mood_application/core/database/app_database.dart';
+import 'package:daily_mood_application/core/database/daos/activity_dao.dart';
+import 'package:daily_mood_application/core/database/daos/mood_entry_dao.dart';
+import 'package:daily_mood_application/features/settings/data/backup_export_service.dart';
+import 'package:drift/native.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  test(
+    'builds JSON export with entries, tags, emotions, and media refs',
+    () async {
+      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final activityDao = ActivityDao(db);
+      final moodEntryDao = MoodEntryDao(db);
+
+      try {
+        final activityId = await activityDao.createCustomActivity(
+          name: 'Reading',
+          category: 'Other',
+        );
+        final calm = await (db.select(
+          db.subEmotions,
+        )..where((row) => row.name.equals('Calm'))).getSingle();
+        await moodEntryDao.createEntry(
+          moodScore: 4,
+          note: 'Quiet morning',
+          photoRelativePath: 'mood_photos/photo-1.jpg',
+          activityIds: [activityId],
+          subEmotionIds: [calm.id],
+        );
+
+        final service = DriftBackupExportService(
+          database: db,
+          clock: () => DateTime.utc(2026, 7, 13, 9, 30, 5),
+        );
+
+        final file = await service.buildExport(BackupExportFormat.json);
+        final json = jsonDecode(file.content) as Map<String, Object?>;
+        final entries = json['moodEntries'] as List<Object?>;
+        final entry = entries.single as Map<String, Object?>;
+
+        expect(file.fileName, 'daily_mood_export_20260713_093005.json');
+        expect(json['exportVersion'], 1);
+        expect(json['schemaVersion'], db.schemaVersion);
+        expect(json['mediaPackaging'], 'relative_paths_only');
+        expect(json['activities'], isA<List<Object?>>());
+        expect(entry['moodScore'], 4);
+        expect(entry['note'], 'Quiet morning');
+        expect(entry['photoRelativePath'], 'mood_photos/photo-1.jpg');
+        expect(entry['activities'], ['Reading']);
+        expect(entry['subEmotions'], ['Calm']);
+        expect(entry['uuid'], isNotEmpty);
+      } finally {
+        await db.close();
+      }
+    },
+  );
+
+  test('builds escaped CSV export for readable spreadsheet use', () async {
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final activityDao = ActivityDao(db);
+    final moodEntryDao = MoodEntryDao(db);
+
+    try {
+      final activityId = await activityDao.createCustomActivity(
+        name: 'Friends',
+        category: 'Life',
+      );
+      await moodEntryDao.createEntry(
+        moodScore: 5,
+        note: 'Lunch, "great"',
+        activityIds: [activityId],
+      );
+
+      final service = DriftBackupExportService(
+        database: db,
+        clock: () => DateTime.utc(2026, 7, 13),
+      );
+
+      final file = await service.buildExport(BackupExportFormat.csv);
+      final lines = file.content.split('\n');
+
+      expect(file.fileName, 'daily_mood_export_20260713_000000.csv');
+      expect(lines.first, contains('"uuid","moodScore","note"'));
+      expect(
+        lines.singleWhere((line) => line.contains('Friends')),
+        contains('"5"'),
+      );
+      expect(file.content, contains('"Lunch, ""great"""'));
+    } finally {
+      await db.close();
+    }
+  });
+}

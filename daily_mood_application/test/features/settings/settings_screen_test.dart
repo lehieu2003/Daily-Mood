@@ -1,3 +1,4 @@
+import 'package:daily_mood_application/features/settings/data/backup_export_service.dart';
 import 'package:daily_mood_application/features/settings/data/local_data_reset_service.dart';
 import 'package:daily_mood_application/features/settings/data/settings_preferences_repository.dart';
 import 'package:daily_mood_application/features/settings/settings_screen.dart';
@@ -81,6 +82,37 @@ void main() {
     expect(locked, isTrue);
   });
 
+  testWidgets('export data flow asks for format and shares JSON export', (
+    tester,
+  ) async {
+    final exportService = _FakeBackupExportService();
+
+    await tester.pumpWidget(
+      _app(
+        SettingsScreen(
+          preferencesRepository: SettingsPreferencesRepository(
+            store: InMemorySettingsPreferencesStore(),
+          ),
+          backupExportService: exportService,
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await tester.tap(find.byKey(const ValueKey('settings_export_tile')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Export data'), findsWidgets);
+    expect(find.text('JSON'), findsOneWidget);
+    expect(find.text('CSV'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('export_json_button')));
+    await tester.pumpAndSettle();
+
+    expect(exportService.sharedFormats, [BackupExportFormat.json]);
+    expect(find.text('Export file ready: daily_mood_export_test.json'), findsOneWidget);
+  });
+
   testWidgets('delete data flow requires confirmation before reset', (
     tester,
   ) async {
@@ -144,5 +176,24 @@ class _FakeLocalDataResetService implements LocalDataResetService {
   @override
   Future<void> deleteAllData() async {
     deleteCount++;
+  }
+}
+
+class _FakeBackupExportService implements BackupExportService {
+  final sharedFormats = <BackupExportFormat>[];
+
+  @override
+  Future<BackupExportFile> buildExport(BackupExportFormat format) async {
+    return BackupExportFile(
+      format: format,
+      fileName: 'daily_mood_export_test.${format.extension}',
+      content: '',
+    );
+  }
+
+  @override
+  Future<BackupExportFile> exportAndShare(BackupExportFormat format) async {
+    sharedFormats.add(format);
+    return buildExport(format);
   }
 }

@@ -17,11 +17,11 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 
 | Field | Value |
 | --- | --- |
-| Overall MVP status | Import parser complete |
+| Overall MVP status | Import conflict strategy complete |
 | Current active phase | Phase 6 - Backup, Export, Import |
 | Last updated | 2026-07-13 |
-| Latest verification | P6.2 user-reported format, targeted import parser test, and `flutter analyze` passed |
-| Main next task | P6.3 - UUID/timestamp conflict strategy |
+| Latest verification | P6.3 user-reported format, targeted import apply test, and `flutter analyze` passed |
+| Main next task | P6.4 - Automatic pre-import backup |
 | Known blockers | Real privacy-policy effective date/contact; final chart green; Gradient 1 confirmation; WCAG contrast pass |
 
 ## Update Rules
@@ -103,7 +103,7 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | --- | --- | --- | --- | --- | --- |
 | P6.1 | JSON/CSV export | Done | Backup/restore utilities | User can export readable data through system share sheet | Added JSON/CSV export builder, settings format picker, share-sheet integration, and focused tests. Media files are exported as relative path references until the packaging decision is resolved. User-reported format, targeted tests, and analyze passed. |
 | P6.2 | Import parser | Done | Backup/restore utilities | Valid backup imports without data loss | Added typed JSON/CSV backup parser and focused tests for valid imports, corrupt JSON, unsupported CSV headers, invalid mood scores, absolute media paths, and duplicate UUIDs. User-reported format, targeted tests, and analyze passed. |
-| P6.3 | UUID/timestamp conflict strategy | Not Started | Backup/restore/database | Newer imported records overwrite, older records are skipped and reported | Matches data model. |
+| P6.3 | UUID/timestamp conflict strategy | Done | Backup/restore/database | Newer imported records overwrite, older records are skipped and reported | Added import applicator with transactional insert/update/skip behavior, activity resolution, entry link replacement, photo reference replacement, and focused database tests. User-reported format, targeted tests, and analyze passed. |
 | P6.4 | Automatic pre-import backup | Not Started | Backup/restore utilities | Import creates rollback snapshot before changing data | Keep latest 3 snapshots. |
 | P6.5 | Backup/restore tests | Not Started | Tests | Covers duplicates, old files, corrupted files, media references, and rollback | Critical for release. |
 
@@ -200,6 +200,9 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | 2026-07-13 | `dart format lib\features\settings test\features\settings` | Passed | Reported by user after P6.2 import parser. |
 | 2026-07-13 | `flutter test test\features\settings\backup_import_parser_test.dart` | Passed | Reported by user after P6.2. |
 | 2026-07-13 | `flutter analyze` | Passed | Reported by user after P6.2. |
+| 2026-07-13 | `dart format lib\features\settings test\features\settings` | Passed | Reported by user after P6.3 UUID/timestamp conflict strategy. |
+| 2026-07-13 | `flutter test test\features\settings\backup_import_apply_service_test.dart` | Passed | Reported by user after P6.3. |
+| 2026-07-13 | `flutter analyze` | Passed | Reported by user after P6.3. |
 
 ## Reference Docs
 

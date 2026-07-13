@@ -35,6 +35,14 @@ SELECT
   me.created_at,
   me.updated_at,
   me.is_deleted,
+  mp.relative_path AS photo_relative_path,
+  COALESCE((
+    SELECT GROUP_CONCAT(a.id, char(31))
+    FROM mood_entry_activities mea
+    INNER JOIN activities a ON a.id = mea.activity_id
+    WHERE mea.mood_entry_id = me.id
+    ORDER BY a.name COLLATE NOCASE
+  ), '') AS activity_ids,
   COALESCE((
     SELECT GROUP_CONCAT(a.name, char(31))
     FROM mood_entry_activities mea
@@ -43,6 +51,13 @@ SELECT
     ORDER BY a.name COLLATE NOCASE
   ), '') AS activity_names,
   COALESCE((
+    SELECT GROUP_CONCAT(se.id, char(31))
+    FROM mood_entry_sub_emotions mese
+    INNER JOIN sub_emotions se ON se.id = mese.sub_emotion_id
+    WHERE mese.mood_entry_id = me.id
+    ORDER BY se.name COLLATE NOCASE
+  ), '') AS sub_emotion_ids,
+  COALESCE((
     SELECT GROUP_CONCAT(se.name, char(31))
     FROM mood_entry_sub_emotions mese
     INNER JOIN sub_emotions se ON se.id = mese.sub_emotion_id
@@ -50,6 +65,7 @@ SELECT
     ORDER BY se.name COLLATE NOCASE
   ), '') AS sub_emotion_names
 FROM mood_entries me
+LEFT JOIN mood_photos mp ON mp.mood_entry_id = me.id
 WHERE me.is_deleted = 0
 ORDER BY me.created_at DESC
 LIMIT ?
@@ -61,6 +77,7 @@ LIMIT ?
         moodEntryActivities,
         attachedDatabase.subEmotions,
         attachedDatabase.moodEntrySubEmotions,
+        attachedDatabase.moodPhotos,
       },
     ).watch().map((rows) {
       return rows.map(MoodEntryHistoryRow.fromQueryRow).toList(growable: false);
@@ -170,14 +187,78 @@ LIMIT ?
     });
   }
 
-  Future<void> updateEntry({required int id, int? moodScore, String? note}) {
-    return (update(moodEntries)..where((t) => t.id.equals(id))).write(
-      MoodEntriesCompanion(
-        moodScore: moodScore != null ? Value(moodScore) : const Value.absent(),
-        note: note != null ? Value(note) : const Value.absent(),
-        updatedAt: Value(DateTime.now()),
-      ),
-    );
+  Future<void> updateEntry({
+    required int id,
+    required int moodScore,
+    required String note,
+    String? voiceNotePath,
+    String? photoRelativePath,
+    required List<int> activityIds,
+    required List<int> subEmotionIds,
+  }) {
+    final now = DateTime.now();
+
+    return transaction(() async {
+      await (update(moodEntries)..where((t) => t.id.equals(id))).write(
+        MoodEntriesCompanion(
+          moodScore: Value(moodScore),
+          note: Value(note),
+          voiceNotePath: Value(voiceNotePath),
+          updatedAt: Value(now),
+        ),
+      );
+
+      await (delete(
+        moodEntryActivities,
+      )..where((t) => t.moodEntryId.equals(id))).go();
+      if (activityIds.isNotEmpty) {
+        await batch((b) {
+          b.insertAll(
+            moodEntryActivities,
+            activityIds
+                .map(
+                  (activityId) => MoodEntryActivitiesCompanion.insert(
+                    moodEntryId: id,
+                    activityId: activityId,
+                  ),
+                )
+                .toList(),
+          );
+        });
+      }
+
+      await (delete(
+        attachedDatabase.moodEntrySubEmotions,
+      )..where((t) => t.moodEntryId.equals(id))).go();
+      if (subEmotionIds.isNotEmpty) {
+        await batch((b) {
+          b.insertAll(
+            attachedDatabase.moodEntrySubEmotions,
+            subEmotionIds
+                .map(
+                  (subEmotionId) => MoodEntrySubEmotionsCompanion.insert(
+                    moodEntryId: id,
+                    subEmotionId: subEmotionId,
+                  ),
+                )
+                .toList(),
+          );
+        });
+      }
+
+      await (delete(
+        attachedDatabase.moodPhotos,
+      )..where((t) => t.moodEntryId.equals(id))).go();
+      if (photoRelativePath != null) {
+        await into(attachedDatabase.moodPhotos).insert(
+          MoodPhotosCompanion.insert(
+            moodEntryId: id,
+            relativePath: photoRelativePath,
+            createdAt: now,
+          ),
+        );
+      }
+    });
   }
 
   /// Soft delete — actual row cleanup happens in a periodic background
@@ -206,12 +287,18 @@ LIMIT ?
 final class MoodEntryHistoryRow {
   const MoodEntryHistoryRow({
     required this.entry,
+    required this.photoRelativePath,
+    required this.activityIds,
     required this.activityNames,
+    required this.subEmotionIds,
     required this.subEmotionNames,
   });
 
   final MoodEntry entry;
+  final String? photoRelativePath;
+  final List<int> activityIds;
   final List<String> activityNames;
+  final List<int> subEmotionIds;
   final List<String> subEmotionNames;
 
   factory MoodEntryHistoryRow.fromQueryRow(QueryRow row) {
@@ -226,7 +313,10 @@ final class MoodEntryHistoryRow {
         updatedAt: row.read<DateTime>('updated_at'),
         isDeleted: _readBool(row.data['is_deleted']),
       ),
+      photoRelativePath: row.readNullable<String>('photo_relative_path'),
+      activityIds: _splitIds(row.read<String>('activity_ids')),
       activityNames: _splitNames(row.read<String>('activity_names')),
+      subEmotionIds: _splitIds(row.read<String>('sub_emotion_ids')),
       subEmotionNames: _splitNames(row.read<String>('sub_emotion_names')),
     );
   }
@@ -240,6 +330,15 @@ final class MoodEntryHistoryRow {
     return value
         .split('\u001f')
         .where((name) => name.trim().isNotEmpty)
+        .toList(growable: false);
+  }
+
+  static List<int> _splitIds(String value) {
+    if (value.isEmpty) return const [];
+    return value
+        .split('\u001f')
+        .map(int.tryParse)
+        .whereType<int>()
         .toList(growable: false);
   }
 }

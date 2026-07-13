@@ -1,5 +1,7 @@
+import 'package:daily_mood_application/domain/models/mood_activity.dart';
 import 'package:daily_mood_application/domain/models/mood_entry.dart';
 import 'package:daily_mood_application/features/dashboard/dashboard_screen.dart';
+import 'package:daily_mood_application/features/dashboard/widgets/entry_detail_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -239,6 +241,10 @@ void main() {
     int? updatedId;
     int? updatedScore;
     String? updatedNote;
+    String? updatedPhotoRelativePath;
+    String? updatedVoiceNotePath;
+    List<int>? updatedActivityIds;
+    List<int>? updatedSubEmotionIds;
     final now = DateTime.now();
     final entries = [
       _entry(
@@ -246,6 +252,12 @@ void main() {
         moodScore: 3,
         note: 'Steady afternoon.',
         createdAt: now,
+        activityIds: const [1],
+        activityNames: const ['Work'],
+        subEmotionIds: const [7],
+        subEmotionNames: const ['Neutral'],
+        photoRelativePath: 'mood_photos/original.jpg',
+        voiceNotePath: 'mood_voices/original.m4a',
       ),
     ];
 
@@ -257,10 +269,18 @@ void main() {
             required int id,
             required int moodScore,
             required String note,
+            String? voiceNotePath,
+            String? photoRelativePath,
+            required List<int> activityIds,
+            required List<int> subEmotionIds,
           }) async {
             updatedId = id;
             updatedScore = moodScore;
             updatedNote = note;
+            updatedVoiceNotePath = voiceNotePath;
+            updatedPhotoRelativePath = photoRelativePath;
+            updatedActivityIds = activityIds;
+            updatedSubEmotionIds = subEmotionIds;
           },
           onDeleteEntry: (_) async {},
         ),
@@ -279,12 +299,108 @@ void main() {
       find.byKey(const ValueKey('entry_detail_note_field')),
       'Edited note',
     );
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('entry_detail_sub_emotion_7')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('entry_detail_sub_emotion_7')));
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('entry_detail_remove_photo_button')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('entry_detail_remove_photo_button')),
+    );
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('entry_detail_remove_voice_button')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('entry_detail_remove_voice_button')),
+    );
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('entry_detail_save_button')),
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('entry_detail_save_button')));
     await tester.pumpAndSettle();
 
     expect(updatedId, 1);
     expect(updatedScore, 4);
     expect(updatedNote, 'Edited note');
+    expect(updatedPhotoRelativePath, isNull);
+    expect(updatedVoiceNotePath, isNull);
+    expect(updatedActivityIds, [1]);
+    expect(updatedSubEmotionIds, isEmpty);
+  });
+
+  testWidgets('entry detail sheet updates activities and sub-emotions', (
+    tester,
+  ) async {
+    List<int>? updatedActivityIds;
+    List<int>? updatedSubEmotionIds;
+    final entry = _entry(
+      id: 1,
+      moodScore: 4,
+      note: 'Good afternoon.',
+      createdAt: DateTime.now(),
+      activityIds: const [1],
+      activityNames: const ['Work'],
+      subEmotionIds: const [10],
+      subEmotionNames: const ['Calm'],
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: EntryDetailSheet(
+            entry: entry,
+            activityOptions: Stream.value(const [
+              MoodActivity(
+                id: 1,
+                name: 'Work',
+                category: 'Life',
+                isCustom: false,
+              ),
+              MoodActivity(
+                id: 2,
+                name: 'Sleep',
+                category: 'Health',
+                isCustom: false,
+              ),
+            ]),
+            onUpdateEntry: ({
+              required int id,
+              required int moodScore,
+              required String note,
+              String? voiceNotePath,
+              String? photoRelativePath,
+              required List<int> activityIds,
+              required List<int> subEmotionIds,
+            }) async {
+              updatedActivityIds = activityIds;
+              updatedSubEmotionIds = subEmotionIds;
+            },
+            onDeleteEntry: (_) async {},
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await tester.tap(find.byKey(const ValueKey('entry_detail_activity_1')));
+    await tester.tap(find.byKey(const ValueKey('entry_detail_activity_2')));
+    await tester.tap(find.byKey(const ValueKey('entry_detail_sub_emotion_10')));
+    await tester.tap(find.byKey(const ValueKey('entry_detail_sub_emotion_11')));
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('entry_detail_save_button')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('entry_detail_save_button')));
+    await tester.pumpAndSettle();
+
+    expect(updatedActivityIds, [2]);
+    expect(updatedSubEmotionIds, [11]);
   });
 }
 
@@ -293,14 +409,25 @@ MoodEntryModel _entry({
   required int moodScore,
   required String note,
   required DateTime createdAt,
+  List<int> activityIds = const [],
+  List<String> activityNames = const [],
+  List<int> subEmotionIds = const [],
+  List<String> subEmotionNames = const [],
+  String? photoRelativePath,
+  String? voiceNotePath,
 }) {
   return MoodEntryModel(
     id: id,
     uuid: 'entry-$id',
     moodScore: moodScore,
     note: note,
-    voiceNotePath: null,
+    voiceNotePath: voiceNotePath,
+    photoRelativePath: photoRelativePath,
     createdAt: createdAt,
     updatedAt: createdAt,
+    activityIds: activityIds,
+    activityNames: activityNames,
+    subEmotionIds: subEmotionIds,
+    subEmotionNames: subEmotionNames,
   );
 }

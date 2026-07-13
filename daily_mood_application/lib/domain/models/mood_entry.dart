@@ -9,7 +9,10 @@ final class MoodEntryModel extends Equatable {
     required this.updatedAt,
     this.note,
     this.voiceNotePath,
+    this.photoRelativePath,
+    this.activityIds = const [],
     this.activityNames = const [],
+    this.subEmotionIds = const [],
     this.subEmotionNames = const [],
   });
 
@@ -20,7 +23,10 @@ final class MoodEntryModel extends Equatable {
   final DateTime updatedAt;
   final String? note;
   final String? voiceNotePath;
+  final String? photoRelativePath;
+  final List<int> activityIds;
   final List<String> activityNames;
+  final List<int> subEmotionIds;
   final List<String> subEmotionNames;
 
   @override
@@ -32,7 +38,10 @@ final class MoodEntryModel extends Equatable {
     updatedAt,
     note,
     voiceNotePath,
+    photoRelativePath,
+    activityIds,
     activityNames,
+    subEmotionIds,
     subEmotionNames,
   ];
 }

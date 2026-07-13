@@ -20,8 +20,8 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | Overall MVP status   | Feature-gap backlog implementation has started                                                             |
 | Current active phase | Phase 8 - Feature Gap Backlog                                                                              |
 | Last updated         | 2026-07-13                                                                                                 |
-| Latest verification  | P8.1 user-reported format, targeted tests, and analyze passed                                               |
-| Main next task       | P8.2 full entry edit flow                                                                                   |
+| Latest verification  | P8.2 user-reported format, targeted tests, and analyze passed                                               |
+| Main next task       | P8.3 real voice note recording                                                                              |
 | Known blockers       | Real privacy-policy effective date/contact; final chart green; Gradient 1 confirmation; WCAG contrast pass |
 
 ## Update Rules
@@ -126,7 +126,7 @@ These tasks come from the 2026-07-13 feature-gap review of the current codebase,
 | ID   | Task                                 | Status      | Main files/areas              | Acceptance check                                                                 | Notes                                                                                                                                                   |
 | ---- | ------------------------------------ | ----------- | ----------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | P8.1 | History search and filters           | Done        | Dashboard/history/database    | User can search notes and filter history by mood, activity tag, emotion, and date | Added history metadata stream, metadata chips, UI filters for search/mood/date, and focused DAO/widget tests. User-reported format, targeted tests, and analyze passed. |
-| P8.2 | Full entry edit flow                 | Not Started | Dashboard/mood tracker        | Existing entries can update mood, note, activities, sub-emotions, photo, and voice | Entry detail currently edits only mood score and note; users need to correct reasons, emotions, and attachments after saving.                            |
+| P8.2 | Full entry edit flow                 | Done        | Dashboard/mood tracker        | Existing entries can update mood, note, activities, sub-emotions, photo, and voice | Added transactional full-entry updates for mood, note, activities, sub-emotions, photo path, and voice path plus focused DAO/widget coverage. User-reported verification passed. |
 | P8.3 | Real voice note recording            | Not Started | Mood tracker/media/database   | Voice entries save a local relative audio path and can be played back              | Current voice action uses speech-to-text and appends recognized text into the note; it does not create an audio file despite `voiceNotePath` in schema. |
 | P8.4 | Photo compression and size guard      | Not Started | Mood tracker/media storage    | Picked photos are resized/compressed and oversized files show a clear warning      | `flutter_image_compress` is installed, but `QuickLogMediaService` currently copies the original image file unchanged.                                     |
 | P8.5 | Media-safe backup packaging           | Not Started | Backup/restore/media          | JSON backup can include or package referenced media so restore works on a new phone | Export currently writes `mediaPackaging: relative_paths_only`, so photo/audio files are not actually moved with the backup.                              |
@@ -234,6 +234,7 @@ These tasks come from the 2026-07-13 feature-gap review of the current codebase,
 | 2026-07-13 | `flutter analyze`                                                                                                                                                                          | Passed | Reported by user after P6.4.                                                                |
 | 2026-07-13 | P6.5 backup/restore verification                                                                                                                                                           | Passed | Reported by user before moving P6.5 to Done.                                                |
 | 2026-07-13 | P8.1 history search/filter verification                                                                                                                                                    | Passed | Reported by user after Phase 8 history search/filter implementation.                        |
+| 2026-07-13 | P8.2 full entry edit verification                                                                                                                                                          | Passed | Reported by user after full entry edit implementation.                                      |
 
 ## Reference Docs
 

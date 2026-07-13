@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../data/repositories/activity_repository.dart';
 import '../../data/repositories/mood_entry_repository.dart';
 import '../../domain/models/mood_entry.dart';
 import 'dashboard_formatters.dart';
@@ -185,12 +186,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final repository = updateEntry == null || deleteEntry == null
         ? context.read<MoodEntryRepository>()
         : null;
+    final activityOptions = updateEntry == null || deleteEntry == null
+        ? context.read<ActivityRepository>().watchActiveActivities()
+        : null;
 
     return showEntryDetailSheet(
       context: context,
       entry: entry,
       onUpdateEntry: updateEntry ?? repository!.updateEntry,
       onDeleteEntry: deleteEntry ?? repository!.softDeleteEntry,
+      activityOptions: activityOptions,
     );
   }
 

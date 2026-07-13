@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../domain/models/mood_activity.dart';
 import '../../../domain/models/mood_entry.dart';
+import '../../mood_tracker/quick_log/quick_log_media_service.dart';
+import '../../mood_tracker/quick_log/quick_log_options.dart';
 import '../dashboard_formatters.dart';
 import '../dashboard_palette.dart';
 import '../entry_detail_actions.dart';
@@ -11,6 +14,8 @@ Future<void> showEntryDetailSheet({
   required MoodEntryModel entry,
   required EntryUpdateAction onUpdateEntry,
   required EntryDeleteAction onDeleteEntry,
+  Stream<List<MoodActivity>>? activityOptions,
+  QuickLogMediaService? mediaService,
 }) {
   return showModalBottomSheet<void>(
     context: context,
@@ -22,6 +27,8 @@ Future<void> showEntryDetailSheet({
         entry: entry,
         onUpdateEntry: onUpdateEntry,
         onDeleteEntry: onDeleteEntry,
+        activityOptions: activityOptions,
+        mediaService: mediaService ?? QuickLogMediaService(),
       );
     },
   );
@@ -33,11 +40,15 @@ class EntryDetailSheet extends StatefulWidget {
     required this.onUpdateEntry,
     required this.onDeleteEntry,
     super.key,
+    this.activityOptions,
+    this.mediaService,
   });
 
   final MoodEntryModel entry;
   final EntryUpdateAction onUpdateEntry;
   final EntryDeleteAction onDeleteEntry;
+  final Stream<List<MoodActivity>>? activityOptions;
+  final QuickLogMediaService? mediaService;
 
   @override
   State<EntryDetailSheet> createState() => _EntryDetailSheetState();
@@ -46,6 +57,10 @@ class EntryDetailSheet extends StatefulWidget {
 class _EntryDetailSheetState extends State<EntryDetailSheet> {
   late int _selectedScore;
   late final TextEditingController _noteController;
+  late final Set<int> _selectedActivityIds;
+  late final Set<int> _selectedSubEmotionIds;
+  String? _photoRelativePath;
+  String? _voiceNotePath;
   var _isSaving = false;
   var _isDeleting = false;
 
@@ -54,6 +69,10 @@ class _EntryDetailSheetState extends State<EntryDetailSheet> {
     super.initState();
     _selectedScore = widget.entry.moodScore;
     _noteController = TextEditingController(text: widget.entry.note ?? '');
+    _selectedActivityIds = widget.entry.activityIds.toSet();
+    _selectedSubEmotionIds = widget.entry.subEmotionIds.toSet();
+    _photoRelativePath = widget.entry.photoRelativePath;
+    _voiceNotePath = widget.entry.voiceNotePath;
   }
 
   @override
@@ -156,6 +175,44 @@ class _EntryDetailSheetState extends State<EntryDetailSheet> {
                 ),
               ),
               const SizedBox(height: 18),
+              _SectionTitle(
+                title: 'Reasons',
+                trailing: widget.activityOptions == null
+                    ? null
+                    : '${_selectedActivityIds.length} selected',
+              ),
+              const SizedBox(height: 10),
+              _ActivityEditor(
+                activityOptions: widget.activityOptions,
+                selectedActivityIds: _selectedActivityIds,
+                fallbackNames: widget.entry.activityNames,
+                enabled: !isBusy,
+                onToggle: _toggleActivity,
+              ),
+              const SizedBox(height: 18),
+              _SectionTitle(
+                title: 'Emotions',
+                trailing: '${_selectedSubEmotionIds.length} selected',
+              ),
+              const SizedBox(height: 10),
+              _SubEmotionEditor(
+                moodScore: _selectedScore,
+                selectedSubEmotionIds: _selectedSubEmotionIds,
+                enabled: !isBusy,
+                onToggle: _toggleSubEmotion,
+              ),
+              const SizedBox(height: 18),
+              _SectionTitle(title: 'Attachments'),
+              const SizedBox(height: 10),
+              _AttachmentEditor(
+                photoRelativePath: _photoRelativePath,
+                voiceNotePath: _voiceNotePath,
+                enabled: !isBusy,
+                onPickPhoto: _pickPhoto,
+                onRemovePhoto: () => setState(() => _photoRelativePath = null),
+                onRemoveVoice: () => setState(() => _voiceNotePath = null),
+              ),
+              const SizedBox(height: 18),
               Row(
                 children: [
                   Expanded(
@@ -214,6 +271,10 @@ class _EntryDetailSheetState extends State<EntryDetailSheet> {
       id: widget.entry.id,
       moodScore: _selectedScore,
       note: _noteController.text.trim(),
+      voiceNotePath: _voiceNotePath,
+      photoRelativePath: _photoRelativePath,
+      activityIds: _selectedActivityIds.toList(growable: false),
+      subEmotionIds: _selectedSubEmotionIds.toList(growable: false),
     );
 
     if (!mounted) return;
@@ -255,5 +316,246 @@ class _EntryDetailSheetState extends State<EntryDetailSheet> {
 
     if (!mounted) return;
     Navigator.of(context).pop();
+  }
+
+  void _toggleActivity(int activityId) {
+    setState(() {
+      if (!_selectedActivityIds.add(activityId)) {
+        _selectedActivityIds.remove(activityId);
+      }
+    });
+  }
+
+  void _toggleSubEmotion(int subEmotionId) {
+    setState(() {
+      if (!_selectedSubEmotionIds.add(subEmotionId)) {
+        _selectedSubEmotionIds.remove(subEmotionId);
+      }
+    });
+  }
+
+  Future<void> _pickPhoto() async {
+    final path = await widget.mediaService?.pickPhoto();
+    if (path == null || !mounted) return;
+    setState(() => _photoRelativePath = path);
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle({required this.title, this.trailing});
+
+  final String title;
+  final String? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            style: const TextStyle(
+              color: DashboardPalette.deepText,
+              fontSize: 14,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ),
+        if (trailing != null)
+          Text(
+            trailing!,
+            style: const TextStyle(
+              color: DashboardPalette.mutedText,
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _ActivityEditor extends StatelessWidget {
+  const _ActivityEditor({
+    required this.activityOptions,
+    required this.selectedActivityIds,
+    required this.fallbackNames,
+    required this.enabled,
+    required this.onToggle,
+  });
+
+  final Stream<List<MoodActivity>>? activityOptions;
+  final Set<int> selectedActivityIds;
+  final List<String> fallbackNames;
+  final bool enabled;
+  final ValueChanged<int> onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final stream = activityOptions;
+    if (stream == null) {
+      return _FallbackChipWrap(names: fallbackNames);
+    }
+
+    return StreamBuilder<List<MoodActivity>>(
+      stream: stream,
+      builder: (context, snapshot) {
+        final activities = snapshot.data ?? const <MoodActivity>[];
+        if (activities.isEmpty && fallbackNames.isNotEmpty) {
+          return _FallbackChipWrap(names: fallbackNames);
+        }
+        if (activities.isEmpty) {
+          return const Text(
+            'No reasons available',
+            style: TextStyle(color: DashboardPalette.mutedText, fontSize: 12),
+          );
+        }
+
+        return Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final activity in activities)
+              FilterChip(
+                key: ValueKey('entry_detail_activity_${activity.id}'),
+                label: Text(activity.name),
+                selected: selectedActivityIds.contains(activity.id),
+                onSelected: enabled ? (_) => onToggle(activity.id) : null,
+                selectedColor: DashboardPalette.lilacPanel,
+                checkmarkColor: DashboardPalette.purple,
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _SubEmotionEditor extends StatelessWidget {
+  const _SubEmotionEditor({
+    required this.moodScore,
+    required this.selectedSubEmotionIds,
+    required this.enabled,
+    required this.onToggle,
+  });
+
+  final int moodScore;
+  final Set<int> selectedSubEmotionIds;
+  final bool enabled;
+  final ValueChanged<int> onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final options = subEmotionOptions.where((emotion) {
+      return emotion.parentMoodScore == moodScore ||
+          selectedSubEmotionIds.contains(emotion.id);
+    });
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final emotion in options)
+          FilterChip(
+            key: ValueKey('entry_detail_sub_emotion_${emotion.id}'),
+            label: Text(emotion.label),
+            selected: selectedSubEmotionIds.contains(emotion.id),
+            onSelected: enabled ? (_) => onToggle(emotion.id) : null,
+            selectedColor: moodColor(moodScore).withValues(alpha: 0.22),
+            checkmarkColor: moodColor(moodScore),
+          ),
+      ],
+    );
+  }
+}
+
+class _AttachmentEditor extends StatelessWidget {
+  const _AttachmentEditor({
+    required this.photoRelativePath,
+    required this.voiceNotePath,
+    required this.enabled,
+    required this.onPickPhoto,
+    required this.onRemovePhoto,
+    required this.onRemoveVoice,
+  });
+
+  final String? photoRelativePath;
+  final String? voiceNotePath;
+  final bool enabled;
+  final VoidCallback onPickPhoto;
+  final VoidCallback onRemovePhoto;
+  final VoidCallback onRemoveVoice;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            ActionChip(
+              key: const ValueKey('entry_detail_pick_photo_button'),
+              avatar: const Icon(Icons.photo_outlined, size: 18),
+              label: Text(
+                photoRelativePath == null ? 'Add photo' : 'Replace photo',
+              ),
+              onPressed: enabled ? onPickPhoto : null,
+            ),
+            if (photoRelativePath != null)
+              InputChip(
+                key: const ValueKey('entry_detail_photo_chip'),
+                avatar: const Icon(Icons.image_outlined, size: 18),
+                label: const Text('Photo attached'),
+                deleteIcon: const Icon(
+                  Icons.close_rounded,
+                  key: ValueKey('entry_detail_remove_photo_button'),
+                ),
+                onDeleted: enabled ? onRemovePhoto : null,
+              ),
+            if (voiceNotePath != null)
+              InputChip(
+                key: const ValueKey('entry_detail_voice_chip'),
+                avatar: const Icon(Icons.graphic_eq_rounded, size: 18),
+                label: const Text('Voice attached'),
+                deleteIcon: const Icon(
+                  Icons.close_rounded,
+                  key: ValueKey('entry_detail_remove_voice_button'),
+                ),
+                onDeleted: enabled ? onRemoveVoice : null,
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _FallbackChipWrap extends StatelessWidget {
+  const _FallbackChipWrap({required this.names});
+
+  final List<String> names;
+
+  @override
+  Widget build(BuildContext context) {
+    if (names.isEmpty) {
+      return const Text(
+        'No reasons selected',
+        style: TextStyle(color: DashboardPalette.mutedText, fontSize: 12),
+      );
+    }
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final name in names)
+          Chip(
+            label: Text(name),
+            backgroundColor: DashboardPalette.lilacPanel,
+          ),
+      ],
+    );
   }
 }

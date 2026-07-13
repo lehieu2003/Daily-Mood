@@ -37,8 +37,20 @@ final class MoodEntryLocalService {
     required int id,
     required int moodScore,
     required String note,
+    String? voiceNotePath,
+    String? photoRelativePath,
+    required List<int> activityIds,
+    required List<int> subEmotionIds,
   }) {
-    return _moodEntryDao.updateEntry(id: id, moodScore: moodScore, note: note);
+    return _moodEntryDao.updateEntry(
+      id: id,
+      moodScore: moodScore,
+      note: note,
+      voiceNotePath: voiceNotePath,
+      photoRelativePath: photoRelativePath,
+      activityIds: activityIds,
+      subEmotionIds: subEmotionIds,
+    );
   }
 
   Future<void> softDeleteEntry(int id) {

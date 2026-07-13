@@ -82,8 +82,61 @@ void main() {
 
       expect(rows, hasLength(1));
       expect(rows.single.entry.id, entryId);
+      expect(rows.single.activityIds, [workActivity.id]);
       expect(rows.single.activityNames, ['Work']);
+      expect(rows.single.subEmotionIds, [calmSubEmotion.id]);
       expect(rows.single.subEmotionNames, ['Calm']);
+    } finally {
+      await db.close();
+    }
+  });
+
+  test('updates entry details and replaces links transactionally', () async {
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final dao = MoodEntryDao(db);
+
+    try {
+      final workActivity = await (db.select(
+        db.activities,
+      )..where((activity) => activity.name.equals('Work'))).getSingle();
+      final sleepActivity = await (db.select(
+        db.activities,
+      )..where((activity) => activity.name.equals('Sleep'))).getSingle();
+      final calmSubEmotion = await (db.select(
+        db.subEmotions,
+      )..where((subEmotion) => subEmotion.name.equals('Calm'))).getSingle();
+      final energizedSubEmotion = await (db.select(
+        db.subEmotions,
+      )..where((subEmotion) => subEmotion.name.equals('Energized'))).getSingle();
+
+      final entryId = await dao.createEntry(
+        moodScore: 4,
+        note: 'Original note.',
+        photoRelativePath: 'mood_photos/original.jpg',
+        activityIds: [workActivity.id],
+        subEmotionIds: [calmSubEmotion.id],
+      );
+
+      await dao.updateEntry(
+        id: entryId,
+        moodScore: 5,
+        note: 'Edited note.',
+        voiceNotePath: 'mood_voices/edited.m4a',
+        photoRelativePath: 'mood_photos/edited.jpg',
+        activityIds: [sleepActivity.id],
+        subEmotionIds: [energizedSubEmotion.id],
+      );
+
+      final rows = await dao.watchHistoryEntries().first;
+
+      expect(rows.single.entry.moodScore, 5);
+      expect(rows.single.entry.note, 'Edited note.');
+      expect(rows.single.entry.voiceNotePath, 'mood_voices/edited.m4a');
+      expect(rows.single.photoRelativePath, 'mood_photos/edited.jpg');
+      expect(rows.single.activityIds, [sleepActivity.id]);
+      expect(rows.single.activityNames, ['Sleep']);
+      expect(rows.single.subEmotionIds, [energizedSubEmotion.id]);
+      expect(rows.single.subEmotionNames, ['Energized']);
     } finally {
       await db.close();
     }

@@ -144,6 +144,10 @@ void main() {
             required int id,
             required int moodScore,
             required String note,
+            String? voiceNotePath,
+            String? photoRelativePath,
+            required List<int> activityIds,
+            required List<int> subEmotionIds,
           }) async {},
           onDeleteEntry: (id) async {
             deletedId = id;
@@ -173,15 +177,23 @@ MoodEntryModel _entry({
   required DateTime createdAt,
   List<String> activityNames = const [],
   List<String> subEmotionNames = const [],
+  List<int> activityIds = const [],
+  List<int> subEmotionIds = const [],
+  String? photoRelativePath,
+  String? voiceNotePath,
 }) {
   return MoodEntryModel(
     id: id,
     uuid: 'entry-$id',
     moodScore: moodScore,
     note: note,
+    voiceNotePath: voiceNotePath,
+    photoRelativePath: photoRelativePath,
     createdAt: createdAt,
     updatedAt: createdAt,
+    activityIds: activityIds,
     activityNames: activityNames,
+    subEmotionIds: subEmotionIds,
     subEmotionNames: subEmotionNames,
   );
 }

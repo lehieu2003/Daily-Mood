@@ -20,7 +20,10 @@ final class MoodEntryRepository {
           .map(
             (row) => _toDomain(
               row.entry,
+              photoRelativePath: row.photoRelativePath,
+              activityIds: row.activityIds,
               activityNames: row.activityNames,
+              subEmotionIds: row.subEmotionIds,
               subEmotionNames: row.subEmotionNames,
             ),
           )
@@ -50,8 +53,20 @@ final class MoodEntryRepository {
     required int id,
     required int moodScore,
     required String note,
+    String? voiceNotePath,
+    String? photoRelativePath,
+    required List<int> activityIds,
+    required List<int> subEmotionIds,
   }) {
-    return _localService.updateEntry(id: id, moodScore: moodScore, note: note);
+    return _localService.updateEntry(
+      id: id,
+      moodScore: moodScore,
+      note: note,
+      voiceNotePath: voiceNotePath,
+      photoRelativePath: photoRelativePath,
+      activityIds: activityIds,
+      subEmotionIds: subEmotionIds,
+    );
   }
 
   Future<void> softDeleteEntry(int id) {
@@ -60,7 +75,10 @@ final class MoodEntryRepository {
 
   MoodEntryModel _toDomain(
     db.MoodEntry entry, {
+    String? photoRelativePath,
+    List<int> activityIds = const [],
     List<String> activityNames = const [],
+    List<int> subEmotionIds = const [],
     List<String> subEmotionNames = const [],
   }) {
     return MoodEntryModel(
@@ -69,9 +87,12 @@ final class MoodEntryRepository {
       moodScore: entry.moodScore,
       note: entry.note,
       voiceNotePath: entry.voiceNotePath,
+      photoRelativePath: photoRelativePath,
       createdAt: entry.createdAt,
       updatedAt: entry.updatedAt,
+      activityIds: activityIds,
       activityNames: activityNames,
+      subEmotionIds: subEmotionIds,
       subEmotionNames: subEmotionNames,
     );
   }

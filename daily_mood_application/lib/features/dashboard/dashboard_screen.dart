@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/routes/app_router.dart';
+import '../../data/repositories/activity_repository.dart';
 import '../../data/repositories/mood_entry_repository.dart';
 import '../../domain/models/mood_entry.dart';
 import 'dashboard_formatters.dart';
@@ -57,8 +58,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final stream = widget.entries ??
-        context.read<MoodEntryRepository>().watchRecentEntries();
+    final stream =
+        widget.entries ??
+        context.read<MoodEntryRepository>().watchHistoryEntries(limit: 50);
     final today = _dateOnly(widget.today ?? DateTime.now());
 
     return Scaffold(
@@ -222,12 +224,16 @@ class _DashboardContent extends StatelessWidget {
     final repository = updateEntry == null || deleteEntry == null
         ? context.read<MoodEntryRepository>()
         : null;
+    final activityOptions = updateEntry == null || deleteEntry == null
+        ? context.read<ActivityRepository>().watchActiveActivities()
+        : null;
 
     return showEntryDetailSheet(
       context: context,
       entry: entry,
       onUpdateEntry: updateEntry ?? repository!.updateEntry,
       onDeleteEntry: deleteEntry ?? repository!.softDeleteEntry,
+      activityOptions: activityOptions,
     );
   }
 }

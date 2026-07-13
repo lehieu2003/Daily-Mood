@@ -56,6 +56,11 @@ class AppColors {
   static const Color accentYellow = Color(0xFFE8B50E); // 100%
   static const Color accentRed = Color(0xFFFC4C4C); // 100%
 
+  static const Color navSurface = Color(0xFFF9FCFF);
+  static const Color navActiveSurface = Color(0xFF005A76);
+  static const Color navActiveItem = primaryPurple;
+  static const Color navInactiveItem = Color(0xFF5F646B);
+
   // ---------------------------------------------------------------------
   // 1.4 Gradients
   // Intended for decorative surfaces (cards, hero sections) only —

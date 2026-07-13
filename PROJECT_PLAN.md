@@ -17,11 +17,11 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 
 | Field | Value |
 | --- | --- |
-| Overall MVP status | Dashboard mood visuals in review |
+| Overall MVP status | Dashboard mood visuals and navigation polish in review |
 | Current active phase | Phase 6 - Backup, Export, Import |
 | Last updated | 2026-07-13 |
 | Latest verification | P6.5 user-reported backup/restore verification passed |
-| Main next task | User verification for P3.5 dashboard mood visuals |
+| Main next task | User verification for P3.5 dashboard mood visuals and P7.6 navigation polish |
 | Known blockers | Real privacy-policy effective date/contact; final chart green; Gradient 1 confirmation; WCAG contrast pass |
 
 ## Update Rules
@@ -117,6 +117,7 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | P7.3 | Accessibility and contrast pass | Not Started | UI/theme | Text/background pairs meet WCAG target from UI spec | Especially text tertiary and mood chips. |
 | P7.4 | App icon and launch screen branding | Not Started | Platform assets | App has production icon and launch screen assets | Current iOS launch README is default boilerplate. |
 | P7.5 | Store privacy readiness | Blocked | Privacy/store metadata | Privacy policy, App Store labels, and Google Play Data Safety are complete | Requires owner/legal/product input. |
+| P7.6 | Bottom navigation visual polish | Review | Shell UI | Bottom navigation colors match the dashboard reference and keep readable inactive states | Added bottom navigation color tokens to `AppColors` and applied them in `MainShell`. Awaiting user-run format, shell/dashboard smoke check, and analyze before Done. |
 
 ## Phase 8 - Post-MVP Expansion
 

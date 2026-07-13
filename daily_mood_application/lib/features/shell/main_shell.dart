@@ -56,9 +56,8 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final inactiveItemColor = AppColors.textTertiary;
-    final activeItemColor = AppColors.primaryPurple;
+    const inactiveItemColor = AppColors.navInactiveItem;
+    const activeItemColor = AppColors.navActiveItem;
 
     return Scaffold(
       extendBody: true,
@@ -76,8 +75,8 @@ class _MainShellState extends State<MainShell> {
       bottomNavigationBar: AnimatedNotchBottomBar(
         kIconSize: 30,
         notchBottomBarController: _notchController,
-        color: colorScheme.surface,
-        notchColor: colorScheme.primary,
+        color: AppColors.navSurface,
+        notchColor: AppColors.navActiveSurface,
         showLabel: true,
         durationInMilliSeconds: 300,
         itemLabelStyle: const TextStyle(

@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/database/app_database.dart';
 import '../../core/security/app_lock_cubit.dart';
 import 'data/backup_export_service.dart';
+import 'data/backup_import_file_service.dart';
+import 'data/backup_import_parser.dart';
 import 'data/local_data_reset_service.dart';
 import 'data/settings_preferences_repository.dart';
 import 'state/delete_all_data_cubit.dart';
@@ -24,6 +26,7 @@ class SettingsScreen extends StatelessWidget {
     this.onDeleteData,
     this.dataResetService,
     this.backupExportService,
+    this.backupImportService,
     this.onDataDeleted,
   }) : _preferencesRepository = preferencesRepository;
 
@@ -34,6 +37,7 @@ class SettingsScreen extends StatelessWidget {
   final VoidCallback? onDeleteData;
   final LocalDataResetService? dataResetService;
   final BackupExportService? backupExportService;
+  final BackupImportFileService? backupImportService;
   final VoidCallback? onDataDeleted;
 
   @override
@@ -49,6 +53,7 @@ class SettingsScreen extends StatelessWidget {
         onDeleteData: onDeleteData,
         dataResetService: dataResetService,
         backupExportService: backupExportService,
+        backupImportService: backupImportService,
         onDataDeleted: onDataDeleted,
       ),
     );
@@ -63,6 +68,7 @@ class _SettingsView extends StatelessWidget {
     this.onDeleteData,
     this.dataResetService,
     this.backupExportService,
+    this.backupImportService,
     this.onDataDeleted,
   });
 
@@ -72,6 +78,7 @@ class _SettingsView extends StatelessWidget {
   final VoidCallback? onDeleteData;
   final LocalDataResetService? dataResetService;
   final BackupExportService? backupExportService;
+  final BackupImportFileService? backupImportService;
   final VoidCallback? onDataDeleted;
 
   @override
@@ -131,14 +138,8 @@ class _SettingsView extends StatelessWidget {
                     key: const ValueKey('settings_import_tile'),
                     icon: Icons.file_upload_outlined,
                     title: 'Import data',
-                    subtitle: 'Restore a backup without automatic cloud sync.',
-                    onTap:
-                        onImportData ??
-                        () => _showComingSoon(
-                          context,
-                          'Import data',
-                          'Backup file parsing is ready. Restore will be enabled after conflict handling and rollback snapshots are in place.',
-                        ),
+                    subtitle: 'Restore a JSON or CSV backup file.',
+                    onTap: onImportData ?? () => _importData(context),
                   ),
                   const SettingsDivider(),
                   SettingsTile(
@@ -172,28 +173,6 @@ class _SettingsView extends StatelessWidget {
       return;
     }
     context.read<AppLockCubit>().lockManually();
-  }
-
-  Future<void> _showComingSoon(
-    BuildContext context,
-    String title,
-    String message,
-  ) {
-    return showDialog<void>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   Future<void> _showExportFormatDialog(BuildContext context) {
@@ -251,6 +230,38 @@ class _SettingsView extends StatelessWidget {
         const SnackBar(content: Text('Export failed. Please try again.')),
       );
     }
+  }
+
+  Future<void> _importData(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final service =
+        backupImportService ??
+        LocalBackupImportFileService(database: context.read<AppDatabase>());
+
+    try {
+      final result = await service.importFromFile();
+      if (result == null) return;
+
+      messenger.showSnackBar(
+        SnackBar(content: Text(_importSummary(result))),
+      );
+    } on BackupImportParseException catch (error) {
+      messenger.showSnackBar(
+        SnackBar(content: Text('Import failed: ${error.message}')),
+      );
+    } catch (_) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Import failed. Please try again.')),
+      );
+    }
+  }
+
+  String _importSummary(BackupImportFileResult result) {
+    final apply = result.restore.applyResult;
+    return 'Imported ${result.fileName}: '
+        '${apply.insertedEntries} added, '
+        '${apply.updatedEntries} updated, '
+        '${apply.skippedEntries} skipped.';
   }
 
   Future<void> _showDeleteAllDataDialog(BuildContext context) {

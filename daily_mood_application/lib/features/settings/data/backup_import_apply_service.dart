@@ -21,7 +21,11 @@ final class BackupImportApplyResult {
   final List<String> skippedEntryUuids;
 }
 
-final class BackupImportApplyService {
+abstract interface class BackupImportApplier {
+  Future<BackupImportApplyResult> apply(ParsedBackup backup);
+}
+
+final class BackupImportApplyService implements BackupImportApplier {
   BackupImportApplyService({required AppDatabase database})
     : _database = database;
 

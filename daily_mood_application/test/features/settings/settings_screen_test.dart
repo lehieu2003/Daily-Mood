@@ -1,4 +1,8 @@
 import 'package:daily_mood_application/features/settings/data/backup_export_service.dart';
+import 'package:daily_mood_application/features/settings/data/backup_import_apply_service.dart';
+import 'package:daily_mood_application/features/settings/data/backup_import_file_service.dart';
+import 'package:daily_mood_application/features/settings/data/backup_import_restore_service.dart';
+import 'package:daily_mood_application/features/settings/data/backup_snapshot_service.dart';
 import 'package:daily_mood_application/features/settings/data/local_data_reset_service.dart';
 import 'package:daily_mood_application/features/settings/data/settings_preferences_repository.dart';
 import 'package:daily_mood_application/features/settings/settings_screen.dart';
@@ -116,6 +120,33 @@ void main() {
     );
   });
 
+  testWidgets('import data flow restores selected backup and shows summary', (
+    tester,
+  ) async {
+    final importService = _FakeBackupImportFileService();
+
+    await tester.pumpWidget(
+      _app(
+        SettingsScreen(
+          preferencesRepository: SettingsPreferencesRepository(
+            store: InMemorySettingsPreferencesStore(),
+          ),
+          backupImportService: importService,
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await tester.tap(find.byKey(const ValueKey('settings_import_tile')));
+    await tester.pumpAndSettle();
+
+    expect(importService.importCount, 1);
+    expect(
+      find.text('Imported daily_mood_export_test.json: 2 added, 1 updated, 3 skipped.'),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('delete data flow requires confirmation before reset', (
     tester,
   ) async {
@@ -198,5 +229,28 @@ class _FakeBackupExportService implements BackupExportService {
   Future<BackupExportFile> exportAndShare(BackupExportFormat format) async {
     sharedFormats.add(format);
     return buildExport(format);
+  }
+}
+
+class _FakeBackupImportFileService implements BackupImportFileService {
+  int importCount = 0;
+
+  @override
+  Future<BackupImportFileResult?> importFromFile() async {
+    importCount++;
+    return const BackupImportFileResult(
+      fileName: 'daily_mood_export_test.json',
+      restore: BackupImportRestoreResult(
+        snapshot: BackupSnapshot(filePath: 'snapshot.json'),
+        applyResult: BackupImportApplyResult(
+          insertedActivities: 0,
+          skippedActivities: 0,
+          insertedEntries: 2,
+          updatedEntries: 1,
+          skippedEntries: 3,
+          skippedEntryUuids: ['entry-1', 'entry-2', 'entry-3'],
+        ),
+      ),
+    );
   }
 }

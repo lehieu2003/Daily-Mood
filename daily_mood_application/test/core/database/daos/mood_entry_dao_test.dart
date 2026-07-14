@@ -105,9 +105,10 @@ void main() {
       final calmSubEmotion = await (db.select(
         db.subEmotions,
       )..where((subEmotion) => subEmotion.name.equals('Calm'))).getSingle();
-      final energizedSubEmotion = await (db.select(
-        db.subEmotions,
-      )..where((subEmotion) => subEmotion.name.equals('Energized'))).getSingle();
+      final energizedSubEmotion =
+          await (db.select(db.subEmotions)
+                ..where((subEmotion) => subEmotion.name.equals('Energized')))
+              .getSingle();
 
       final entryId = await dao.createEntry(
         moodScore: 4,

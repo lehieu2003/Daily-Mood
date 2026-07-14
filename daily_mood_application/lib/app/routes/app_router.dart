@@ -11,7 +11,7 @@ import '../../data/repositories/mood_entry_repository.dart';
 import '../../features/mood_tracker/cubit/mood_form_cubit.dart';
 import '../../features/mood_tracker/quick_log/quick_log_media_service.dart';
 import '../../features/mood_tracker/quick_log/quick_log_screen.dart';
-import '../../features/mood_tracker/quick_log/quick_log_voice_input_service.dart';
+import '../../features/mood_tracker/quick_log/quick_log_voice_note_service.dart';
 import '../../features/settings/lock/lock_screen.dart';
 import '../../features/settings/pin_setup/pin_setup_cubit.dart';
 import '../../features/settings/pin_setup/pin_setup_screen.dart';
@@ -80,7 +80,7 @@ GoRouter buildAppRouter(AppLockCubit lockCubit, PinRepository pinRepository) {
         path: AppRoutes.quickLog,
         builder: (context, state) {
           final mediaService = QuickLogMediaService();
-          final voiceInputService = QuickLogVoiceInputService();
+          final voiceNoteService = QuickLogVoiceNoteService();
 
           return BlocProvider(
             create: (_) => MoodFormCubit(),
@@ -94,7 +94,10 @@ GoRouter buildAppRouter(AppLockCubit lockCubit, PinRepository pinRepository) {
                 );
               },
               onPickPhoto: mediaService.pickPhoto,
-              onTranscribeVoice: voiceInputService.listenForText,
+              onStartVoiceRecording: voiceNoteService.startRecording,
+              onStopVoiceRecording: voiceNoteService.stopRecording,
+              onCancelVoiceRecording: voiceNoteService.cancelRecording,
+              onDisposeVoiceRecording: voiceNoteService.dispose,
               onSave: (formState) async {
                 await context.read<MoodEntryRepository>().createEntry(
                   moodScore: formState.moodScore!,

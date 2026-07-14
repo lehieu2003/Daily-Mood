@@ -142,7 +142,9 @@ class _EntryDetailSheetState extends State<EntryDetailSheet> {
                   ),
                   IconButton(
                     tooltip: 'Close',
-                    onPressed: isBusy ? null : () => Navigator.of(context).pop(),
+                    onPressed: isBusy
+                        ? null
+                        : () => Navigator.of(context).pop(),
                     icon: const Icon(Icons.close_rounded),
                     color: DashboardPalette.deepText,
                   ),
@@ -551,10 +553,7 @@ class _FallbackChipWrap extends StatelessWidget {
       runSpacing: 8,
       children: [
         for (final name in names)
-          Chip(
-            label: Text(name),
-            backgroundColor: DashboardPalette.lilacPanel,
-          ),
+          Chip(label: Text(name), backgroundColor: DashboardPalette.lilacPanel),
       ],
     );
   }

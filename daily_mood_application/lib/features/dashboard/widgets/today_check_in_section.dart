@@ -104,9 +104,7 @@ class TodayCheckInSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        DashboardMoodChart(
-          entries: entries,
-        ),
+        DashboardMoodChart(entries: entries),
       ],
     );
   }

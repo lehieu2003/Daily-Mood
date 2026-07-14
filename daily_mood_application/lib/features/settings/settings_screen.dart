@@ -242,9 +242,7 @@ class _SettingsView extends StatelessWidget {
       final result = await service.importFromFile();
       if (result == null) return;
 
-      messenger.showSnackBar(
-        SnackBar(content: Text(_importSummary(result))),
-      );
+      messenger.showSnackBar(SnackBar(content: Text(_importSummary(result))));
     } on BackupImportParseException catch (error) {
       messenger.showSnackBar(
         SnackBar(content: Text('Import failed: ${error.message}')),

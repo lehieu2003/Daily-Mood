@@ -63,7 +63,9 @@ final class LocalBackupSnapshotService implements BackupSnapshotService {
   Future<void> _pruneOldSnapshots(Directory directory) async {
     final snapshots = await directory
         .list()
-        .where((entity) => entity is File && p.extension(entity.path) == '.json')
+        .where(
+          (entity) => entity is File && p.extension(entity.path) == '.json',
+        )
         .cast<File>()
         .toList();
     snapshots.sort((a, b) {

@@ -48,7 +48,9 @@ void main() {
 
     try {
       await service.apply(
-        _backup(entries: [_entry(uuid: 'entry-1', note: 'Old note')]),
+        _backup(
+          entries: [_entry(uuid: 'entry-1', note: 'Old note')],
+        ),
       );
 
       final result = await service.apply(
@@ -79,51 +81,54 @@ void main() {
     }
   });
 
-  test('skips existing entry when imported updatedAt is older or equal', () async {
-    final db = AppDatabase.forTesting(NativeDatabase.memory());
-    final service = BackupImportApplyService(database: db);
+  test(
+    'skips existing entry when imported updatedAt is older or equal',
+    () async {
+      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      final service = BackupImportApplyService(database: db);
 
-    try {
-      await service.apply(
-        _backup(
-          entries: [
-            _entry(
-              uuid: 'entry-1',
-              moodScore: 4,
-              note: 'Local value',
-              updatedAt: DateTime.utc(2026, 7, 14),
-            ),
-          ],
-        ),
-      );
+      try {
+        await service.apply(
+          _backup(
+            entries: [
+              _entry(
+                uuid: 'entry-1',
+                moodScore: 4,
+                note: 'Local value',
+                updatedAt: DateTime.utc(2026, 7, 14),
+              ),
+            ],
+          ),
+        );
 
-      final result = await service.apply(
-        _backup(
-          entries: [
-            _entry(
-              uuid: 'entry-1',
-              moodScore: 1,
-              note: 'Older import',
-              updatedAt: DateTime.utc(2026, 7, 13),
-            ),
-          ],
-        ),
-      );
+        final result = await service.apply(
+          _backup(
+            entries: [
+              _entry(
+                uuid: 'entry-1',
+                moodScore: 1,
+                note: 'Older import',
+                updatedAt: DateTime.utc(2026, 7, 13),
+              ),
+            ],
+          ),
+        );
 
-      final entry = await (db.select(
-        db.moodEntries,
-      )..where((row) => row.uuid.equals('entry-1'))).getSingle();
+        final entry = await (db.select(
+          db.moodEntries,
+        )..where((row) => row.uuid.equals('entry-1'))).getSingle();
 
-      expect(result.insertedEntries, 0);
-      expect(result.updatedEntries, 0);
-      expect(result.skippedEntries, 1);
-      expect(result.skippedEntryUuids, ['entry-1']);
-      expect(entry.moodScore, 4);
-      expect(entry.note, 'Local value');
-    } finally {
-      await db.close();
-    }
-  });
+        expect(result.insertedEntries, 0);
+        expect(result.updatedEntries, 0);
+        expect(result.skippedEntries, 1);
+        expect(result.skippedEntryUuids, ['entry-1']);
+        expect(entry.moodScore, 4);
+        expect(entry.note, 'Local value');
+      } finally {
+        await db.close();
+      }
+    },
+  );
 
   test('newer imported entry replaces old links and photo reference', () async {
     final db = AppDatabase.forTesting(NativeDatabase.memory());
@@ -196,10 +201,7 @@ ParsedBackup _backup({
   );
 }
 
-ParsedBackupActivity _activity({
-  required String uuid,
-  required String name,
-}) {
+ParsedBackupActivity _activity({required String uuid, required String name}) {
   return ParsedBackupActivity(
     uuid: uuid,
     name: name,

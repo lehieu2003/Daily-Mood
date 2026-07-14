@@ -53,9 +53,8 @@ final class BackupImportApplyService implements BackupImportApplier {
       }
 
       final subEmotionIdByName = {
-        for (final subEmotion in await _database.select(
-          _database.subEmotions,
-        ).get())
+        for (final subEmotion
+            in await _database.select(_database.subEmotions).get())
           subEmotion.name: subEmotion.id,
       };
 
@@ -113,16 +112,18 @@ final class BackupImportApplyService implements BackupImportApplier {
       return _ResolvedActivity(id: byName.id, wasInserted: false);
     }
 
-    final id = await _database.into(_database.activities).insert(
-      ActivitiesCompanion.insert(
-        uuid: imported.uuid,
-        name: imported.name,
-        category: imported.category,
-        isCustom: Value(imported.isCustom),
-        isArchived: Value(imported.isArchived),
-        createdAt: imported.createdAt,
-      ),
-    );
+    final id = await _database
+        .into(_database.activities)
+        .insert(
+          ActivitiesCompanion.insert(
+            uuid: imported.uuid,
+            name: imported.name,
+            category: imported.category,
+            isCustom: Value(imported.isCustom),
+            isArchived: Value(imported.isArchived),
+            createdAt: imported.createdAt,
+          ),
+        );
     return _ResolvedActivity(id: id, wasInserted: true);
   }
 
@@ -145,17 +146,19 @@ final class BackupImportApplyService implements BackupImportApplier {
   }
 
   Future<int> _insertEntry(ParsedBackupMoodEntry entry) {
-    return _database.into(_database.moodEntries).insert(
-      MoodEntriesCompanion.insert(
-        uuid: entry.uuid,
-        moodScore: entry.moodScore,
-        note: Value(entry.note),
-        voiceNotePath: Value(entry.voiceNotePath),
-        createdAt: entry.createdAt,
-        updatedAt: entry.updatedAt,
-        isDeleted: Value(entry.isDeleted),
-      ),
-    );
+    return _database
+        .into(_database.moodEntries)
+        .insert(
+          MoodEntriesCompanion.insert(
+            uuid: entry.uuid,
+            moodScore: entry.moodScore,
+            note: Value(entry.note),
+            voiceNotePath: Value(entry.voiceNotePath),
+            createdAt: entry.createdAt,
+            updatedAt: entry.updatedAt,
+            isDeleted: Value(entry.isDeleted),
+          ),
+        );
   }
 
   Future<void> _updateEntry(int id, ParsedBackupMoodEntry entry) {
@@ -231,13 +234,15 @@ final class BackupImportApplyService implements BackupImportApplier {
 
     final photoPath = entry.photoRelativePath;
     if (photoPath != null) {
-      await _database.into(_database.moodPhotos).insert(
-        MoodPhotosCompanion.insert(
-          moodEntryId: entryId,
-          relativePath: photoPath,
-          createdAt: entry.createdAt,
-        ),
-      );
+      await _database
+          .into(_database.moodPhotos)
+          .insert(
+            MoodPhotosCompanion.insert(
+              moodEntryId: entryId,
+              relativePath: photoPath,
+              createdAt: entry.createdAt,
+            ),
+          );
     }
   }
 

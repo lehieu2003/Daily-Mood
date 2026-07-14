@@ -15,17 +15,23 @@ class QuickLogScreen extends StatefulWidget {
     required this.activities,
     required this.onCreateReason,
     required this.onPickPhoto,
-    required this.onTranscribeVoice,
+    required this.onStartVoiceRecording,
+    required this.onStopVoiceRecording,
+    required this.onCancelVoiceRecording,
     required this.onSave,
     this.onCancel,
     this.onDone,
+    this.onDisposeVoiceRecording,
     super.key,
   });
 
   final Stream<List<MoodActivity>> activities;
   final Future<int> Function(String name) onCreateReason;
   final Future<String?> Function() onPickPhoto;
-  final Future<String?> Function() onTranscribeVoice;
+  final Future<bool> Function() onStartVoiceRecording;
+  final Future<String?> Function() onStopVoiceRecording;
+  final Future<void> Function() onCancelVoiceRecording;
+  final Future<void> Function()? onDisposeVoiceRecording;
   final Future<void> Function(MoodFormState state) onSave;
   final VoidCallback? onCancel;
   final VoidCallback? onDone;
@@ -39,6 +45,12 @@ class _QuickLogScreenState extends State<QuickLogScreen> {
 
   int _stepIndex = 0;
   bool _isSaving = false;
+
+  @override
+  void dispose() {
+    widget.onDisposeVoiceRecording?.call();
+    super.dispose();
+  }
 
   void _goBack() {
     if (_stepIndex == 0) return;
@@ -177,7 +189,9 @@ class _QuickLogScreenState extends State<QuickLogScreen> {
       3 => NoteStep(
         state: state,
         onPickPhoto: widget.onPickPhoto,
-        onTranscribeVoice: widget.onTranscribeVoice,
+        onStartVoiceRecording: widget.onStartVoiceRecording,
+        onStopVoiceRecording: widget.onStopVoiceRecording,
+        onCancelVoiceRecording: widget.onCancelVoiceRecording,
       ),
       _ => MoodStep(selectedMoodScore: state.moodScore),
     };

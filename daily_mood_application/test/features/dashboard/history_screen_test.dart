@@ -92,12 +92,7 @@ void main() {
   testWidgets('filters history by mood score and date range', (tester) async {
     final now = DateTime.now();
     final entries = [
-      _entry(
-        id: 1,
-        moodScore: 5,
-        note: 'Today great.',
-        createdAt: now,
-      ),
+      _entry(id: 1, moodScore: 5, note: 'Today great.', createdAt: now),
       _entry(
         id: 2,
         moodScore: 2,
@@ -121,34 +116,35 @@ void main() {
     await tester.pump();
 
     expect(find.text('Old bad.'), findsNothing);
-    expect(find.byKey(const ValueKey('history_no_matches_state')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('history_no_matches_state')),
+      findsOneWidget,
+    );
   });
 
-  testWidgets('opens entry detail sheet and soft-deletes entry', (tester) async {
+  testWidgets('opens entry detail sheet and soft-deletes entry', (
+    tester,
+  ) async {
     int? deletedId;
     final now = DateTime.now();
     final entries = [
-      _entry(
-        id: 1,
-        moodScore: 5,
-        note: 'Strong morning.',
-        createdAt: now,
-      ),
+      _entry(id: 1, moodScore: 5, note: 'Strong morning.', createdAt: now),
     ];
 
     await tester.pumpWidget(
       MaterialApp(
         home: HistoryScreen(
           entries: Stream.value(entries),
-          onUpdateEntry: ({
-            required int id,
-            required int moodScore,
-            required String note,
-            String? voiceNotePath,
-            String? photoRelativePath,
-            required List<int> activityIds,
-            required List<int> subEmotionIds,
-          }) async {},
+          onUpdateEntry:
+              ({
+                required int id,
+                required int moodScore,
+                required String note,
+                String? voiceNotePath,
+                String? photoRelativePath,
+                required List<int> activityIds,
+                required List<int> subEmotionIds,
+              }) async {},
           onDeleteEntry: (id) async {
             deletedId = id;
           },

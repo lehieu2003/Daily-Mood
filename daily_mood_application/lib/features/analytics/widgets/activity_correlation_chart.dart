@@ -52,7 +52,8 @@ class ActivityCorrelationChart extends StatelessWidget {
           for (var index = 0; index < correlations.length; index++) ...[
             _ActivityCorrelationBar(
               correlation: correlations[index],
-              color: AppColors.chartPalette[index % AppColors.chartPalette.length],
+              color:
+                  AppColors.chartPalette[index % AppColors.chartPalette.length],
               maxCount: maxCount,
             ),
             if (index != correlations.length - 1) const SizedBox(height: 12),

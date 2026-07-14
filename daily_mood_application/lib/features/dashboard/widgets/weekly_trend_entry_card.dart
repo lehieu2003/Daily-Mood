@@ -16,7 +16,8 @@ class WeeklyTrendEntryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final average = entries
+    final average =
+        entries
             .map((entry) => entry.moodScore)
             .fold<int>(0, (sum, score) => sum + score) /
         entries.length;
@@ -102,11 +103,7 @@ class _TrendMark extends StatelessWidget {
         color: moodColor(score).withValues(alpha: 0.20),
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Icon(
-        Icons.insights_outlined,
-        color: moodColor(score),
-        size: 24,
-      ),
+      child: Icon(Icons.insights_outlined, color: moodColor(score), size: 24),
     );
   }
 }

@@ -215,10 +215,7 @@ class _DashboardContent extends StatelessWidget {
     );
   }
 
-  Future<void> _openEntryDetail(
-    BuildContext context,
-    MoodEntryModel entry,
-  ) {
+  Future<void> _openEntryDetail(BuildContext context, MoodEntryModel entry) {
     final updateEntry = onUpdateEntry;
     final deleteEntry = onDeleteEntry;
     final repository = updateEntry == null || deleteEntry == null

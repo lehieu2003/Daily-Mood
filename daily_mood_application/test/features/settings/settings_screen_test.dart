@@ -142,7 +142,9 @@ void main() {
 
     expect(importService.importCount, 1);
     expect(
-      find.text('Imported daily_mood_export_test.json: 2 added, 1 updated, 3 skipped.'),
+      find.text(
+        'Imported daily_mood_export_test.json: 2 added, 1 updated, 3 skipped.',
+      ),
       findsOneWidget,
     );
   });

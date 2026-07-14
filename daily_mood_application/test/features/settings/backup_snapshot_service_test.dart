@@ -24,12 +24,13 @@ void main() {
         await service.createPreImportSnapshot();
       }
 
-      final files = tempDirectory
-          .listSync()
-          .whereType<File>()
-          .where((file) => file.path.endsWith('.json'))
-          .toList()
-        ..sort((a, b) => a.path.compareTo(b.path));
+      final files =
+          tempDirectory
+              .listSync()
+              .whereType<File>()
+              .where((file) => file.path.endsWith('.json'))
+              .toList()
+            ..sort((a, b) => a.path.compareTo(b.path));
 
       expect(files, hasLength(3));
       expect(files.first.path, contains('20260713_000100'));

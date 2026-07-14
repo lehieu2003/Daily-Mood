@@ -15,6 +15,7 @@ void main() {
     MoodFormState? savedState;
     var nextReasonId = 2;
     var donePressed = false;
+    var isRecording = false;
     addTearDown(cubit.close);
 
     await tester.pumpWidget(
@@ -32,7 +33,17 @@ void main() {
             ]),
             onCreateReason: (name) async => nextReasonId++,
             onPickPhoto: () async => 'mood_photos/test.jpg',
-            onTranscribeVoice: () async => 'Voice generated note.',
+            onStartVoiceRecording: () async {
+              isRecording = true;
+              return true;
+            },
+            onStopVoiceRecording: () async {
+              isRecording = false;
+              return 'mood_voices/test.m4a';
+            },
+            onCancelVoiceRecording: () async {
+              isRecording = false;
+            },
             onSave: (state) async => savedState = state,
             onDone: () => donePressed = true,
           ),
@@ -116,9 +127,14 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('quick_log_attach_photo')));
     await tester.pump();
     await tester.enterText(find.byType(TextFormField), 'Had a steady day.');
-    await tester.tap(find.byKey(const ValueKey('quick_log_transcribe_voice')));
+    await tester.tap(find.byKey(const ValueKey('quick_log_record_voice')));
     await tester.pump();
-    expect(cubit.state.note, 'Had a steady day. Voice generated note.');
+    expect(isRecording, isTrue);
+    expect(find.text('Stop voice'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('quick_log_record_voice')));
+    await tester.pump();
+    expect(isRecording, isFalse);
+    expect(cubit.state.note, 'Had a steady day.');
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
 
@@ -126,19 +142,16 @@ void main() {
     expect(cubit.state.selectedActivityIds, contains(1));
     expect(cubit.state.selectedActivityIds, contains(2));
     expect(cubit.state.photoRelativePath, 'mood_photos/test.jpg');
-    expect(cubit.state.voiceNoteRelativePath, isNull);
-    expect(cubit.state.note, 'Had a steady day. Voice generated note.');
+    expect(cubit.state.voiceNoteRelativePath, 'mood_voices/test.m4a');
+    expect(cubit.state.note, 'Had a steady day.');
     expect(savedState, isNotNull);
     expect(savedState!.moodScore, 4);
     expect(savedState!.selectedSubEmotionIds, contains(10));
     expect(savedState!.selectedActivityIds, contains(1));
     expect(savedState!.selectedActivityIds, contains(2));
     expect(savedState!.photoRelativePath, 'mood_photos/test.jpg');
-    expect(savedState!.voiceNoteRelativePath, isNull);
-    expect(
-      savedState!.normalizedNote,
-      'Had a steady day. Voice generated note.',
-    );
+    expect(savedState!.voiceNoteRelativePath, 'mood_voices/test.m4a');
+    expect(savedState!.normalizedNote, 'Had a steady day.');
     expect(find.text("You're on a good way!"), findsOneWidget);
 
     await tester.tap(find.text('Got it'));

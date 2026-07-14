@@ -20,66 +20,66 @@ class HistoryEntryTile extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _HistoryMoodFace(score: entry.moodScore),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        moodLabel(entry.moodScore),
-                        style: const TextStyle(
-                          color: DashboardPalette.deepText,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w900,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _HistoryMoodFace(score: entry.moodScore),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          moodLabel(entry.moodScore),
+                          style: const TextStyle(
+                            color: DashboardPalette.deepText,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w900,
+                          ),
                         ),
                       ),
-                    ),
-                    Text(
-                      formatEntryDate(entry.createdAt),
-                      style: const TextStyle(
-                        color: DashboardPalette.mutedText,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
+                      Text(
+                        formatEntryDate(entry.createdAt),
+                        style: const TextStyle(
+                          color: DashboardPalette.mutedText,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  note == null || note.isEmpty ? 'No note added' : note,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: DashboardPalette.mutedText,
-                    fontSize: 12,
-                    height: 1.3,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                if (entry.activityNames.isNotEmpty ||
-                    entry.subEmotionNames.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: [
-                      for (final name in entry.activityNames.take(3))
-                        _MetadataChip(label: name),
-                      for (final name in entry.subEmotionNames.take(3))
-                        _MetadataChip(label: name),
                     ],
                   ),
+                  const SizedBox(height: 6),
+                  Text(
+                    note == null || note.isEmpty ? 'No note added' : note,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: DashboardPalette.mutedText,
+                      fontSize: 12,
+                      height: 1.3,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  if (entry.activityNames.isNotEmpty ||
+                      entry.subEmotionNames.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        for (final name in entry.activityNames.take(3))
+                          _MetadataChip(label: name),
+                        for (final name in entry.subEmotionNames.take(3))
+                          _MetadataChip(label: name),
+                      ],
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
         ),
       ),
     );

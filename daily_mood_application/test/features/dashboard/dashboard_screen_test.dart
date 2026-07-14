@@ -55,12 +55,7 @@ void main() {
   testWidgets('shows real moods in the weekly selector', (tester) async {
     final today = DateTime(2026, 7, 13, 9);
     final entries = [
-      _entry(
-        id: 1,
-        moodScore: 5,
-        note: 'Bright start.',
-        createdAt: today,
-      ),
+      _entry(id: 1, moodScore: 5, note: 'Bright start.', createdAt: today),
       _entry(
         id: 2,
         moodScore: 2,
@@ -71,16 +66,19 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: DashboardScreen(
-          entries: Stream.value(entries),
-          today: today,
-        ),
+        home: DashboardScreen(entries: Stream.value(entries), today: today),
       ),
     );
     await tester.pump();
 
-    expect(find.byKey(const ValueKey('week_mood_day_20260707')), findsOneWidget);
-    expect(find.byKey(const ValueKey('week_mood_day_20260713')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('week_mood_day_20260707')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('week_mood_day_20260713')),
+      findsOneWidget,
+    );
     expect(
       find.descendant(
         of: find.byKey(const ValueKey('week_mood_day_20260713')),
@@ -122,10 +120,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: DashboardScreen(
-          entries: Stream.value(entries),
-          today: today,
-        ),
+        home: DashboardScreen(entries: Stream.value(entries), today: today),
       ),
     );
     await tester.pump();
@@ -164,10 +159,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: DashboardScreen(
-          entries: Stream.value(entries),
-          today: today,
-        ),
+        home: DashboardScreen(entries: Stream.value(entries), today: today),
       ),
     );
     await tester.pump();
@@ -193,12 +185,7 @@ void main() {
     var trendOpened = false;
     final now = DateTime.now();
     final entries = [
-      _entry(
-        id: 1,
-        moodScore: 5,
-        note: 'Strong morning.',
-        createdAt: now,
-      ),
+      _entry(id: 1, moodScore: 5, note: 'Strong morning.', createdAt: now),
       _entry(
         id: 2,
         moodScore: 4,
@@ -223,7 +210,10 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.byKey(const ValueKey('weekly_trend_entry_card')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('weekly_trend_entry_card')),
+      findsOneWidget,
+    );
     expect(find.text('Weekly trend'), findsOneWidget);
     expect(find.text('3 entries ready - Average 4.0'), findsOneWidget);
 
@@ -265,23 +255,24 @@ void main() {
       MaterialApp(
         home: DashboardScreen(
           entries: Stream.value(entries),
-          onUpdateEntry: ({
-            required int id,
-            required int moodScore,
-            required String note,
-            String? voiceNotePath,
-            String? photoRelativePath,
-            required List<int> activityIds,
-            required List<int> subEmotionIds,
-          }) async {
-            updatedId = id;
-            updatedScore = moodScore;
-            updatedNote = note;
-            updatedVoiceNotePath = voiceNotePath;
-            updatedPhotoRelativePath = photoRelativePath;
-            updatedActivityIds = activityIds;
-            updatedSubEmotionIds = subEmotionIds;
-          },
+          onUpdateEntry:
+              ({
+                required int id,
+                required int moodScore,
+                required String note,
+                String? voiceNotePath,
+                String? photoRelativePath,
+                required List<int> activityIds,
+                required List<int> subEmotionIds,
+              }) async {
+                updatedId = id;
+                updatedScore = moodScore;
+                updatedNote = note;
+                updatedVoiceNotePath = voiceNotePath;
+                updatedPhotoRelativePath = photoRelativePath;
+                updatedActivityIds = activityIds;
+                updatedSubEmotionIds = subEmotionIds;
+              },
           onDeleteEntry: (_) async {},
         ),
       ),
@@ -369,18 +360,19 @@ void main() {
                 isCustom: false,
               ),
             ]),
-            onUpdateEntry: ({
-              required int id,
-              required int moodScore,
-              required String note,
-              String? voiceNotePath,
-              String? photoRelativePath,
-              required List<int> activityIds,
-              required List<int> subEmotionIds,
-            }) async {
-              updatedActivityIds = activityIds;
-              updatedSubEmotionIds = subEmotionIds;
-            },
+            onUpdateEntry:
+                ({
+                  required int id,
+                  required int moodScore,
+                  required String note,
+                  String? voiceNotePath,
+                  String? photoRelativePath,
+                  required List<int> activityIds,
+                  required List<int> subEmotionIds,
+                }) async {
+                  updatedActivityIds = activityIds;
+                  updatedSubEmotionIds = subEmotionIds;
+                },
             onDeleteEntry: (_) async {},
           ),
         ),

@@ -67,10 +67,7 @@ class _MoodScoreButton extends StatelessWidget {
               width: isSelected ? 2 : 1,
             ),
           ),
-          child: Text(
-            _faceFor(score),
-            style: const TextStyle(fontSize: 24),
-          ),
+          child: Text(_faceFor(score), style: const TextStyle(fontSize: 24)),
         ),
       ),
     );

@@ -9,13 +9,17 @@ class NoteStep extends StatelessWidget {
   const NoteStep({
     required this.state,
     required this.onPickPhoto,
-    required this.onTranscribeVoice,
+    required this.onStartVoiceRecording,
+    required this.onStopVoiceRecording,
+    required this.onCancelVoiceRecording,
     super.key,
   });
 
   final MoodFormState state;
   final Future<String?> Function() onPickPhoto;
-  final Future<String?> Function() onTranscribeVoice;
+  final Future<bool> Function() onStartVoiceRecording;
+  final Future<String?> Function() onStopVoiceRecording;
+  final Future<void> Function() onCancelVoiceRecording;
 
   Future<void> _attachPhoto(BuildContext context) async {
     final relativePath = await onPickPhoto();
@@ -27,7 +31,9 @@ class NoteStep extends StatelessWidget {
   Widget build(BuildContext context) {
     return _NoteStepBody(
       state: state,
-      onTranscribeVoice: onTranscribeVoice,
+      onStartVoiceRecording: onStartVoiceRecording,
+      onStopVoiceRecording: onStopVoiceRecording,
+      onCancelVoiceRecording: onCancelVoiceRecording,
       onAttachPhoto: _attachPhoto,
     );
   }
@@ -36,12 +42,16 @@ class NoteStep extends StatelessWidget {
 class _NoteStepBody extends StatefulWidget {
   const _NoteStepBody({
     required this.state,
-    required this.onTranscribeVoice,
+    required this.onStartVoiceRecording,
+    required this.onStopVoiceRecording,
+    required this.onCancelVoiceRecording,
     required this.onAttachPhoto,
   });
 
   final MoodFormState state;
-  final Future<String?> Function() onTranscribeVoice;
+  final Future<bool> Function() onStartVoiceRecording;
+  final Future<String?> Function() onStopVoiceRecording;
+  final Future<void> Function() onCancelVoiceRecording;
   final Future<void> Function(BuildContext context) onAttachPhoto;
 
   @override
@@ -50,7 +60,8 @@ class _NoteStepBody extends StatefulWidget {
 
 class _NoteStepBodyState extends State<_NoteStepBody> {
   late final TextEditingController _noteController;
-  bool _isListening = false;
+  bool _isRecording = false;
+  bool _isVoiceBusy = false;
 
   @override
   void initState() {
@@ -72,34 +83,40 @@ class _NoteStepBodyState extends State<_NoteStepBody> {
 
   @override
   void dispose() {
+    if (_isRecording) {
+      widget.onCancelVoiceRecording();
+    }
     _noteController.dispose();
     super.dispose();
   }
 
-  Future<void> _transcribeVoice() async {
-    if (_isListening) return;
+  Future<void> _toggleVoiceRecording() async {
+    if (_isVoiceBusy) return;
 
-    setState(() => _isListening = true);
-    final transcript = await widget.onTranscribeVoice();
+    setState(() => _isVoiceBusy = true);
+    if (!_isRecording) {
+      final started = await widget.onStartVoiceRecording();
+      if (!mounted) return;
+      setState(() {
+        _isRecording = started;
+        _isVoiceBusy = false;
+      });
+      if (!started) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Microphone permission is required.')),
+        );
+      }
+      return;
+    }
+
+    final relativePath = await widget.onStopVoiceRecording();
     if (!mounted) return;
-
-    setState(() => _isListening = false);
-    if (transcript == null || transcript.trim().isEmpty) return;
-
-    final nextNote = _appendTranscript(_noteController.text, transcript);
-    _noteController.value = TextEditingValue(
-      text: nextNote,
-      selection: TextSelection.collapsed(offset: nextNote.length),
-    );
-    context.read<MoodFormCubit>().setNote(nextNote);
-  }
-
-  String _appendTranscript(String note, String transcript) {
-    final trimmedNote = note.trimRight();
-    final trimmedTranscript = transcript.trim();
-    if (trimmedNote.isEmpty) return trimmedTranscript;
-
-    return '$trimmedNote $trimmedTranscript';
+    setState(() {
+      _isRecording = false;
+      _isVoiceBusy = false;
+    });
+    if (relativePath == null) return;
+    context.read<MoodFormCubit>().setVoiceNoteRelativePath(relativePath);
   }
 
   @override
@@ -134,10 +151,13 @@ class _NoteStepBodyState extends State<_NoteStepBody> {
             const SizedBox(width: 10),
             Expanded(
               child: OutlinedButton.icon(
-                key: const ValueKey('quick_log_transcribe_voice'),
-                onPressed: _isListening ? null : _transcribeVoice,
-                icon: const Icon(Icons.mic, size: 18),
-                label: Text(_isListening ? 'Listening' : 'Add voice'),
+                key: const ValueKey('quick_log_record_voice'),
+                onPressed: _isVoiceBusy ? null : _toggleVoiceRecording,
+                icon: Icon(
+                  _isRecording ? Icons.stop_circle_outlined : Icons.mic,
+                  size: 18,
+                ),
+                label: Text(_isRecording ? 'Stop voice' : 'Add voice'),
                 style: _mediaButtonStyle(),
               ),
             ),
@@ -149,6 +169,14 @@ class _NoteStepBodyState extends State<_NoteStepBody> {
             icon: Icons.image_outlined,
             label: widget.state.photoRelativePath!,
             onClear: context.read<MoodFormCubit>().clearPhoto,
+          ),
+        ],
+        if (widget.state.hasVoiceNote) ...[
+          const SizedBox(height: 10),
+          _AttachmentTile(
+            icon: Icons.graphic_eq_rounded,
+            label: widget.state.voiceNoteRelativePath!,
+            onClear: context.read<MoodFormCubit>().clearVoiceNote,
           ),
         ],
       ],

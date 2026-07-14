@@ -108,12 +108,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 onSearchChanged: (value) => setState(
                                   () => _query = value.trim().toLowerCase(),
                                 ),
-                                onMoodChanged: (score) => setState(
-                                  () => _selectedMoodScore = score,
-                                ),
-                                onDateFilterChanged: (filter) => setState(
-                                  () => _dateFilter = filter,
-                                ),
+                                onMoodChanged: (score) =>
+                                    setState(() => _selectedMoodScore = score),
+                                onDateFilterChanged: (filter) =>
+                                    setState(() => _dateFilter = filter),
                                 onClear: () {
                                   _searchController.clear();
                                   setState(() {
@@ -129,10 +127,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     ? const _HistoryNoMatchesState()
                                     : const HistoryEmptyState()
                               else
-                                ..._buildHistoryGroups(
-                                  context,
-                                  historyEntries,
-                                ),
+                                ..._buildHistoryGroups(context, historyEntries),
                             ]),
                           ),
                         ),
@@ -177,10 +172,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     ];
   }
 
-  Future<void> _openEntryDetail(
-    BuildContext context,
-    MoodEntryModel entry,
-  ) {
+  Future<void> _openEntryDetail(BuildContext context, MoodEntryModel entry) {
     final updateEntry = widget.onUpdateEntry;
     final deleteEntry = widget.onDeleteEntry;
     final repository = updateEntry == null || deleteEntry == null
@@ -200,27 +192,29 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   List<MoodEntryModel> _filteredEntries(List<MoodEntryModel> entries) {
-    return entries.where((entry) {
-      if (_selectedMoodScore != null &&
-          entry.moodScore != _selectedMoodScore) {
-        return false;
-      }
+    return entries
+        .where((entry) {
+          if (_selectedMoodScore != null &&
+              entry.moodScore != _selectedMoodScore) {
+            return false;
+          }
 
-      if (!_dateFilter.includes(entry.createdAt)) {
-        return false;
-      }
+          if (!_dateFilter.includes(entry.createdAt)) {
+            return false;
+          }
 
-      if (_query.isEmpty) return true;
+          if (_query.isEmpty) return true;
 
-      final haystack = [
-        moodLabel(entry.moodScore),
-        entry.note ?? '',
-        ...entry.activityNames,
-        ...entry.subEmotionNames,
-      ].join(' ').toLowerCase();
+          final haystack = [
+            moodLabel(entry.moodScore),
+            entry.note ?? '',
+            ...entry.activityNames,
+            ...entry.subEmotionNames,
+          ].join(' ').toLowerCase();
 
-      return haystack.contains(_query);
-    }).toList(growable: false);
+          return haystack.contains(_query);
+        })
+        .toList(growable: false);
   }
 }
 
@@ -271,10 +265,12 @@ enum _HistoryDateFilter {
 
     return switch (this) {
       _HistoryDateFilter.today => day == today,
-      _HistoryDateFilter.sevenDays =>
-        !day.isBefore(today.subtract(const Duration(days: 6))),
-      _HistoryDateFilter.thirtyDays =>
-        !day.isBefore(today.subtract(const Duration(days: 29))),
+      _HistoryDateFilter.sevenDays => !day.isBefore(
+        today.subtract(const Duration(days: 6)),
+      ),
+      _HistoryDateFilter.thirtyDays => !day.isBefore(
+        today.subtract(const Duration(days: 29)),
+      ),
       _HistoryDateFilter.all => true,
     };
   }

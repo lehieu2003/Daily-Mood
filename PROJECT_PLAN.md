@@ -19,9 +19,9 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | -------------------- | ---------------------------------------------------------------------------------------------------------- |
 | Overall MVP status   | Feature-gap backlog implementation has started                                                             |
 | Current active phase | Phase 8 - Feature Gap Backlog                                                                              |
-| Last updated         | 2026-07-14                                                                                                 |
-| Latest verification  | P8.3 user-reported pub get, format, targeted tests, and analyze passed                                      |
-| Main next task       | Verify P8.8 Vietnamese and English localization                                                             |
+| Last updated         | 2026-07-16                                                                                                 |
+| Latest verification  | P8.8 user-reported pub get, format, targeted tests, and analyze passed                                      |
+| Main next task       | Implement light and dark mode design                                                                       |
 | Known blockers       | Real privacy-policy effective date/contact; final chart green; Gradient 1 confirmation; WCAG contrast pass |
 
 ## Update Rules
@@ -132,7 +132,8 @@ These tasks come from the 2026-07-13 feature-gap review of the current codebase,
 | P8.5 | Media-safe backup packaging           | Not Started | Backup/restore/media          | JSON backup can include or package referenced media so restore works on a new phone | Export currently writes `mediaPackaging: relative_paths_only`, so photo/audio files are not actually moved with the backup.                              |
 | P8.6 | Custom tag management                 | Not Started | Settings/activity repository  | User can archive or restore custom tags without breaking historical entries        | Quick-log can create custom tags up to the 30-tag limit, but Settings has no manage/archive screen for rarely used tags.                                  |
 | P8.7 | Local reminders and streaks           | Not Started | Notifications/dashboard       | User can opt into local-only reminder scheduling and see a non-punitive streak     | Keep privacy-safe and local-only; avoid usage-pattern tracking unless product/privacy docs are updated.                                                   |
-| P8.8 | Vietnamese and English localization   | Review      | App/localization/content      | App strings switch between Vietnamese and English based on locale or user choice   | Added app-level English/Vietnamese localization with an in-app Settings language switch, English fallback, localized high-traffic screens, default mood/activity labels, and focused localization tests. Awaiting user-run pub get, format, tests, and analyze. |
+| P8.8 | Vietnamese and English localization   | Done        | App/localization/content      | App strings switch between Vietnamese and English based on locale or user choice   | Added app-level English/Vietnamese localization with an in-app Settings language switch, English fallback, localized high-traffic screens, default mood/activity labels, and focused localization tests. User-reported pub get, format, targeted tests, and analyze passed. |
+| P8.10 | Light and dark mode design           | Not Started | App/theme/dashboard/analytics/settings | App supports coherent light, dark, and system appearance modes with readable contrast | Add adaptive theme tokens, convert hardcoded light surfaces, persist appearance mode, and smoke-test core screens in both modes. |
 | P8.9 | Local guided insights                 | Not Started | Analytics/dashboard           | App explains simple local patterns in plain language without sending data anywhere | Build from existing local analytics, e.g. activity/mood trend summaries; avoid medical claims and keep it framed as reflection support.                   |
 
 ## Phase 9 - Post-MVP Expansion
@@ -236,6 +237,7 @@ These tasks come from the 2026-07-13 feature-gap review of the current codebase,
 | 2026-07-13 | P8.1 history search/filter verification                                                                                                                                                    | Passed | Reported by user after Phase 8 history search/filter implementation.                        |
 | 2026-07-13 | P8.2 full entry edit verification                                                                                                                                                          | Passed | Reported by user after full entry edit implementation.                                      |
 | 2026-07-14 | P8.3 real voice note recording verification                                                                                                                                                 | Passed | Reported by user after pub get, format, targeted tests, and analyze.                        |
+| 2026-07-16 | P8.8 Vietnamese and English localization verification                                                                                                                                       | Passed | Reported by user after pub get, format, targeted tests, and analyze.                        |
 
 ## Reference Docs
 

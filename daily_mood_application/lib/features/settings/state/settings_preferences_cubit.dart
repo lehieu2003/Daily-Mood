@@ -14,11 +14,32 @@ class SettingsPreferencesCubit extends Cubit<SettingsPreferencesState> {
 
   Future<void> load() async {
     final hapticsEnabled = await _repository.readHapticsEnabled();
-    emit(SettingsPreferencesState.ready(hapticsEnabled: hapticsEnabled));
+    final languageCode = await _repository.readLanguageCode() ?? 'en';
+    emit(
+      SettingsPreferencesState.ready(
+        hapticsEnabled: hapticsEnabled,
+        languageCode: languageCode,
+      ),
+    );
   }
 
   Future<void> setHapticsEnabled(bool enabled) async {
-    emit(SettingsPreferencesState.ready(hapticsEnabled: enabled));
+    emit(
+      SettingsPreferencesState.ready(
+        hapticsEnabled: enabled,
+        languageCode: state.languageCode,
+      ),
+    );
     await _repository.setHapticsEnabled(enabled);
+  }
+
+  Future<void> setLanguageCode(String languageCode) async {
+    emit(
+      SettingsPreferencesState.ready(
+        hapticsEnabled: state.hapticsEnabled,
+        languageCode: languageCode,
+      ),
+    );
+    await _repository.setLanguageCode(languageCode);
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../domain/models/monthly_mood_day.dart';
 import '../../dashboard/dashboard_formatters.dart';
@@ -30,6 +31,7 @@ class MonthlyMoodCalendar extends StatelessWidget {
     if (entryCount == 0) {
       return const MonthlyHeatmapEmptyState();
     }
+    final l10n = context.l10n;
 
     return Container(
       key: const ValueKey('monthly_mood_calendar'),
@@ -47,7 +49,7 @@ class MonthlyMoodCalendar extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Mood calendar',
+                    l10n.moodCalendar,
                     style: TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 18,
@@ -56,7 +58,7 @@ class MonthlyMoodCalendar extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '$entryCount entries',
+                  l10n.entryCount(entryCount),
                   style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 12,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../app/localization/app_localizations.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../../../../domain/models/mood_activity.dart';
@@ -41,7 +42,7 @@ class _ReasonStepState extends State<ReasonStep> {
     if (name.isEmpty || _isAdding) return;
 
     if (name.length > 20) {
-      _showMessage('Reason must be 20 characters or fewer');
+      _showMessage(context.l10n.reasonTooLong);
       return;
     }
 
@@ -70,7 +71,7 @@ class _ReasonStepState extends State<ReasonStep> {
       debugPrint('[DailyMood][reasons] Could not add reason: $error');
       debugPrintStack(stackTrace: stackTrace);
       if (!mounted) return;
-      _showMessage('Could not add reason');
+      _showMessage(context.l10n.couldNotAddReason);
     } finally {
       if (mounted) {
         setState(() => _isAdding = false);
@@ -99,6 +100,7 @@ class _ReasonStepState extends State<ReasonStep> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return StreamBuilder<List<MoodActivity>>(
       stream: widget.activities,
       builder: (context, snapshot) {
@@ -132,7 +134,7 @@ class _ReasonStepState extends State<ReasonStep> {
               fieldKey: const ValueKey('quick_log_reason_search_field'),
               controller: _searchController,
               enabled: !_isAdding,
-              hintText: 'Search reasons',
+              hintText: l10n.searchReasons,
               onChanged: _updateQuery,
             ),
             const SizedBox(height: 18),
@@ -141,7 +143,7 @@ class _ReasonStepState extends State<ReasonStep> {
                 fieldKey: const ValueKey('quick_log_add_reason_field'),
                 controller: _addController,
                 enabled: !_isAdding,
-                hintText: 'Add a reason',
+                hintText: l10n.addAReason,
                 autofocus: true,
                 onSubmitted: (_) => _addReason(allReasons),
                 onConfirmPressed: () => _addReason(allReasons),
@@ -150,9 +152,9 @@ class _ReasonStepState extends State<ReasonStep> {
             ],
             _ReasonSectionHeader(
               label: widget.selectedIds.isEmpty
-                  ? 'Selected'
-                  : 'Selected (${widget.selectedIds.length})',
-              actionLabel: widget.selectedIds.isEmpty ? null : 'Clear all',
+                  ? l10n.selected
+                  : l10n.selectedCount(widget.selectedIds.length),
+              actionLabel: widget.selectedIds.isEmpty ? null : l10n.clearAll,
               onAction: widget.selectedIds.isEmpty
                   ? null
                   : context.read<MoodFormCubit>().clearActivities,
@@ -168,7 +170,7 @@ class _ReasonStepState extends State<ReasonStep> {
               ),
             ],
             const SizedBox(height: 18),
-            const _ReasonSectionHeader(label: 'Recently used'),
+            _ReasonSectionHeader(label: l10n.recentlyUsed),
             const SizedBox(height: 10),
             _ReasonChipWrap(
               reasons: recent,
@@ -176,7 +178,7 @@ class _ReasonStepState extends State<ReasonStep> {
               onMorePressed: _isAdding ? null : _toggleComposer,
             ),
             const SizedBox(height: 18),
-            const _ReasonSectionHeader(label: 'All reasons'),
+            _ReasonSectionHeader(label: l10n.allReasons),
             const SizedBox(height: 10),
             _ReasonChipWrap(
               reasons: visibleReasons,
@@ -203,9 +205,10 @@ class _ReasonChipWrap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     if (reasons.isEmpty) {
       return Text(
-        'No reasons yet',
+        l10n.noReasonsYet,
         style: AppTypography.subText2Regular.copyWith(
           color: AppColors.textTertiary,
         ),
@@ -220,7 +223,7 @@ class _ReasonChipWrap extends StatelessWidget {
           final selected = selectedIds.contains(reason.id);
           return FilterChip(
             key: ValueKey('reason_${reason.id}'),
-            label: Text(reason.name),
+            label: Text(l10n.activityLabel(reason.name)),
             selected: selected,
             onSelected: (_) =>
                 context.read<MoodFormCubit>().toggleActivity(reason.id),
@@ -241,7 +244,7 @@ class _ReasonChipWrap extends StatelessWidget {
         ActionChip(
           key: const ValueKey('quick_log_more_reason'),
           avatar: const Icon(Icons.add, size: 16),
-          label: const Text('More'),
+          label: Text(l10n.more),
           onPressed: onMorePressed,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(22),

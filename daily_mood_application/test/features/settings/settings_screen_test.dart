@@ -33,8 +33,32 @@ void main() {
     expect(find.text('Import data'), findsOneWidget);
     expect(find.text('Delete all local data'), findsOneWidget);
     expect(find.text('Experience'), findsOneWidget);
+    expect(find.text('Language'), findsOneWidget);
+    expect(find.text('English'), findsOneWidget);
+    expect(find.text('Tiếng Việt'), findsOneWidget);
     expect(find.text('Haptic feedback'), findsOneWidget);
     expect(find.textContaining('TODO'), findsNothing);
+  });
+
+  testWidgets('persists selected language', (tester) async {
+    final store = InMemorySettingsPreferencesStore();
+    final repository = SettingsPreferencesRepository(store: store);
+
+    await tester.pumpWidget(
+      _app(SettingsScreen(preferencesRepository: repository)),
+    );
+    await tester.pump();
+
+    expect(await repository.readLanguageCode(), isNull);
+
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('settings_language_segmented_button')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Tiếng Việt'));
+    await tester.pump();
+
+    expect(await repository.readLanguageCode(), 'vi');
   });
 
   testWidgets('persists haptics toggle state', (tester) async {

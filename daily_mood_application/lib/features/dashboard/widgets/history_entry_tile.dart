@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../../../domain/models/mood_entry.dart';
 import '../dashboard_formatters.dart';
 import '../dashboard_palette.dart';
@@ -13,6 +14,7 @@ class HistoryEntryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final note = entry.note?.trim();
+    final l10n = context.l10n;
 
     return InkWell(
       key: ValueKey('history_entry_tile_${entry.id}'),
@@ -32,7 +34,7 @@ class HistoryEntryTile extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          moodLabel(entry.moodScore),
+                          localizedMoodLabel(entry.moodScore, l10n),
                           style: const TextStyle(
                             color: DashboardPalette.deepText,
                             fontSize: 15,
@@ -41,7 +43,7 @@ class HistoryEntryTile extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        formatEntryDate(entry.createdAt),
+                        formatLocalizedEntryDate(entry.createdAt, l10n),
                         style: const TextStyle(
                           color: DashboardPalette.mutedText,
                           fontSize: 11,
@@ -52,7 +54,7 @@ class HistoryEntryTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    note == null || note.isEmpty ? 'No note added' : note,
+                    note == null || note.isEmpty ? l10n.noNoteAdded : note,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -70,7 +72,7 @@ class HistoryEntryTile extends StatelessWidget {
                       runSpacing: 6,
                       children: [
                         for (final name in entry.activityNames.take(3))
-                          _MetadataChip(label: name),
+                          _MetadataChip(label: l10n.activityLabel(name)),
                         for (final name in entry.subEmotionNames.take(3))
                           _MetadataChip(label: name),
                       ],

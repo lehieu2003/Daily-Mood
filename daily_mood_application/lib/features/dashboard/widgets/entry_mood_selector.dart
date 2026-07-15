@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../dashboard_formatters.dart';
 import '../dashboard_palette.dart';
 
@@ -50,7 +51,7 @@ class _MoodScoreButton extends StatelessWidget {
     return Semantics(
       selected: isSelected,
       button: true,
-      label: '${moodLabel(score)} mood',
+      label: '${localizedMoodLabel(score, context.l10n)} mood',
       child: InkWell(
         key: ValueKey('entry_mood_score_$score'),
         onTap: () => onSelected(score),

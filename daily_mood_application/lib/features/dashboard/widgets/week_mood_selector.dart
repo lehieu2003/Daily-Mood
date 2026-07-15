@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../../../domain/models/mood_entry.dart';
 import '../dashboard_palette.dart';
 
@@ -28,7 +29,7 @@ class WeekMoodSelector extends StatelessWidget {
       final entry = latestEntriesByDay[dateKey];
 
       return _DayMood(
-        _weekdayLabel(day.weekday),
+        context.l10n.weekdayShort(day.weekday),
         day.day.toString(),
         entry == null ? '' : _moodEmoji(entry.moodScore),
         dateKey: dateKey,
@@ -191,11 +192,6 @@ String _dateKey(DateTime date) {
   final month = date.month.toString().padLeft(2, '0');
   final day = date.day.toString().padLeft(2, '0');
   return '${date.year}$month$day';
-}
-
-String _weekdayLabel(int weekday) {
-  const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  return labels[weekday - 1];
 }
 
 String _moodEmoji(int score) {

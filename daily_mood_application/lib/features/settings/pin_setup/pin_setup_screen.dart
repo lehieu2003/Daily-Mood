@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import 'pin_setup_cubit.dart';
 import 'pin_setup_state.dart';
 
@@ -14,6 +15,8 @@ class PinSetupScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -24,7 +27,7 @@ class PinSetupScreen extends StatelessWidget {
               const Icon(Icons.lock_outline, size: 48),
               const SizedBox(height: 8),
               Text(
-                'Protect your diary',
+                l10n.protectYourDiary,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 32),
@@ -33,8 +36,8 @@ class PinSetupScreen extends StatelessWidget {
                 builder: (context, state) {
                   return Text(
                     state.step == PinSetupStep.enter
-                        ? 'Choose a 4-digit PIN'
-                        : 'Confirm your PIN',
+                        ? l10n.chooseFourDigitPin
+                        : l10n.confirmPinTitle,
                     style: Theme.of(context).textTheme.bodyLarge,
                   );
                 },
@@ -56,7 +59,7 @@ class PinSetupScreen extends StatelessWidget {
                     return const SizedBox(height: 20);
                   }
                   return Text(
-                    state.errorMessage!,
+                    l10n.pinErrorMessage(state.errorMessage!),
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.error,
                     ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../app/localization/app_localizations.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_typography.dart';
 
@@ -144,7 +145,7 @@ class _StepHeader extends StatelessWidget {
                     onPressed: onBack,
                     icon: const Icon(Icons.arrow_back),
                     iconSize: 20,
-                    tooltip: 'Back',
+                    tooltip: context.l10n.back,
                   ),
           ),
           Text(stepLabel, style: AppTypography.subText3Regular),
@@ -154,7 +155,7 @@ class _StepHeader extends StatelessWidget {
               onPressed: onClose,
               icon: const Icon(Icons.close),
               iconSize: 18,
-              tooltip: 'Close',
+              tooltip: context.l10n.close,
               style: IconButton.styleFrom(
                 backgroundColor: Colors.white.withValues(alpha: 0.82),
                 foregroundColor: AppColors.textPrimary,
@@ -173,21 +174,7 @@ class _DatePill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    final weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    final months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
+    final l10n = context.l10n;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -200,7 +187,7 @@ class _DatePill extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              '${weekdays[now.weekday - 1]}, ${now.day} ${months[now.month - 1]}',
+              '${l10n.weekdayShort(now.weekday)}, ${now.day} ${l10n.shortMonth(now.month)}',
               style: AppTypography.subText3Regular.copyWith(
                 color: AppColors.textPrimary,
               ),

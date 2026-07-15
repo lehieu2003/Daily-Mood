@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../app/localization/app_localizations.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../../cubit/mood_form_cubit.dart';
@@ -15,6 +16,7 @@ class MoodStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final selectedOption = selectedMoodScore == null
         ? null
         : moodOptions
@@ -47,7 +49,11 @@ class MoodStep extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: moodOptions.map((option) {
                     final selected = option.score == selectedMoodScore;
-                    return _MoodBubble(option: option, selected: selected);
+                    return _MoodBubble(
+                      option: option,
+                      selected: selected,
+                      semanticLabel: l10n.moodLabel(option.score),
+                    );
                   }).toList(),
                 ),
               ),
@@ -65,7 +71,9 @@ class MoodStep extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          selectedOption?.label ?? 'Select mood',
+          selectedOption == null
+              ? l10n.selectMood
+              : l10n.moodLabel(selectedOption.score),
           style: AppTypography.subText1Bold.copyWith(
             color: AppColors.textPrimary,
           ),
@@ -76,10 +84,15 @@ class MoodStep extends StatelessWidget {
 }
 
 class _MoodBubble extends StatelessWidget {
-  const _MoodBubble({required this.option, required this.selected});
+  const _MoodBubble({
+    required this.option,
+    required this.selected,
+    required this.semanticLabel,
+  });
 
   final MoodOption option;
   final bool selected;
+  final String semanticLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -113,7 +126,7 @@ class _MoodBubble extends StatelessWidget {
         ),
         child: EmotionAsset(
           path: option.assetPath,
-          semanticLabel: option.label,
+          semanticLabel: semanticLabel,
           size: selected ? 52 : 30,
         ),
       ),

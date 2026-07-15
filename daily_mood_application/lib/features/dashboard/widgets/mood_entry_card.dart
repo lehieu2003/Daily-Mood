@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../../../domain/models/mood_entry.dart';
 import '../dashboard_formatters.dart';
 import '../dashboard_palette.dart';
@@ -13,7 +14,8 @@ class MoodEntryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final note = entry.note?.trim();
-    final title = moodLabel(entry.moodScore);
+    final l10n = context.l10n;
+    final title = localizedMoodLabel(entry.moodScore, l10n);
 
     return Material(
       color: DashboardPalette.surface,
@@ -46,7 +48,7 @@ class MoodEntryCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          formatEntryDate(entry.createdAt),
+                          formatLocalizedEntryDate(entry.createdAt, l10n),
                           style: const TextStyle(
                             color: DashboardPalette.mutedText,
                             fontSize: 11,
@@ -64,9 +66,9 @@ class MoodEntryCard extends StatelessWidget {
                       foregroundColor: DashboardPalette.purple,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                    child: const Text(
-                      'Edit',
-                      style: TextStyle(
+                    child: Text(
+                      l10n.edit,
+                      style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                       ),
@@ -84,16 +86,14 @@ class MoodEntryCard extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                   children: [
-                    const TextSpan(text: 'You felt '),
+                    TextSpan(text: l10n.entryReflectionLead()),
                     TextSpan(
-                      text: entry.moodScore <= 2
-                          ? 'Disappointed, Confused'
-                          : 'Calm, Energized',
+                      text: l10n.entryReflectionMood(entry.moodScore),
                       style: const TextStyle(fontWeight: FontWeight.w900),
                     ),
-                    const TextSpan(text: '\nBecause of '),
+                    TextSpan(text: l10n.entryReflectionReasonLead()),
                     TextSpan(
-                      text: entry.moodScore <= 2 ? 'Relationships' : 'Work',
+                      text: l10n.entryReflectionReason(entry.moodScore),
                       style: const TextStyle(fontWeight: FontWeight.w900),
                     ),
                   ],
@@ -109,8 +109,8 @@ class MoodEntryCard extends StatelessWidget {
                       height: 1.25,
                     ),
                     children: [
-                      const TextSpan(
-                        text: 'Note: ',
+                      TextSpan(
+                        text: l10n.notePrefix,
                         style: TextStyle(fontWeight: FontWeight.w900),
                       ),
                       TextSpan(text: note),
@@ -120,9 +120,9 @@ class MoodEntryCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 10),
-                const Text(
-                  '+ Read more',
-                  style: TextStyle(
+                Text(
+                  l10n.readMore,
+                  style: const TextStyle(
                     color: DashboardPalette.purple,
                     fontSize: 12,
                     fontWeight: FontWeight.w700,

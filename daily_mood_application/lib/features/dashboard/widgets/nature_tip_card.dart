@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../dashboard_palette.dart';
 
 class NatureTipCard extends StatelessWidget {
@@ -7,32 +8,38 @@ class NatureTipCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: DashboardPalette.surface,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Expanded(
                 child: Text(
-                  'Connect with nature',
-                  style: TextStyle(
+                  l10n.connectWithNature,
+                  style: const TextStyle(
                     color: DashboardPalette.deepText,
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
               ),
-              Icon(Icons.lightbulb_outline, color: Color(0xFFFFB31A), size: 15),
-              SizedBox(width: 4),
+              const Icon(
+                Icons.lightbulb_outline,
+                color: Color(0xFFFFB31A),
+                size: 15,
+              ),
+              const SizedBox(width: 4),
               Text(
-                'Tip',
-                style: TextStyle(
+                l10n.tip,
+                style: const TextStyle(
                   color: Color(0xFFFFB31A),
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -40,10 +47,10 @@ class NatureTipCard extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
-            'Spend time outdoors, surrounded by greenery and fresh air',
-            style: TextStyle(
+            l10n.natureTipBody,
+            style: const TextStyle(
               color: DashboardPalette.mutedText,
               fontSize: 13,
               height: 1.25,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../app/localization/app_localizations.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../../cubit/mood_form_cubit.dart';
 import '../../cubit/mood_form_state.dart';
@@ -103,7 +104,7 @@ class _NoteStepBodyState extends State<_NoteStepBody> {
       });
       if (!started) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Microphone permission is required.')),
+          SnackBar(content: Text(context.l10n.microphonePermissionRequired)),
         );
       }
       return;
@@ -121,6 +122,7 @@ class _NoteStepBodyState extends State<_NoteStepBody> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       children: [
         TextFormField(
@@ -130,8 +132,7 @@ class _NoteStepBodyState extends State<_NoteStepBody> {
           textInputAction: TextInputAction.newline,
           onChanged: context.read<MoodFormCubit>().setNote,
           decoration: InputDecoration(
-            hintText:
-                'How wonderful it is to be with yourself sometimes! I spent a wonderful day taking care of myself.',
+            hintText: l10n.noteHint,
             hintStyle: AppTypography.subText2Regular,
             fillColor: Colors.white,
           ),
@@ -144,7 +145,7 @@ class _NoteStepBodyState extends State<_NoteStepBody> {
                 key: const ValueKey('quick_log_attach_photo'),
                 onPressed: () => widget.onAttachPhoto(context),
                 icon: const Icon(Icons.image_outlined, size: 18),
-                label: const Text('Add photo'),
+                label: Text(l10n.addPhoto),
                 style: _mediaButtonStyle(),
               ),
             ),
@@ -157,7 +158,7 @@ class _NoteStepBodyState extends State<_NoteStepBody> {
                   _isRecording ? Icons.stop_circle_outlined : Icons.mic,
                   size: 18,
                 ),
-                label: Text(_isRecording ? 'Stop voice' : 'Add voice'),
+                label: Text(_isRecording ? l10n.stopVoice : l10n.addVoice),
                 style: _mediaButtonStyle(),
               ),
             ),

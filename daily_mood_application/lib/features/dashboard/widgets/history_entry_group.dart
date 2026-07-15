@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../../../domain/models/mood_entry.dart';
 import '../dashboard_formatters.dart';
 import '../dashboard_palette.dart';
@@ -23,7 +24,7 @@ class HistoryEntryGroup extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          historyGroupLabel(date),
+          localizedHistoryGroupLabel(date, context.l10n),
           style: const TextStyle(
             color: DashboardPalette.deepText,
             fontSize: 15,

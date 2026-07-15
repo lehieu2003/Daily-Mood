@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../app/localization/app_localizations.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../../cubit/mood_form_cubit.dart';
@@ -20,6 +21,7 @@ class EmotionStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final recent = subEmotionOptions
         .where((emotion) => emotion.parentMoodScore == selectedMoodScore)
         .take(6)
@@ -28,16 +30,16 @@ class EmotionStep extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const QuickLogSearchField(
-          fieldKey: ValueKey('quick_log_emotion_search_field'),
-          hintText: 'Search emotions',
+        QuickLogSearchField(
+          fieldKey: const ValueKey('quick_log_emotion_search_field'),
+          hintText: l10n.searchEmotions,
         ),
         const SizedBox(height: 18),
         _SectionLabel(
           label: selectedIds.isEmpty
-              ? 'Selected'
-              : 'Selected (${selectedIds.length})',
-          actionLabel: selectedIds.isEmpty ? null : 'Clear all',
+              ? l10n.selected
+              : l10n.selectedCount(selectedIds.length),
+          actionLabel: selectedIds.isEmpty ? null : l10n.clearAll,
           onAction: selectedIds.isEmpty
               ? null
               : context.read<MoodFormCubit>().clearSubEmotions,
@@ -51,7 +53,7 @@ class EmotionStep extends StatelessWidget {
           ),
         ],
         const SizedBox(height: 18),
-        const _SectionLabel(label: 'Recently used'),
+        _SectionLabel(label: l10n.recentlyUsed),
         const SizedBox(height: 10),
         SubEmotionGrid(
           selectedMoodScore: selectedMoodScore,
@@ -60,7 +62,7 @@ class EmotionStep extends StatelessWidget {
           compact: false,
         ),
         const SizedBox(height: 18),
-        const _SectionLabel(label: 'All emotions'),
+        _SectionLabel(label: l10n.allEmotions),
         const SizedBox(height: 10),
         SubEmotionGrid(
           selectedMoodScore: selectedMoodScore,

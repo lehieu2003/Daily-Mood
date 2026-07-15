@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../../../app/theme/app_typography.dart';
 import '../../../domain/models/mood_entry.dart';
 import '../dashboard_formatters.dart';
@@ -19,21 +20,22 @@ class DashboardSummary extends StatelessWidget {
             .fold<int>(0, (sum, score) => sum + score) /
         entries.length;
     final latest = entries.first;
+    final l10n = context.l10n;
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final useRow = constraints.maxWidth >= 620;
         final cards = [
           _MetricCard(
-            label: 'Recent average',
+            label: l10n.recentAverage,
             value: average.toStringAsFixed(1),
-            helper: moodLabel(average.round()),
+            helper: localizedMoodLabel(average.round(), l10n),
             icon: Icons.insights_outlined,
           ),
           _MetricCard(
-            label: 'Last check-in',
-            value: moodLabel(latest.moodScore),
-            helper: formatEntryDate(latest.createdAt),
+            label: l10n.lastCheckIn,
+            value: localizedMoodLabel(latest.moodScore, l10n),
+            helper: formatLocalizedEntryDate(latest.createdAt, l10n),
             icon: Icons.favorite_border,
           ),
         ];

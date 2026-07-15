@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../../../domain/models/mood_activity.dart';
 import '../../../domain/models/mood_entry.dart';
 import '../../mood_tracker/quick_log/quick_log_media_service.dart';
@@ -85,6 +86,7 @@ class _EntryDetailSheetState extends State<EntryDetailSheet> {
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
     final isBusy = _isSaving || _isDeleting;
+    final l10n = context.l10n;
 
     return AnimatedPadding(
       duration: const Duration(milliseconds: 180),
@@ -121,7 +123,7 @@ class _EntryDetailSheetState extends State<EntryDetailSheet> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          moodLabel(_selectedScore),
+                          localizedMoodLabel(_selectedScore, l10n),
                           style: const TextStyle(
                             color: DashboardPalette.deepText,
                             fontSize: 22,
@@ -130,7 +132,10 @@ class _EntryDetailSheetState extends State<EntryDetailSheet> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          formatEntryDate(widget.entry.createdAt),
+                          formatLocalizedEntryDate(
+                            widget.entry.createdAt,
+                            l10n,
+                          ),
                           style: const TextStyle(
                             color: DashboardPalette.mutedText,
                             fontSize: 12,
@@ -141,7 +146,7 @@ class _EntryDetailSheetState extends State<EntryDetailSheet> {
                     ),
                   ),
                   IconButton(
-                    tooltip: 'Close',
+                    tooltip: l10n.close,
                     onPressed: isBusy
                         ? null
                         : () => Navigator.of(context).pop(),
@@ -166,8 +171,8 @@ class _EntryDetailSheetState extends State<EntryDetailSheet> {
                 maxLines: 7,
                 textInputAction: TextInputAction.newline,
                 decoration: InputDecoration(
-                  labelText: 'Note',
-                  hintText: 'Add context for this mood',
+                  labelText: l10n.notePrefix.trim(),
+                  hintText: l10n.addContextForMood,
                   filled: true,
                   fillColor: DashboardPalette.surface,
                   border: OutlineInputBorder(
@@ -178,10 +183,10 @@ class _EntryDetailSheetState extends State<EntryDetailSheet> {
               ),
               const SizedBox(height: 18),
               _SectionTitle(
-                title: 'Reasons',
+                title: l10n.reasons,
                 trailing: widget.activityOptions == null
                     ? null
-                    : '${_selectedActivityIds.length} selected',
+                    : l10n.selectedCount(_selectedActivityIds.length),
               ),
               const SizedBox(height: 10),
               _ActivityEditor(
@@ -193,8 +198,8 @@ class _EntryDetailSheetState extends State<EntryDetailSheet> {
               ),
               const SizedBox(height: 18),
               _SectionTitle(
-                title: 'Emotions',
-                trailing: '${_selectedSubEmotionIds.length} selected',
+                title: l10n.emotions,
+                trailing: l10n.selectedCount(_selectedSubEmotionIds.length),
               ),
               const SizedBox(height: 10),
               _SubEmotionEditor(
@@ -204,7 +209,7 @@ class _EntryDetailSheetState extends State<EntryDetailSheet> {
                 onToggle: _toggleSubEmotion,
               ),
               const SizedBox(height: 18),
-              _SectionTitle(title: 'Attachments'),
+              _SectionTitle(title: l10n.attachments),
               const SizedBox(height: 10),
               _AttachmentEditor(
                 photoRelativePath: _photoRelativePath,
@@ -228,7 +233,7 @@ class _EntryDetailSheetState extends State<EntryDetailSheet> {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Icon(Icons.delete_outline_rounded),
-                      label: const Text('Delete'),
+                      label: Text(l10n.delete),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: moodColor(1),
                         side: BorderSide(color: moodColor(1)),
@@ -255,7 +260,7 @@ class _EntryDetailSheetState extends State<EntryDetailSheet> {
                                 color: Colors.white,
                               ),
                             )
-                          : const Text('Save'),
+                          : Text(l10n.save),
                     ),
                   ),
                 ],
@@ -287,15 +292,14 @@ class _EntryDetailSheetState extends State<EntryDetailSheet> {
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (context) {
+        final l10n = context.l10n;
         return AlertDialog(
-          title: const Text('Delete entry?'),
-          content: const Text(
-            'This hides the entry from your dashboard and history.',
-          ),
+          title: Text(l10n.deleteEntryQuestion),
+          content: Text(l10n.deleteEntryBody),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             FilledButton(
               key: const ValueKey('entry_detail_confirm_delete_button'),
@@ -304,7 +308,7 @@ class _EntryDetailSheetState extends State<EntryDetailSheet> {
                 backgroundColor: moodColor(1),
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Delete'),
+              child: Text(l10n.delete),
             ),
           ],
         );
@@ -407,9 +411,12 @@ class _ActivityEditor extends StatelessWidget {
           return _FallbackChipWrap(names: fallbackNames);
         }
         if (activities.isEmpty) {
-          return const Text(
-            'No reasons available',
-            style: TextStyle(color: DashboardPalette.mutedText, fontSize: 12),
+          return Text(
+            context.l10n.noReasonsAvailable,
+            style: const TextStyle(
+              color: DashboardPalette.mutedText,
+              fontSize: 12,
+            ),
           );
         }
 
@@ -420,7 +427,7 @@ class _ActivityEditor extends StatelessWidget {
             for (final activity in activities)
               FilterChip(
                 key: ValueKey('entry_detail_activity_${activity.id}'),
-                label: Text(activity.name),
+                label: Text(context.l10n.activityLabel(activity.name)),
                 selected: selectedActivityIds.contains(activity.id),
                 onSelected: enabled ? (_) => onToggle(activity.id) : null,
                 selectedColor: DashboardPalette.lilacPanel,
@@ -448,6 +455,7 @@ class _SubEmotionEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final options = subEmotionOptions.where((emotion) {
       return emotion.parentMoodScore == moodScore ||
           selectedSubEmotionIds.contains(emotion.id);
@@ -460,7 +468,7 @@ class _SubEmotionEditor extends StatelessWidget {
         for (final emotion in options)
           FilterChip(
             key: ValueKey('entry_detail_sub_emotion_${emotion.id}'),
-            label: Text(emotion.label),
+            label: Text(l10n.subEmotionLabel(emotion.id, emotion.label)),
             selected: selectedSubEmotionIds.contains(emotion.id),
             onSelected: enabled ? (_) => onToggle(emotion.id) : null,
             selectedColor: moodColor(moodScore).withValues(alpha: 0.22),
@@ -490,6 +498,7 @@ class _AttachmentEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -501,7 +510,7 @@ class _AttachmentEditor extends StatelessWidget {
               key: const ValueKey('entry_detail_pick_photo_button'),
               avatar: const Icon(Icons.photo_outlined, size: 18),
               label: Text(
-                photoRelativePath == null ? 'Add photo' : 'Replace photo',
+                photoRelativePath == null ? l10n.addPhoto : l10n.replacePhoto,
               ),
               onPressed: enabled ? onPickPhoto : null,
             ),
@@ -509,7 +518,7 @@ class _AttachmentEditor extends StatelessWidget {
               InputChip(
                 key: const ValueKey('entry_detail_photo_chip'),
                 avatar: const Icon(Icons.image_outlined, size: 18),
-                label: const Text('Photo attached'),
+                label: Text(l10n.photoAttached),
                 deleteIcon: const Icon(
                   Icons.close_rounded,
                   key: ValueKey('entry_detail_remove_photo_button'),
@@ -520,7 +529,7 @@ class _AttachmentEditor extends StatelessWidget {
               InputChip(
                 key: const ValueKey('entry_detail_voice_chip'),
                 avatar: const Icon(Icons.graphic_eq_rounded, size: 18),
-                label: const Text('Voice attached'),
+                label: Text(l10n.voiceAttached),
                 deleteIcon: const Icon(
                   Icons.close_rounded,
                   key: ValueKey('entry_detail_remove_voice_button'),
@@ -542,9 +551,9 @@ class _FallbackChipWrap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (names.isEmpty) {
-      return const Text(
-        'No reasons selected',
-        style: TextStyle(color: DashboardPalette.mutedText, fontSize: 12),
+      return Text(
+        context.l10n.noReasonsSelected,
+        style: const TextStyle(color: DashboardPalette.mutedText, fontSize: 12),
       );
     }
 
@@ -553,7 +562,10 @@ class _FallbackChipWrap extends StatelessWidget {
       runSpacing: 8,
       children: [
         for (final name in names)
-          Chip(label: Text(name), backgroundColor: DashboardPalette.lilacPanel),
+          Chip(
+            label: Text(context.l10n.activityLabel(name)),
+            backgroundColor: DashboardPalette.lilacPanel,
+          ),
       ],
     );
   }

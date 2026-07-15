@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../app/localization/app_localizations.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../../cubit/mood_form_cubit.dart';
@@ -26,6 +27,7 @@ class SubEmotionGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final sourceOptions =
         optionsOverride ??
         subEmotionOptions
@@ -37,7 +39,7 @@ class SubEmotionGrid extends StatelessWidget {
 
     if (options.isEmpty) {
       return Text(
-        'Pick a mood first',
+        l10n.pickMoodFirst,
         style: AppTypography.subText2Regular.copyWith(
           color: AppColors.textTertiary,
         ),
@@ -49,13 +51,14 @@ class SubEmotionGrid extends StatelessWidget {
       runSpacing: 10,
       children: options.map((emotion) {
         final selected = selectedIds.contains(emotion.id);
+        final label = l10n.subEmotionLabel(emotion.id, emotion.label);
         return FilterChip(
           key: ValueKey('sub_emotion_${emotion.id}'),
           avatar: EmotionAsset(
             path: emotion.assetPath,
-            semanticLabel: emotion.label,
+            semanticLabel: label,
           ),
-          label: Text(emotion.label),
+          label: Text(label),
           selected: selected,
           onSelected: (_) {
             context.read<MoodFormCubit>().toggleSubEmotion(emotion.id);

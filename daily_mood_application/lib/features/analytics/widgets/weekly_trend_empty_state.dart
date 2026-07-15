@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../../../app/theme/app_colors.dart';
 
 class WeeklyTrendEmptyState extends StatelessWidget {
@@ -10,6 +11,7 @@ class WeeklyTrendEmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final remaining = (3 - entryCount).clamp(1, 3);
+    final l10n = context.l10n;
 
     return Container(
       key: const ValueKey('weekly_trend_empty_state'),
@@ -38,9 +40,9 @@ class WeeklyTrendEmptyState extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Weekly trend',
-                  style: TextStyle(
+                Text(
+                  l10n.weeklyTrend,
+                  style: const TextStyle(
                     color: AppColors.primaryPurple,
                     fontSize: 16,
                     fontWeight: FontWeight.w900,
@@ -48,7 +50,7 @@ class WeeklyTrendEmptyState extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Log $remaining more mood ${remaining == 1 ? 'entry' : 'entries'} to unlock the chart.',
+                  l10n.logMoreMoods(remaining),
                   style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 13,

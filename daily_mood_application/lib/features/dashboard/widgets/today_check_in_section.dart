@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../../../domain/models/mood_entry.dart';
 import '../dashboard_palette.dart';
 import 'dashboard_mood_chart.dart';
@@ -20,6 +21,8 @@ class TodayCheckInSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -27,7 +30,7 @@ class TodayCheckInSection extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                _titleForDate(selectedDate, today),
+                l10n.checkInTitleForDate(selectedDate, today),
                 style: const TextStyle(
                   color: DashboardPalette.deepText,
                   fontSize: 16,
@@ -70,10 +73,10 @@ class TodayCheckInSection extends StatelessWidget {
                   child: const Text('✨', style: TextStyle(fontSize: 18)),
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Text(
-                    'Check-in',
-                    style: TextStyle(
+                    l10n.checkIn,
+                    style: const TextStyle(
                       color: DashboardPalette.deepText,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -108,38 +111,4 @@ class TodayCheckInSection extends StatelessWidget {
       ],
     );
   }
-}
-
-String _titleForDate(DateTime selectedDate, DateTime today) {
-  final selected = DateTime(
-    selectedDate.year,
-    selectedDate.month,
-    selectedDate.day,
-  );
-  final current = DateTime(today.year, today.month, today.day);
-
-  if (selected == current) return "Today's check-in";
-  if (selected == current.subtract(const Duration(days: 1))) {
-    return "Yesterday's check-in";
-  }
-
-  return '${_shortMonth(selected.month)} ${selected.day} check-in';
-}
-
-String _shortMonth(int month) {
-  const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
-  return months[month - 1];
 }

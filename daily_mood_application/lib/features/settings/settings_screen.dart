@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../app/localization/app_locale_cubit.dart';
+import '../../app/localization/app_localizations.dart';
 import '../../core/database/app_database.dart';
 import '../../core/security/app_lock_cubit.dart';
 import 'data/backup_export_service.dart';
@@ -42,9 +44,14 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final repository =
+        _preferencesRepository ??
+        _repositoryFromContext(context) ??
+        SettingsPreferencesRepository();
+
     return BlocProvider(
       create: (_) => SettingsPreferencesCubit(
-        repository: _preferencesRepository ?? SettingsPreferencesRepository(),
+        repository: repository,
       ),
       child: _SettingsView(
         onLockNow: onLockNow,
@@ -57,6 +64,14 @@ class SettingsScreen extends StatelessWidget {
         onDataDeleted: onDataDeleted,
       ),
     );
+  }
+
+  SettingsPreferencesRepository? _repositoryFromContext(BuildContext context) {
+    try {
+      return context.read<SettingsPreferencesRepository>();
+    } catch (_) {
+      return null;
+    }
   }
 }
 
@@ -84,6 +99,7 @@ class _SettingsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return Scaffold(
       body: SafeArea(
@@ -92,44 +108,44 @@ class _SettingsView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Settings', style: theme.textTheme.headlineLarge),
+              Text(l10n.settings, style: theme.textTheme.headlineLarge),
               const SizedBox(height: 6),
               Text(
-                'Local privacy, data control, and app preferences.',
+                l10n.settingsSubtitle,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 24),
               SettingsSection(
-                title: 'Privacy lock',
+                title: l10n.privacyLock,
                 children: [
                   SettingsTile(
                     key: const ValueKey('settings_lock_now_tile'),
                     icon: Icons.lock_outline,
-                    title: 'Lock now',
-                    subtitle: 'Require PIN or biometrics before continuing.',
+                    title: l10n.lockNow,
+                    subtitle: l10n.lockNowSubtitle,
                     onTap: () => _lockNow(context),
                   ),
                   const SettingsDivider(),
-                  const SettingsTile(
-                    key: ValueKey('settings_pin_biometrics_tile'),
+                  SettingsTile(
+                    key: const ValueKey('settings_pin_biometrics_tile'),
                     icon: Icons.fingerprint,
-                    title: 'PIN & biometrics',
-                    subtitle: 'PIN setup exists; change controls arrive next.',
+                    title: l10n.pinAndBiometrics,
+                    subtitle: l10n.pinAndBiometricsSubtitle,
                     enabled: false,
                   ),
                 ],
               ),
               const SizedBox(height: 20),
               SettingsSection(
-                title: 'Data control',
+                title: l10n.dataControl,
                 children: [
                   SettingsTile(
                     key: const ValueKey('settings_export_tile'),
                     icon: Icons.ios_share_outlined,
-                    title: 'Export data',
-                    subtitle: 'Create a readable JSON or CSV backup file.',
+                    title: l10n.exportData,
+                    subtitle: l10n.exportDataSubtitle,
                     onTap:
                         onExportData ?? () => _showExportFormatDialog(context),
                   ),
@@ -137,17 +153,16 @@ class _SettingsView extends StatelessWidget {
                   SettingsTile(
                     key: const ValueKey('settings_import_tile'),
                     icon: Icons.file_upload_outlined,
-                    title: 'Import data',
-                    subtitle: 'Restore a JSON or CSV backup file.',
+                    title: l10n.importData,
+                    subtitle: l10n.importDataSubtitle,
                     onTap: onImportData ?? () => _importData(context),
                   ),
                   const SettingsDivider(),
                   SettingsTile(
                     key: const ValueKey('settings_delete_data_tile'),
                     icon: Icons.delete_outline,
-                    title: 'Delete all local data',
-                    subtitle:
-                        'Permanent local reset will require confirmation.',
+                    title: l10n.deleteAllLocalData,
+                    subtitle: l10n.deleteAllLocalDataSubtitle,
                     isDestructive: true,
                     onTap:
                         onDeleteData ?? () => _showDeleteAllDataDialog(context),
@@ -156,8 +171,12 @@ class _SettingsView extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               SettingsSection(
-                title: 'Experience',
-                children: const [_HapticsTile()],
+                title: l10n.experience,
+                children: const [
+                  _LanguageTile(),
+                  SettingsDivider(),
+                  _HapticsTile(),
+                ],
               ),
             ],
           ),
@@ -179,15 +198,14 @@ class _SettingsView extends StatelessWidget {
     return showDialog<void>(
       context: context,
       builder: (dialogContext) {
+        final l10n = context.l10n;
         return AlertDialog(
-          title: const Text('Export data'),
-          content: const Text(
-            'Choose a readable backup format. Photos and voice files are exported as relative path references for now.',
-          ),
+          title: Text(l10n.exportData),
+          content: Text(l10n.exportDataBody),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             TextButton(
               key: const ValueKey('export_csv_button'),
@@ -223,11 +241,11 @@ class _SettingsView extends StatelessWidget {
     try {
       final file = await service.exportAndShare(format);
       messenger.showSnackBar(
-        SnackBar(content: Text('Export file ready: ${file.fileName}')),
+        SnackBar(content: Text(context.l10n.exportReady(file.fileName))),
       );
     } catch (_) {
       messenger.showSnackBar(
-        const SnackBar(content: Text('Export failed. Please try again.')),
+        SnackBar(content: Text(context.l10n.exportFailed)),
       );
     }
   }
@@ -242,24 +260,33 @@ class _SettingsView extends StatelessWidget {
       final result = await service.importFromFile();
       if (result == null) return;
 
-      messenger.showSnackBar(SnackBar(content: Text(_importSummary(result))));
+      messenger.showSnackBar(
+        SnackBar(content: Text(_importSummary(context.l10n, result))),
+      );
     } on BackupImportParseException catch (error) {
       messenger.showSnackBar(
-        SnackBar(content: Text('Import failed: ${error.message}')),
+        SnackBar(
+          content: Text(context.l10n.importFailedWithMessage(error.message)),
+        ),
       );
     } catch (_) {
       messenger.showSnackBar(
-        const SnackBar(content: Text('Import failed. Please try again.')),
+        SnackBar(content: Text(context.l10n.importFailed)),
       );
     }
   }
 
-  String _importSummary(BackupImportFileResult result) {
+  String _importSummary(
+    AppLocalizations l10n,
+    BackupImportFileResult result,
+  ) {
     final apply = result.restore.applyResult;
-    return 'Imported ${result.fileName}: '
-        '${apply.insertedEntries} added, '
-        '${apply.updatedEntries} updated, '
-        '${apply.skippedEntries} skipped.';
+    return l10n.importSummary(
+      fileName: result.fileName,
+      added: apply.insertedEntries,
+      updated: apply.updatedEntries,
+      skipped: apply.skippedEntries,
+    );
   }
 
   Future<void> _showDeleteAllDataDialog(BuildContext context) {
@@ -279,7 +306,7 @@ class _SettingsView extends StatelessWidget {
             onDeleted: () {
               Navigator.of(dialogContext).pop();
               ScaffoldMessenger.of(settingsContext).showSnackBar(
-                const SnackBar(content: Text('Local data deleted.')),
+                SnackBar(content: Text(settingsContext.l10n.localDataDeleted)),
               );
               final deletedCallback = onDataDeleted;
               if (deletedCallback != null) {
@@ -323,6 +350,7 @@ class _DeleteAllDataDialogState extends State<_DeleteAllDataDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return BlocConsumer<DeleteAllDataCubit, DeleteAllDataState>(
       listenWhen: (previous, current) => previous.status != current.status,
@@ -333,17 +361,15 @@ class _DeleteAllDataDialogState extends State<_DeleteAllDataDialog> {
       },
       builder: (context, state) {
         return AlertDialog(
-          title: const Text('Delete all local data'),
+          title: Text(l10n.deleteAllLocalData),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'This permanently removes mood entries, notes, media links, and custom tags from this device.',
-              ),
+              Text(l10n.deleteAllLocalDataBody),
               const SizedBox(height: 12),
               Text(
-                'Type DELETE to confirm.',
+                l10n.typeDeleteToConfirm,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -371,7 +397,7 @@ class _DeleteAllDataDialogState extends State<_DeleteAllDataDialog> {
               onPressed: state.isDeleting
                   ? null
                   : () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             FilledButton(
               key: const ValueKey('delete_all_data_confirm_button'),
@@ -387,12 +413,53 @@ class _DeleteAllDataDialogState extends State<_DeleteAllDataDialog> {
                       dimension: 18,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Delete'),
+                  : Text(l10n.delete),
             ),
           ],
         );
       },
     );
+  }
+}
+
+class _LanguageTile extends StatelessWidget {
+  const _LanguageTile();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SettingsPreferencesCubit, SettingsPreferencesState>(
+      builder: (context, state) {
+        return SettingsTile(
+          key: const ValueKey('settings_language_tile'),
+          icon: Icons.language_rounded,
+          title: context.l10n.language,
+          subtitle: context.l10n.languageSubtitle,
+          trailing: SegmentedButton<String>(
+            key: const ValueKey('settings_language_segmented_button'),
+            segments: [
+              ButtonSegment(value: 'en', label: Text(context.l10n.english)),
+              ButtonSegment(value: 'vi', label: Text(context.l10n.vietnamese)),
+            ],
+            selected: {state.languageCode},
+            showSelectedIcon: false,
+            onSelectionChanged: state.isLoading
+                ? null
+                : (selection) => _setLanguage(context, selection.single),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _setLanguage(BuildContext context, String languageCode) async {
+    await context.read<SettingsPreferencesCubit>().setLanguageCode(
+      languageCode,
+    );
+    try {
+      await context.read<AppLocaleCubit>().setLanguageCode(languageCode);
+    } catch (_) {
+      // Feature-level widget tests pump Settings without the app root Cubit.
+    }
   }
 }
 
@@ -406,10 +473,10 @@ class _HapticsTile extends StatelessWidget {
         return SettingsTile(
           key: const ValueKey('settings_haptics_tile'),
           icon: Icons.vibration,
-          title: 'Haptic feedback',
+          title: context.l10n.hapticFeedback,
           subtitle: state.hapticsEnabled
-              ? 'Light taps stay enabled for mood selection.'
-              : 'Mood logging will stay quiet.',
+              ? context.l10n.hapticsOn
+              : context.l10n.hapticsOff,
           trailing: Switch.adaptive(
             key: const ValueKey('settings_haptics_switch'),
             value: state.hapticsEnabled,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../dashboard_formatters.dart';
 import '../dashboard_palette.dart';
 
@@ -11,6 +12,7 @@ class DashboardHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final today = DateTime.now();
+    final l10n = context.l10n;
 
     return Row(
       children: [
@@ -18,25 +20,25 @@ class DashboardHeader extends StatelessWidget {
           child: RichText(
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            text: const TextSpan(
-              style: TextStyle(
+            text: TextSpan(
+              style: const TextStyle(
                 color: DashboardPalette.deepText,
                 fontSize: 20,
                 fontWeight: FontWeight.w500,
               ),
               children: [
-                TextSpan(text: 'Hey, '),
-                TextSpan(
+                TextSpan(text: l10n.greetingLead),
+                const TextSpan(
                   text: 'Alex!',
                   style: TextStyle(fontWeight: FontWeight.w900),
                 ),
-                TextSpan(text: '👋'),
+                const TextSpan(text: '👋'),
               ],
             ),
           ),
         ),
         _HeaderPill(
-          label: formatCompactDate(today),
+          label: formatLocalizedCompactDate(today, l10n),
           icon: Icons.calendar_month_outlined,
           iconColor: DashboardPalette.purple,
         ),
@@ -93,7 +95,7 @@ class _StreakPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Tooltip(
-      message: 'Log mood',
+      message: context.l10n.logMood,
       child: InkWell(
         key: const ValueKey('dashboard_log_mood_button'),
         borderRadius: BorderRadius.circular(999),

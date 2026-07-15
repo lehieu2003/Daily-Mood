@@ -21,7 +21,7 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | Current active phase | Phase 8 - Feature Gap Backlog                                                                              |
 | Last updated         | 2026-07-14                                                                                                 |
 | Latest verification  | P8.3 user-reported pub get, format, targeted tests, and analyze passed                                      |
-| Main next task       | Implement P8.4 photo compression and size guard                                                             |
+| Main next task       | Verify P8.8 Vietnamese and English localization                                                             |
 | Known blockers       | Real privacy-policy effective date/contact; final chart green; Gradient 1 confirmation; WCAG contrast pass |
 
 ## Update Rules
@@ -132,7 +132,7 @@ These tasks come from the 2026-07-13 feature-gap review of the current codebase,
 | P8.5 | Media-safe backup packaging           | Not Started | Backup/restore/media          | JSON backup can include or package referenced media so restore works on a new phone | Export currently writes `mediaPackaging: relative_paths_only`, so photo/audio files are not actually moved with the backup.                              |
 | P8.6 | Custom tag management                 | Not Started | Settings/activity repository  | User can archive or restore custom tags without breaking historical entries        | Quick-log can create custom tags up to the 30-tag limit, but Settings has no manage/archive screen for rarely used tags.                                  |
 | P8.7 | Local reminders and streaks           | Not Started | Notifications/dashboard       | User can opt into local-only reminder scheduling and see a non-punitive streak     | Keep privacy-safe and local-only; avoid usage-pattern tracking unless product/privacy docs are updated.                                                   |
-| P8.8 | Vietnamese and English localization   | Not Started | App/localization/content      | App strings switch between Vietnamese and English based on locale or user choice   | PRD targets Vietnamese + English, but current UI strings are hardcoded English and no localization package/config exists.                                  |
+| P8.8 | Vietnamese and English localization   | Review      | App/localization/content      | App strings switch between Vietnamese and English based on locale or user choice   | Added app-level English/Vietnamese localization with an in-app Settings language switch, English fallback, localized high-traffic screens, default mood/activity labels, and focused localization tests. Awaiting user-run pub get, format, tests, and analyze. |
 | P8.9 | Local guided insights                 | Not Started | Analytics/dashboard           | App explains simple local patterns in plain language without sending data anywhere | Build from existing local analytics, e.g. activity/mood trend summaries; avoid medical claims and keep it framed as reflection support.                   |
 
 ## Phase 9 - Post-MVP Expansion

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../domain/models/activity_mood_correlation.dart';
 import 'activity_correlation_empty_state.dart';
@@ -18,6 +19,7 @@ class ActivityCorrelationChart extends StatelessWidget {
     final maxCount = correlations
         .map((correlation) => correlation.entryCount)
         .fold<int>(1, (max, count) => count > max ? count : max);
+    final l10n = context.l10n;
 
     return Container(
       key: const ValueKey('activity_correlation_chart'),
@@ -33,7 +35,7 @@ class ActivityCorrelationChart extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Activity impact',
+                  l10n.activityImpact,
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 18,
@@ -78,10 +80,15 @@ class _ActivityCorrelationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fraction = correlation.entryCount / maxCount;
+    final l10n = context.l10n;
+    final activityName = l10n.activityLabel(correlation.activityName);
 
     return Semantics(
-      label:
-          '${correlation.activityName}, ${correlation.entryCount} entries, average mood ${correlation.averageMood.toStringAsFixed(1)}',
+      label: l10n.activityCorrelationSemantics(
+        activityName: activityName,
+        count: correlation.entryCount,
+        average: correlation.averageMood,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -89,7 +96,7 @@ class _ActivityCorrelationBar extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  correlation.activityName,
+                  activityName,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -101,7 +108,7 @@ class _ActivityCorrelationBar extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Text(
-                '${correlation.averageMood.toStringAsFixed(1)} avg',
+                l10n.averageMood(correlation.averageMood),
                 style: TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 12,
@@ -139,7 +146,7 @@ class _ActivityCorrelationBar extends StatelessWidget {
               SizedBox(
                 width: 58,
                 child: Text(
-                  '${correlation.entryCount} entries',
+                  l10n.entryCount(correlation.entryCount),
                   textAlign: TextAlign.right,
                   style: TextStyle(
                     color: AppColors.textTertiary,

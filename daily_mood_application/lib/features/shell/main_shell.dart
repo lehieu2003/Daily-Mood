@@ -2,6 +2,7 @@ import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_not
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/localization/app_localizations.dart';
 import '../../app/routes/app_router.dart';
 import '../../app/theme/app_colors.dart';
 import '../analytics/stats_screen.dart';
@@ -58,6 +59,7 @@ class _MainShellState extends State<MainShell> {
   Widget build(BuildContext context) {
     const inactiveItemColor = AppColors.navInactiveItem;
     const activeItemColor = AppColors.navSurface;
+    final l10n = context.l10n;
 
     return Scaffold(
       extendBody: true,
@@ -89,7 +91,7 @@ class _MainShellState extends State<MainShell> {
           BottomBarItem(
             inActiveItem: Icon(Icons.home_outlined, color: inactiveItemColor),
             activeItem: Icon(Icons.home, color: activeItemColor),
-            itemLabel: 'Home',
+            itemLabel: l10n.home,
           ),
           BottomBarItem(
             inActiveItem: Icon(
@@ -97,17 +99,17 @@ class _MainShellState extends State<MainShell> {
               color: inactiveItemColor,
             ),
             activeItem: Icon(Icons.bar_chart, color: activeItemColor),
-            itemLabel: 'Stats',
+            itemLabel: l10n.stats,
           ),
           BottomBarItem(
             inActiveItem: Icon(Icons.add, color: inactiveItemColor),
             activeItem: Icon(Icons.add, color: activeItemColor),
-            itemLabel: 'Add mood',
+            itemLabel: l10n.addMood,
           ),
           BottomBarItem(
             inActiveItem: Icon(Icons.history, color: inactiveItemColor),
             activeItem: Icon(Icons.history, color: activeItemColor),
-            itemLabel: 'History',
+            itemLabel: l10n.history,
           ),
           BottomBarItem(
             inActiveItem: Icon(
@@ -115,7 +117,7 @@ class _MainShellState extends State<MainShell> {
               color: inactiveItemColor,
             ),
             activeItem: Icon(Icons.settings, color: activeItemColor),
-            itemLabel: 'Setting',
+            itemLabel: l10n.setting,
           ),
         ],
         onTap: _onTap,

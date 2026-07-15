@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../../../app/theme/app_colors.dart';
 
 class MonthlyHeatmapEmptyState extends StatelessWidget {
@@ -32,7 +33,7 @@ class MonthlyHeatmapEmptyState extends StatelessWidget {
           const SizedBox(width: 14),
           Expanded(
             child: Text(
-              'Log moods this month to build your calendar heatmap.',
+              context.l10n.monthlyHeatmapEmpty,
               style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 13,

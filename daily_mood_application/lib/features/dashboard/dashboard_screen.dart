@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../app/localization/app_localizations.dart';
 import '../../app/routes/app_router.dart';
 import '../../data/repositories/activity_repository.dart';
 import '../../data/repositories/mood_entry_repository.dart';
@@ -143,15 +144,15 @@ class _DashboardLoading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 64),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 64),
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             CircularProgressIndicator(),
-            SizedBox(height: 12),
-            Text('Loading your mood entries'),
+            const SizedBox(height: 12),
+            Text(context.l10n.loadingMoodEntries),
           ],
         ),
       ),

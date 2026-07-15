@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../../../app/theme/app_typography.dart';
 import 'dashboard_card_decoration.dart';
 import 'soft_icon.dart';
@@ -16,6 +17,7 @@ class TrendStatusCard extends StatelessWidget {
     }
 
     final remaining = 3 - entryCount;
+    final l10n = context.l10n;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -28,12 +30,10 @@ class TrendStatusCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Weekly trend', style: AppTypography.heading3),
+                Text(l10n.weeklyTrend, style: AppTypography.heading3),
                 const SizedBox(height: 6),
                 Text(
-                  remaining == 1
-                      ? 'Log 1 more mood to unlock your first trend.'
-                      : 'Log $remaining more moods to unlock your first trend.',
+                  l10n.logMoreMoodsForTrend(remaining),
                   style: AppTypography.subText2Regular,
                 ),
               ],
@@ -59,7 +59,7 @@ class _TrendReadyCard extends StatelessWidget {
           const SizedBox(width: 16),
           Expanded(
             child: Text(
-              'Weekly trend is ready for the next analytics slice.',
+              context.l10n.weeklyTrendReady,
               style: AppTypography.subText2Regular,
             ),
           ),

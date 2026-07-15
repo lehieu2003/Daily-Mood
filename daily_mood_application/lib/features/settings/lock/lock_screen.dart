@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/security/app_lock_cubit.dart';
+import '../../../app/localization/app_localizations.dart';
+import '../../../core/security/app_lock_cubit.dart';
 
 /// Screen A from the design spec: the passcode / biometric guard.
 ///
@@ -69,6 +70,8 @@ class _LockScreenState extends State<LockScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Scaffold(
       body: BlocListener<AppLockCubit, AppLockState>(
         listener: (context, state) {
@@ -86,12 +89,12 @@ class _LockScreenState extends State<LockScreen> {
                 const Icon(Icons.spa_outlined, size: 48),
                 const SizedBox(height: 8),
                 Text(
-                  'Daily Mood',
+                  l10n.lockTitle,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 32),
                 Text(
-                  'Enter Passcode PIN',
+                  l10n.enterPasscodePin,
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 16),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/localization/app_localizations.dart';
 import '../../app/theme/app_colors.dart';
 import '../../domain/models/mood_entry.dart';
 
@@ -29,9 +30,17 @@ String formatMonth(DateTime date) {
   return '${months[date.month - 1]} ${date.year}';
 }
 
+String formatLocalizedMonth(DateTime date, AppLocalizations l10n) {
+  return '${l10n.monthName(date.month)} ${date.year}';
+}
+
 String formatCompactDate(DateTime date) {
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   return '${days[date.weekday - 1]}, ${date.day} ${_shortMonth(date.month)}';
+}
+
+String formatLocalizedCompactDate(DateTime date, AppLocalizations l10n) {
+  return '${l10n.weekdayShort(date.weekday)}, ${date.day} ${l10n.shortMonth(date.month)}';
 }
 
 String historyGroupLabel(DateTime date) {
@@ -44,6 +53,18 @@ String historyGroupLabel(DateTime date) {
   if (day == today.subtract(const Duration(days: 1))) return 'Yesterday';
 
   return '${_shortMonth(day.month)} ${day.day}, ${day.year}';
+}
+
+String localizedHistoryGroupLabel(DateTime date, AppLocalizations l10n) {
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  final localDate = date.toLocal();
+  final day = DateTime(localDate.year, localDate.month, localDate.day);
+
+  if (day == today) return l10n.today;
+  if (day == today.subtract(const Duration(days: 1))) return l10n.yesterday;
+
+  return '${l10n.shortMonth(day.month)} ${day.day}, ${day.year}';
 }
 
 String formatEntryDate(DateTime date) {
@@ -66,6 +87,26 @@ String formatEntryDate(DateTime date) {
   return '${_shortMonth(local.month)} ${local.day}';
 }
 
+String formatLocalizedEntryDate(DateTime date, AppLocalizations l10n) {
+  final now = DateTime.now();
+  final local = date.toLocal();
+  final hour = local.hour == 0
+      ? 12
+      : local.hour > 12
+      ? local.hour - 12
+      : local.hour;
+  final minute = local.minute.toString().padLeft(2, '0');
+  final period = local.hour >= 12 ? 'PM' : 'AM';
+
+  if (now.year == local.year &&
+      now.month == local.month &&
+      now.day == local.day) {
+    return '$hour:$minute $period';
+  }
+
+  return '${l10n.shortMonth(local.month)} ${local.day}';
+}
+
 String moodLabel(int score) {
   return switch (score) {
     1 => 'Awful',
@@ -74,6 +115,10 @@ String moodLabel(int score) {
     4 => 'Good',
     _ => 'Great',
   };
+}
+
+String localizedMoodLabel(int score, AppLocalizations l10n) {
+  return l10n.moodLabel(score);
 }
 
 Color moodColor(int score) {

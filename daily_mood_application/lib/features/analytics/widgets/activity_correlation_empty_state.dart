@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../../../app/theme/app_colors.dart';
 
 class ActivityCorrelationEmptyState extends StatelessWidget {
@@ -32,7 +33,7 @@ class ActivityCorrelationEmptyState extends StatelessWidget {
           const SizedBox(width: 14),
           Expanded(
             child: Text(
-              'Add reasons to mood entries to reveal activity patterns.',
+              context.l10n.activityCorrelationEmpty,
               style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 13,

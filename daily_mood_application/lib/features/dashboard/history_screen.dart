@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../app/localization/app_localizations.dart';
 import '../../data/repositories/activity_repository.dart';
 import '../../data/repositories/mood_entry_repository.dart';
 import '../../domain/models/mood_entry.dart';
@@ -205,10 +206,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
           if (_query.isEmpty) return true;
 
+          final l10n = context.l10n;
           final haystack = [
             moodLabel(entry.moodScore),
+            localizedMoodLabel(entry.moodScore, l10n),
             entry.note ?? '',
             ...entry.activityNames,
+            ...entry.activityNames.map(l10n.activityLabel),
             ...entry.subEmotionNames,
           ].join(' ').toLowerCase();
 
@@ -223,19 +227,19 @@ class _HistoryHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       children: [
         Expanded(
           child: Text(
-            'History',
-            style: TextStyle(
+            context.l10n.history,
+            style: const TextStyle(
               color: DashboardPalette.deepText,
               fontSize: 24,
               fontWeight: FontWeight.w900,
             ),
           ),
         ),
-        Icon(
+        const Icon(
           Icons.calendar_month_outlined,
           color: DashboardPalette.purple,
           size: 22,
@@ -246,14 +250,10 @@ class _HistoryHeader extends StatelessWidget {
 }
 
 enum _HistoryDateFilter {
-  all('All'),
-  today('Today'),
-  sevenDays('7 days'),
-  thirtyDays('30 days');
-
-  const _HistoryDateFilter(this.label);
-
-  final String label;
+  all,
+  today,
+  sevenDays,
+  thirtyDays;
 
   bool includes(DateTime date) {
     if (this == _HistoryDateFilter.all) return true;
@@ -297,6 +297,7 @@ class _HistoryFilterBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final hasActiveFilters =
         searchController.text.trim().isNotEmpty ||
         selectedMoodScore != null ||
@@ -311,12 +312,12 @@ class _HistoryFilterBar extends StatelessWidget {
           onChanged: onSearchChanged,
           textInputAction: TextInputAction.search,
           decoration: InputDecoration(
-            hintText: 'Search notes, tags, or emotions',
+            hintText: l10n.searchNotesTagsEmotions,
             prefixIcon: const Icon(Icons.search_rounded),
             suffixIcon: hasActiveFilters
                 ? IconButton(
                     key: const ValueKey('history_clear_filters_button'),
-                    tooltip: 'Clear filters',
+                    tooltip: l10n.clearFilters,
                     onPressed: onClear,
                     icon: const Icon(Icons.close_rounded),
                   )
@@ -334,14 +335,14 @@ class _HistoryFilterBar extends StatelessWidget {
           children: [
             _ChoicePill(
               key: const ValueKey('history_mood_filter_all'),
-              label: 'All moods',
+              label: l10n.allMoods,
               selected: selectedMoodScore == null,
               onSelected: () => onMoodChanged(null),
             ),
             for (var score = 5; score >= 1; score--)
               _ChoicePill(
                 key: ValueKey('history_mood_filter_$score'),
-                label: moodLabel(score),
+                label: localizedMoodLabel(score, l10n),
                 selected: selectedMoodScore == score,
                 color: moodColor(score),
                 onSelected: () => onMoodChanged(score),
@@ -354,7 +355,7 @@ class _HistoryFilterBar extends StatelessWidget {
             for (final filter in _HistoryDateFilter.values)
               _ChoicePill(
                 key: ValueKey('history_date_filter_${filter.name}'),
-                label: filter.label,
+                label: _dateFilterLabel(filter, l10n),
                 selected: dateFilter == filter,
                 onSelected: () => onDateFilterChanged(filter),
               ),
@@ -363,6 +364,15 @@ class _HistoryFilterBar extends StatelessWidget {
       ],
     );
   }
+}
+
+String _dateFilterLabel(_HistoryDateFilter filter, AppLocalizations l10n) {
+  return switch (filter) {
+    _HistoryDateFilter.all => l10n.all,
+    _HistoryDateFilter.today => l10n.today,
+    _HistoryDateFilter.sevenDays => l10n.sevenDays,
+    _HistoryDateFilter.thirtyDays => l10n.thirtyDays,
+  };
 }
 
 class _FilterChipRow extends StatelessWidget {
@@ -430,25 +440,25 @@ class _HistoryNoMatchesState extends StatelessWidget {
         color: DashboardPalette.surface,
         borderRadius: BorderRadius.circular(18),
       ),
-      child: const Column(
+      child: Column(
         children: [
-          Icon(
+          const Icon(
             Icons.manage_search_rounded,
             color: DashboardPalette.purple,
             size: 34,
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Text(
-            'No matching entries',
-            style: TextStyle(
+            context.l10n.noMatchingEntries,
+            style: const TextStyle(
               color: DashboardPalette.deepText,
               fontSize: 16,
               fontWeight: FontWeight.w900,
             ),
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           Text(
-            'Try clearing a filter or searching another note, tag, or emotion.',
+            context.l10n.noMatchingEntriesBody,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: DashboardPalette.mutedText,
@@ -467,13 +477,13 @@ class _HistoryLoadingState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          CircularProgressIndicator(),
-          SizedBox(height: 12),
-          Text('Loading mood history'),
+          const CircularProgressIndicator(),
+          const SizedBox(height: 12),
+          Text(context.l10n.loadingMoodHistory),
         ],
       ),
     );
@@ -485,11 +495,11 @@ class _HistoryErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Text(
-          'Could not load mood history.',
+          context.l10n.couldNotLoadMoodHistory,
           textAlign: TextAlign.center,
         ),
       ),

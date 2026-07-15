@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../domain/models/weekly_mood_point.dart';
 import '../../dashboard/dashboard_formatters.dart';
@@ -33,6 +34,7 @@ class WeeklyTrendChart extends StatelessWidget {
     }
 
     final lineColor = moodColor(_latestRoundedMood(points));
+    final l10n = context.l10n;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 18, 18, 14),
@@ -47,7 +49,7 @@ class WeeklyTrendChart extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Weekly trend',
+                  l10n.weeklyTrend,
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 18,
@@ -56,7 +58,7 @@ class WeeklyTrendChart extends StatelessWidget {
                 ),
               ),
               Text(
-                '$entryCount entries',
+                l10n.entryCount(entryCount),
                 style: TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 12,
@@ -121,7 +123,7 @@ class WeeklyTrendChart extends StatelessWidget {
                         return Padding(
                           padding: const EdgeInsets.only(top: 8),
                           child: Text(
-                            _dayLabels[index],
+                            l10n.weekdayShort(index + 1),
                             style: TextStyle(
                               color: AppColors.textTertiary,
                               fontSize: 11,
@@ -139,7 +141,7 @@ class WeeklyTrendChart extends StatelessWidget {
                       return [
                         for (final spot in touchedSpots)
                           LineTooltipItem(
-                            'Mood ${spot.y.toStringAsFixed(1)}',
+                            l10n.moodTooltip(spot.y),
                             const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w800,
@@ -181,4 +183,4 @@ class WeeklyTrendChart extends StatelessWidget {
   }
 }
 
-const _dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const _dayLabels = [0, 1, 2, 3, 4, 5, 6];

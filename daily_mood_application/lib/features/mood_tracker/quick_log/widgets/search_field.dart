@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../app/localization/app_localizations.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_typography.dart';
 
@@ -63,7 +64,7 @@ class QuickLogSearchField extends StatelessWidget {
               IconButton(
                 key: const ValueKey('quick_log_confirm_reason'),
                 onPressed: enabled ? onConfirmPressed : null,
-                tooltip: 'Add reason',
+                tooltip: context.l10n.addAReason,
                 icon: const Icon(Icons.check, size: 18),
                 color: AppColors.textPrimary,
                 visualDensity: VisualDensity.compact,

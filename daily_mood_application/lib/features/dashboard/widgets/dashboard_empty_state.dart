@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_typography.dart';
 import '../dashboard_palette.dart';
@@ -11,6 +12,8 @@ class DashboardEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Container(
       key: const ValueKey('dashboard_empty_state'),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
@@ -46,10 +49,10 @@ class DashboardEmptyState extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          Text('No mood entries yet', style: AppTypography.heading1),
+          Text(l10n.noMoodEntriesYet, style: AppTypography.heading1),
           const SizedBox(height: 8),
           Text(
-            'Start with one quick check-in. Your first entry will appear here.',
+            l10n.dashboardEmptyBody,
             textAlign: TextAlign.center,
             style: AppTypography.subText1Regular.copyWith(
               color: AppColors.textSecondary,
@@ -59,7 +62,7 @@ class DashboardEmptyState extends StatelessWidget {
           FilledButton.icon(
             onPressed: onLogMood,
             icon: const Icon(Icons.add),
-            label: const Text('Add first mood'),
+            label: Text(l10n.addFirstMood),
           ),
         ],
       ),

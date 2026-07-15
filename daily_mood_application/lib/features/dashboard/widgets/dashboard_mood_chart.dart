@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../../../domain/models/mood_entry.dart';
 import '../dashboard_palette.dart';
 
@@ -21,9 +22,9 @@ class DashboardMoodChart extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Mood chart',
-            style: TextStyle(
+          Text(
+            context.l10n.moodChart,
+            style: const TextStyle(
               color: DashboardPalette.deepText,
               fontSize: 15,
               fontWeight: FontWeight.w800,
@@ -145,9 +146,9 @@ class _EmptyMoodChart extends StatelessWidget {
       key: const ValueKey('dashboard_mood_chart_empty'),
       height: 172,
       alignment: Alignment.center,
-      child: const Text(
-        'No check-ins today',
-        style: TextStyle(
+      child: Text(
+        context.l10n.noCheckInsToday,
+        style: const TextStyle(
           color: DashboardPalette.mutedText,
           fontSize: 13,
           fontWeight: FontWeight.w700,

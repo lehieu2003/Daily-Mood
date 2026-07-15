@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../app/localization/app_localizations.dart';
 import '../../app/theme/app_colors.dart';
 import '../../data/repositories/mood_analytics_repository.dart';
 import '../../domain/models/activity_mood_correlation.dart';
@@ -163,7 +164,7 @@ class _StatsHeader extends StatelessWidget {
       children: [
         Expanded(
           child: Text(
-            'Stats',
+            context.l10n.stats,
             style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 24,
@@ -186,13 +187,13 @@ class _StatsLoadingState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          CircularProgressIndicator(),
-          SizedBox(height: 12),
-          Text('Loading mood insights'),
+          const CircularProgressIndicator(),
+          const SizedBox(height: 12),
+          Text(context.l10n.loadingMoodInsights),
         ],
       ),
     );
@@ -204,11 +205,11 @@ class _StatsErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Text(
-          'Could not load mood insights.',
+          context.l10n.couldNotLoadMoodInsights,
           textAlign: TextAlign.center,
         ),
       ),

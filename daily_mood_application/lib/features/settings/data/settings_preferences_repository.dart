@@ -39,6 +39,8 @@ class SettingsPreferencesRepository {
   final SettingsPreferencesStore _store;
 
   static const _hapticsEnabledKey = 'settings_haptics_enabled_v1';
+  static const _languageCodeKey = 'settings_language_code_v1';
+  static const supportedLanguageCodes = {'en', 'vi'};
 
   Future<bool> readHapticsEnabled() async {
     final value = await _store.read(key: _hapticsEnabledKey);
@@ -48,5 +50,16 @@ class SettingsPreferencesRepository {
 
   Future<void> setHapticsEnabled(bool enabled) {
     return _store.write(key: _hapticsEnabledKey, value: enabled.toString());
+  }
+
+  Future<String?> readLanguageCode() async {
+    final value = await _store.read(key: _languageCodeKey);
+    if (supportedLanguageCodes.contains(value)) return value;
+    return null;
+  }
+
+  Future<void> setLanguageCode(String languageCode) {
+    assert(supportedLanguageCodes.contains(languageCode));
+    return _store.write(key: _languageCodeKey, value: languageCode);
   }
 }

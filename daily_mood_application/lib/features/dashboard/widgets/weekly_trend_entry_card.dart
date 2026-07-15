@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../../../domain/models/mood_entry.dart';
 import '../dashboard_formatters.dart';
 import '../dashboard_palette.dart';
@@ -22,11 +23,12 @@ class WeeklyTrendEntryCard extends StatelessWidget {
             .fold<int>(0, (sum, score) => sum + score) /
         entries.length;
     final roundedAverage = average.round();
+    final l10n = context.l10n;
 
     return Semantics(
       button: true,
-      label: 'Weekly trend unlocked',
-      hint: 'Opens the Stats tab',
+      label: l10n.weeklyTrendUnlocked,
+      hint: l10n.opensStatsTab,
       child: InkWell(
         key: const ValueKey('weekly_trend_entry_card'),
         borderRadius: BorderRadius.circular(18),
@@ -45,9 +47,9 @@ class WeeklyTrendEntryCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Weekly trend',
-                      style: TextStyle(
+                    Text(
+                      l10n.weeklyTrend,
+                      style: const TextStyle(
                         color: DashboardPalette.deepText,
                         fontSize: 16,
                         fontWeight: FontWeight.w900,
@@ -55,7 +57,7 @@ class WeeklyTrendEntryCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 5),
                     Text(
-                      '${entries.length} entries ready - Average ${average.toStringAsFixed(1)}',
+                      l10n.weeklyTrendSummary(entries.length, average),
                       style: const TextStyle(
                         color: DashboardPalette.mutedText,
                         fontSize: 12,

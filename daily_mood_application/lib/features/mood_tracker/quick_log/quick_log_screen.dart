@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../domain/models/mood_activity.dart';
+import '../../../app/localization/app_localizations.dart';
 import '../cubit/mood_form_cubit.dart';
 import '../cubit/mood_form_state.dart';
 import 'widgets/completion_dialog.dart';
@@ -101,7 +102,7 @@ class _QuickLogScreenState extends State<QuickLogScreen> {
       debugPrintStack(stackTrace: stackTrace);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not save mood entry')),
+        SnackBar(content: Text(context.l10n.couldNotSaveMoodEntry)),
       );
     } finally {
       if (mounted) {
@@ -112,15 +113,20 @@ class _QuickLogScreenState extends State<QuickLogScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return BlocBuilder<MoodFormCubit, MoodFormState>(
       builder: (context, state) {
         return QuickLogStepShell(
           stepLabel: '${_stepIndex + 1}/4',
-          title: _titleForStep(_stepIndex, state),
-          subtitle: _subtitleForStep(_stepIndex),
-          primaryLabel: _stepIndex == _lastStepIndex ? 'Save' : 'Continue',
+          title: _titleForStep(l10n, _stepIndex, state),
+          subtitle: _subtitleForStep(l10n, _stepIndex),
+          primaryLabel: _stepIndex == _lastStepIndex
+              ? l10n.save
+              : l10n.continueLabel,
           onPrimaryPressed: _primaryActionForStep(state),
-          secondaryLabel: _stepIndex == _lastStepIndex ? 'Skip and Save' : null,
+          secondaryLabel: _stepIndex == _lastStepIndex
+              ? l10n.skipAndSave
+              : null,
           onSecondaryPressed: state.moodScore == null ? null : _saveAndComplete,
           onBack: _stepIndex == 0 ? null : _goBack,
           onClose: _close,
@@ -130,36 +136,32 @@ class _QuickLogScreenState extends State<QuickLogScreen> {
     );
   }
 
-  String _titleForStep(int stepIndex, MoodFormState state) {
+  String _titleForStep(
+    AppLocalizations l10n,
+    int stepIndex,
+    MoodFormState state,
+  ) {
     return switch (stepIndex) {
-      0 => "What's your mood now?",
-      1 => 'Choose the emotions that make\nyou feel ${_moodLabel(state)}',
-      2 => "What's reason making you feel\nthis way?",
-      3 => 'Any thing you want to add',
-      _ => "What's your mood now?",
+      0 => l10n.whatsYourMoodNow,
+      1 => l10n.quickLogEmotionTitle(_moodLabel(l10n, state)),
+      2 => l10n.quickLogReasonTitle,
+      3 => l10n.quickLogNoteTitle,
+      _ => l10n.whatsYourMoodNow,
     };
   }
 
-  String _subtitleForStep(int stepIndex) {
+  String _subtitleForStep(AppLocalizations l10n, int stepIndex) {
     return switch (stepIndex) {
-      0 =>
-        'Select mood that reflects the most how you are\nfeeling at this moment.',
-      1 => 'Select at least 1 emotion',
-      2 => 'Select reasons that reflected your emotions',
-      3 => 'Add your notes on any thought that reflating your mood',
+      0 => l10n.quickLogMoodSubtitle,
+      1 => l10n.selectAtLeastOneEmotion,
+      2 => l10n.quickLogReasonSubtitle,
+      3 => l10n.quickLogNoteSubtitle,
       _ => '',
     };
   }
 
-  String _moodLabel(MoodFormState state) {
-    return switch (state.moodScore) {
-      1 => 'awful',
-      2 => 'bad',
-      3 => 'neutral',
-      4 => 'good',
-      5 => 'amazing',
-      _ => 'neutral',
-    };
+  String _moodLabel(AppLocalizations l10n, MoodFormState state) {
+    return l10n.moodFeelingLabel(state.moodScore);
   }
 
   VoidCallback? _primaryActionForStep(MoodFormState state) {

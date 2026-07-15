@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../dashboard_palette.dart';
 
 class HistoryEmptyState extends StatelessWidget {
@@ -14,27 +15,27 @@ class HistoryEmptyState extends StatelessWidget {
         color: DashboardPalette.surface,
         borderRadius: BorderRadius.circular(20),
       ),
-      child: const Column(
+      child: Column(
         children: [
-          ExcludeSemantics(
+          const ExcludeSemantics(
             child: Icon(
               Icons.history,
               color: DashboardPalette.purple,
               size: 44,
             ),
           ),
-          SizedBox(height: 18),
+          const SizedBox(height: 18),
           Text(
-            'No history yet',
-            style: TextStyle(
+            context.l10n.noHistoryYet,
+            style: const TextStyle(
               color: DashboardPalette.deepText,
               fontSize: 20,
               fontWeight: FontWeight.w900,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
-            'Your saved mood entries will appear here after check-ins.',
+            context.l10n.historyEmptyBody,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: DashboardPalette.mutedText,

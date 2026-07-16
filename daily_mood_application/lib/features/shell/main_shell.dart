@@ -7,7 +7,7 @@ import '../../app/routes/app_router.dart';
 import '../../app/theme/app_colors.dart';
 import '../analytics/stats_screen.dart';
 import '../dashboard/dashboard_screen.dart';
-import '../dashboard/history_screen.dart';
+import '../history/history_screen.dart';
 import '../settings/settings_screen.dart';
 
 /// Persistent bottom-nav shell built on `animated_notch_bottom_bar`.

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../domain/models/mood_entry.dart';
-import '../dashboard_formatters.dart';
+import '../../dashboard/dashboard_formatters.dart';
 import 'history_state.dart';
 
 typedef HistoryMoodLabelResolver = String Function(int moodScore);

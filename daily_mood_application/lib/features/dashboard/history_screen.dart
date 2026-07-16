@@ -8,6 +8,8 @@ import '../../domain/models/mood_entry.dart';
 import 'dashboard_formatters.dart';
 import 'dashboard_palette.dart';
 import 'entry_detail_actions.dart';
+import 'state/history_cubit.dart';
+import 'state/history_state.dart';
 import 'widgets/entry_detail_sheet.dart';
 import 'widgets/history_empty_state.dart';
 import 'widgets/history_entry_group.dart';
@@ -31,14 +33,14 @@ class HistoryScreen extends StatefulWidget {
 class _HistoryScreenState extends State<HistoryScreen> {
   final _searchController = TextEditingController();
   Stream<List<MoodEntryModel>>? _historyStream;
-  var _query = '';
-  int? _selectedMoodScore;
-  _HistoryDateFilter _dateFilter = _HistoryDateFilter.all;
+  HistoryCubit? _historyCubit;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _historyStream ??= _resolveHistoryStream();
+    _historyCubit ??= HistoryCubit(entries: _historyStream!);
+    _updateCubitLocalization();
   }
 
   @override
@@ -46,99 +48,95 @@ class _HistoryScreenState extends State<HistoryScreen> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.entries != widget.entries) {
       _historyStream = _resolveHistoryStream();
+      _historyCubit?.close();
+      _historyCubit = HistoryCubit(entries: _historyStream!);
+      _updateCubitLocalization();
     }
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _historyCubit?.close();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: DashboardPalette.background,
-      body: SafeArea(
-        child: StreamBuilder<List<MoodEntryModel>>(
-          stream: _historyStream,
-          builder: (context, snapshot) {
-            if (!snapshot.hasData &&
-                snapshot.connectionState == ConnectionState.waiting) {
-              return const _HistoryLoadingState();
-            }
+    final historyCubit = _historyCubit!;
+    return BlocProvider.value(
+      value: historyCubit,
+      child: Scaffold(
+        backgroundColor: DashboardPalette.background,
+        body: SafeArea(
+          child: BlocBuilder<HistoryCubit, HistoryState>(
+            builder: (context, state) {
+              if (state.isLoading) {
+                return const _HistoryLoadingState();
+              }
 
-            if (snapshot.hasError) {
-              return const _HistoryErrorState();
-            }
+              if (state.hasError) {
+                return const _HistoryErrorState();
+              }
 
-            final historyEntries = _filteredEntries(
-              snapshot.data ?? const <MoodEntryModel>[],
-            );
-            final hasActiveFilters =
-                _query.isNotEmpty ||
-                _selectedMoodScore != null ||
-                _dateFilter != _HistoryDateFilter.all;
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  final isWide = constraints.maxWidth >= 720;
 
-            return LayoutBuilder(
-              builder: (context, constraints) {
-                final isWide = constraints.maxWidth >= 720;
-
-                return Center(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: isWide ? 840 : double.infinity,
-                    ),
-                    child: CustomScrollView(
-                      slivers: [
-                        SliverPadding(
-                          padding: EdgeInsets.fromLTRB(
-                            isWide ? 32 : 22,
-                            26,
-                            isWide ? 32 : 22,
-                            120,
-                          ),
-                          sliver: SliverList(
-                            delegate: SliverChildListDelegate([
-                              const _HistoryHeader(),
-                              const SizedBox(height: 18),
-                              _HistoryFilterBar(
-                                searchController: _searchController,
-                                selectedMoodScore: _selectedMoodScore,
-                                dateFilter: _dateFilter,
-                                onSearchChanged: (value) => setState(
-                                  () => _query = value.trim().toLowerCase(),
+                  return Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: isWide ? 840 : double.infinity,
+                      ),
+                      child: CustomScrollView(
+                        slivers: [
+                          SliverPadding(
+                            padding: EdgeInsets.fromLTRB(
+                              isWide ? 32 : 22,
+                              26,
+                              isWide ? 32 : 22,
+                              120,
+                            ),
+                            sliver: SliverList(
+                              delegate: SliverChildListDelegate([
+                                const _HistoryHeader(),
+                                const SizedBox(height: 18),
+                                _HistoryFilterBar(
+                                  searchController: _searchController,
+                                  selectedMoodScore: state.selectedMoodScore,
+                                  dateFilter: state.dateFilter,
+                                  onSearchChanged: context
+                                      .read<HistoryCubit>()
+                                      .setQuery,
+                                  onMoodChanged: context
+                                      .read<HistoryCubit>()
+                                      .setMoodScore,
+                                  onDateFilterChanged: context
+                                      .read<HistoryCubit>()
+                                      .setDateFilter,
+                                  onClear: () {
+                                    _searchController.clear();
+                                    context.read<HistoryCubit>().clearFilters();
+                                  },
                                 ),
-                                onMoodChanged: (score) =>
-                                    setState(() => _selectedMoodScore = score),
-                                onDateFilterChanged: (filter) =>
-                                    setState(() => _dateFilter = filter),
-                                onClear: () {
-                                  _searchController.clear();
-                                  setState(() {
-                                    _query = '';
-                                    _selectedMoodScore = null;
-                                    _dateFilter = _HistoryDateFilter.all;
-                                  });
-                                },
-                              ),
-                              const SizedBox(height: 18),
-                              if (historyEntries.isEmpty)
-                                hasActiveFilters
-                                    ? const _HistoryNoMatchesState()
-                                    : const HistoryEmptyState()
-                              else
-                                ..._buildHistoryGroups(context, historyEntries),
-                            ]),
+                                const SizedBox(height: 18),
+                                if (state.isEmpty)
+                                  state.hasActiveFilters
+                                      ? const _HistoryNoMatchesState()
+                                      : const HistoryEmptyState()
+                                else
+                                  ..._buildHistoryGroups(context, state.groups),
+                              ]),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              },
-            );
-          },
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
     );
@@ -149,23 +147,23 @@ class _HistoryScreenState extends State<HistoryScreen> {
         context.read<MoodEntryRepository>().watchHistoryEntries();
   }
 
+  void _updateCubitLocalization() {
+    final l10n = context.l10n;
+    _historyCubit?.updateLocalization(
+      localizedMoodLabel: (score) => localizedMoodLabel(score, l10n),
+      localizedActivityLabel: l10n.activityLabel,
+    );
+  }
+
   List<Widget> _buildHistoryGroups(
     BuildContext context,
-    List<MoodEntryModel> entries,
+    List<HistoryDayGroup> groups,
   ) {
-    final groupedEntries = <DateTime, List<MoodEntryModel>>{};
-
-    for (final entry in entries) {
-      final created = entry.createdAt.toLocal();
-      final day = DateTime(created.year, created.month, created.day);
-      groupedEntries.putIfAbsent(day, () => []).add(entry);
-    }
-
     return [
-      for (final group in groupedEntries.entries) ...[
+      for (final group in groups) ...[
         HistoryEntryGroup(
-          date: group.key,
-          entries: group.value,
+          date: group.date,
+          entries: group.entries,
           onOpenEntry: (entry) => _openEntryDetail(context, entry),
         ),
         const SizedBox(height: 18),
@@ -190,35 +188,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
       onDeleteEntry: deleteEntry ?? repository!.softDeleteEntry,
       activityOptions: activityOptions,
     );
-  }
-
-  List<MoodEntryModel> _filteredEntries(List<MoodEntryModel> entries) {
-    return entries
-        .where((entry) {
-          if (_selectedMoodScore != null &&
-              entry.moodScore != _selectedMoodScore) {
-            return false;
-          }
-
-          if (!_dateFilter.includes(entry.createdAt)) {
-            return false;
-          }
-
-          if (_query.isEmpty) return true;
-
-          final l10n = context.l10n;
-          final haystack = [
-            moodLabel(entry.moodScore),
-            localizedMoodLabel(entry.moodScore, l10n),
-            entry.note ?? '',
-            ...entry.activityNames,
-            ...entry.activityNames.map(l10n.activityLabel),
-            ...entry.subEmotionNames,
-          ].join(' ').toLowerCase();
-
-          return haystack.contains(_query);
-        })
-        .toList(growable: false);
   }
 }
 
@@ -249,33 +218,6 @@ class _HistoryHeader extends StatelessWidget {
   }
 }
 
-enum _HistoryDateFilter {
-  all,
-  today,
-  sevenDays,
-  thirtyDays;
-
-  bool includes(DateTime date) {
-    if (this == _HistoryDateFilter.all) return true;
-
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final local = date.toLocal();
-    final day = DateTime(local.year, local.month, local.day);
-
-    return switch (this) {
-      _HistoryDateFilter.today => day == today,
-      _HistoryDateFilter.sevenDays => !day.isBefore(
-        today.subtract(const Duration(days: 6)),
-      ),
-      _HistoryDateFilter.thirtyDays => !day.isBefore(
-        today.subtract(const Duration(days: 29)),
-      ),
-      _HistoryDateFilter.all => true,
-    };
-  }
-}
-
 class _HistoryFilterBar extends StatelessWidget {
   const _HistoryFilterBar({
     required this.searchController,
@@ -289,10 +231,10 @@ class _HistoryFilterBar extends StatelessWidget {
 
   final TextEditingController searchController;
   final int? selectedMoodScore;
-  final _HistoryDateFilter dateFilter;
+  final HistoryDateFilter dateFilter;
   final ValueChanged<String> onSearchChanged;
   final ValueChanged<int?> onMoodChanged;
-  final ValueChanged<_HistoryDateFilter> onDateFilterChanged;
+  final ValueChanged<HistoryDateFilter> onDateFilterChanged;
   final VoidCallback onClear;
 
   @override
@@ -301,7 +243,7 @@ class _HistoryFilterBar extends StatelessWidget {
     final hasActiveFilters =
         searchController.text.trim().isNotEmpty ||
         selectedMoodScore != null ||
-        dateFilter != _HistoryDateFilter.all;
+        dateFilter != HistoryDateFilter.all;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -343,6 +285,7 @@ class _HistoryFilterBar extends StatelessWidget {
               _ChoicePill(
                 key: ValueKey('history_mood_filter_$score'),
                 label: localizedMoodLabel(score, l10n),
+                useRichLabel: true,
                 selected: selectedMoodScore == score,
                 color: moodColor(score),
                 onSelected: () => onMoodChanged(score),
@@ -352,10 +295,11 @@ class _HistoryFilterBar extends StatelessWidget {
         const SizedBox(height: 10),
         _FilterChipRow(
           children: [
-            for (final filter in _HistoryDateFilter.values)
+            for (final filter in HistoryDateFilter.values)
               _ChoicePill(
                 key: ValueKey('history_date_filter_${filter.name}'),
                 label: _dateFilterLabel(filter, l10n),
+                useRichLabel: true,
                 selected: dateFilter == filter,
                 onSelected: () => onDateFilterChanged(filter),
               ),
@@ -366,12 +310,12 @@ class _HistoryFilterBar extends StatelessWidget {
   }
 }
 
-String _dateFilterLabel(_HistoryDateFilter filter, AppLocalizations l10n) {
+String _dateFilterLabel(HistoryDateFilter filter, AppLocalizations l10n) {
   return switch (filter) {
-    _HistoryDateFilter.all => l10n.all,
-    _HistoryDateFilter.today => l10n.today,
-    _HistoryDateFilter.sevenDays => l10n.sevenDays,
-    _HistoryDateFilter.thirtyDays => l10n.thirtyDays,
+    HistoryDateFilter.all => l10n.all,
+    HistoryDateFilter.today => l10n.today,
+    HistoryDateFilter.sevenDays => l10n.sevenDays,
+    HistoryDateFilter.thirtyDays => l10n.thirtyDays,
   };
 }
 
@@ -396,12 +340,14 @@ class _ChoicePill extends StatelessWidget {
     required this.onSelected,
     super.key,
     this.color,
+    this.useRichLabel = false,
   });
 
   final String label;
   final bool selected;
   final VoidCallback onSelected;
   final Color? color;
+  final bool useRichLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -410,7 +356,7 @@ class _ChoicePill extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: ChoiceChip(
-        label: Text(label),
+        label: useRichLabel ? _SemanticSplitLabel(label) : Text(label),
         selected: selected,
         onSelected: (_) => onSelected(),
         selectedColor: selectedColor,
@@ -423,6 +369,28 @@ class _ChoicePill extends StatelessWidget {
           color: selected ? selectedColor : DashboardPalette.divider,
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+    );
+  }
+}
+
+class _SemanticSplitLabel extends StatelessWidget {
+  const _SemanticSplitLabel(this.label);
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: label,
+      child: ExcludeSemantics(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final codeUnit in label.codeUnits)
+              Text(String.fromCharCode(codeUnit)),
+          ],
+        ),
       ),
     );
   }

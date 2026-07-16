@@ -146,6 +146,13 @@ class _EntryDetailSheetState extends State<EntryDetailSheet> {
                     ),
                   ),
                   IconButton(
+                    key: const ValueKey('entry_detail_delete_button'),
+                    tooltip: l10n.delete,
+                    onPressed: isBusy ? null : _confirmDelete,
+                    icon: const Icon(Icons.delete_outline_rounded),
+                    color: moodColor(1),
+                  ),
+                  IconButton(
                     tooltip: l10n.close,
                     onPressed: isBusy
                         ? null
@@ -224,7 +231,6 @@ class _EntryDetailSheetState extends State<EntryDetailSheet> {
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
-                      key: const ValueKey('entry_detail_delete_button'),
                       onPressed: isBusy ? null : _confirmDelete,
                       icon: _isDeleting
                           ? const SizedBox(

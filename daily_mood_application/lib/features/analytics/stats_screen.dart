@@ -7,14 +7,14 @@ import '../../domain/models/activity_mood_correlation.dart';
 import '../../domain/models/mood_distribution_item.dart';
 import '../../domain/models/monthly_mood_day.dart';
 import '../../domain/models/weekly_mood_point.dart';
+import 'state/stats_cubit.dart';
+import 'state/stats_state.dart';
 import 'widgets/activity_correlation_chart.dart';
 import 'widgets/mood_distribution_chart.dart';
 import 'widgets/monthly_mood_calendar.dart';
 import 'widgets/weekly_trend_chart.dart';
 
-enum _StatsPeriod { week, month, year }
-
-class StatsScreen extends StatefulWidget {
+class StatsScreen extends StatelessWidget {
   const StatsScreen({
     super.key,
     this.weeklyTrend,
@@ -31,169 +31,107 @@ class StatsScreen extends StatefulWidget {
   final DateTime? focusedMonth;
 
   @override
-  State<StatsScreen> createState() => _StatsScreenState();
-}
-
-class _StatsScreenState extends State<StatsScreen> {
-  _StatsPeriod _period = _StatsPeriod.week;
-  late DateTime _anchorDate;
-
-  @override
-  void initState() {
-    super.initState();
-    _anchorDate = widget.focusedMonth ?? DateTime.now();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final hasInjectedCoreStreams =
-        widget.weeklyTrend != null &&
-        widget.monthlyHeatmap != null &&
-        widget.activityCorrelations != null;
+        weeklyTrend != null &&
+        monthlyHeatmap != null &&
+        activityCorrelations != null;
     final repository = hasInjectedCoreStreams
         ? null
         : context.read<MoodAnalyticsRepository>();
-    final range = _StatsRange.forPeriod(_period, _anchorDate);
-    final stream =
-        widget.weeklyTrend ??
-        repository!.watchWeeklyMoodTrend(_weekStartFor(range.start));
-    final monthlyStream =
-        widget.monthlyHeatmap ??
-        repository!.watchMonthlyMoodHeatmap(_monthStartFor(_anchorDate));
-    final activityStream =
-        widget.activityCorrelations ??
-        repository!.watchActivityMoodCorrelationsBetween(
-          start: range.start,
-          end: range.end,
-        );
-    final distributionStream =
-        widget.moodDistribution ??
-        (repository == null
-            ? Stream<List<MoodDistributionItem>>.value(const [])
-            : repository.watchMoodDistribution(range.start, range.end));
-    final calendarMonth = _monthStartFor(_anchorDate);
 
+    return BlocProvider(
+      create: (_) => StatsCubit(
+        repository: repository,
+        anchorDate: focusedMonth,
+        weeklyTrend: weeklyTrend,
+        monthlyHeatmap: monthlyHeatmap,
+        activityCorrelations: activityCorrelations,
+        moodDistribution: moodDistribution,
+      ),
+      child: const _StatsView(),
+    );
+  }
+}
+
+class _StatsView extends StatelessWidget {
+  const _StatsView();
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
-        child: StreamBuilder<List<WeeklyMoodPoint>>(
-          stream: stream,
-          builder: (context, weeklySnapshot) {
-            return StreamBuilder<List<MoodDistributionItem>>(
-              stream: distributionStream,
-              builder: (context, distributionSnapshot) {
-                return StreamBuilder<List<MonthlyMoodDay>>(
-                  stream: monthlyStream,
-                  builder: (context, monthlySnapshot) {
-                    return StreamBuilder<List<ActivityMoodCorrelation>>(
-                      stream: activityStream,
-                      builder: (context, activitySnapshot) {
-                        final isWeeklyLoading =
-                            !weeklySnapshot.hasData &&
-                            weeklySnapshot.connectionState ==
-                                ConnectionState.waiting;
-                        final isDistributionLoading =
-                            !distributionSnapshot.hasData &&
-                            distributionSnapshot.connectionState ==
-                                ConnectionState.waiting;
-                        final isMonthlyLoading =
-                            !monthlySnapshot.hasData &&
-                            monthlySnapshot.connectionState ==
-                                ConnectionState.waiting;
-                        final isActivityLoading =
-                            !activitySnapshot.hasData &&
-                            activitySnapshot.connectionState ==
-                                ConnectionState.waiting;
+        child: BlocBuilder<StatsCubit, StatsState>(
+          builder: (context, state) {
+            if (state.hasError) {
+              return const _StatsErrorState();
+            }
 
-                        if (weeklySnapshot.hasError ||
-                            distributionSnapshot.hasError ||
-                            monthlySnapshot.hasError ||
-                            activitySnapshot.hasError) {
-                          return const _StatsErrorState();
-                        }
+            if (state.isLoading) {
+              return const _StatsLoadingState();
+            }
 
-                        if (isWeeklyLoading ||
-                            isDistributionLoading ||
-                            isMonthlyLoading ||
-                            isActivityLoading) {
-                          return const _StatsLoadingState();
-                        }
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                final isWide = constraints.maxWidth >= 720;
 
-                        final points =
-                            weeklySnapshot.data ?? const <WeeklyMoodPoint>[];
-                        final distributionItems =
-                            distributionSnapshot.data ??
-                            const <MoodDistributionItem>[];
-                        final monthDays =
-                            monthlySnapshot.data ?? const <MonthlyMoodDay>[];
-                        final correlations =
-                            activitySnapshot.data ??
-                            const <ActivityMoodCorrelation>[];
-
-                        return LayoutBuilder(
-                          builder: (context, constraints) {
-                            final isWide = constraints.maxWidth >= 720;
-
-                            return Center(
-                              child: ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  maxWidth: isWide ? 840 : double.infinity,
+                return CustomScrollView(
+                  slivers: [
+                    SliverPadding(
+                      padding: EdgeInsets.fromLTRB(
+                        isWide ? 32 : 22,
+                        26,
+                        isWide ? 32 : 22,
+                        120,
+                      ),
+                      sliver: SliverToBoxAdapter(
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxWidth: isWide ? 840 : double.infinity,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                _StatsHeader(
+                                  rangeLabel: _rangeLabel(context, state),
+                                  onPrevious: context
+                                      .read<StatsCubit>()
+                                      .goPrevious,
+                                  onNext: context.read<StatsCubit>().goNext,
                                 ),
-                                child: CustomScrollView(
-                                  slivers: [
-                                    SliverPadding(
-                                      padding: EdgeInsets.fromLTRB(
-                                        isWide ? 32 : 22,
-                                        26,
-                                        isWide ? 32 : 22,
-                                        120,
-                                      ),
-                                      sliver: SliverList(
-                                        delegate: SliverChildListDelegate([
-                                          _StatsHeader(
-                                            rangeLabel: _rangeLabel(
-                                              context,
-                                              range,
-                                            ),
-                                            onPrevious: _goPrevious,
-                                            onNext: _goNext,
-                                          ),
-                                          const SizedBox(height: 18),
-                                          _StatsPeriodSelector(
-                                            value: _period,
-                                            onChanged: (period) {
-                                              setState(() => _period = period);
-                                            },
-                                          ),
-                                          const SizedBox(height: 18),
-                                          const _StatsFilterChips(),
-                                          const SizedBox(height: 18),
-                                          MoodDistributionChart(
-                                            items: distributionItems,
-                                          ),
-                                          const SizedBox(height: 18),
-                                          WeeklyTrendChart(points: points),
-                                          const SizedBox(height: 18),
-                                          MonthlyMoodCalendar(
-                                            days: monthDays,
-                                            focusedMonth: calendarMonth,
-                                          ),
-                                          const SizedBox(height: 18),
-                                          ActivityCorrelationChart(
-                                            correlations: correlations,
-                                          ),
-                                        ]),
-                                      ),
-                                    ),
-                                  ],
+                                const SizedBox(height: 18),
+                                _StatsPeriodSelector(
+                                  value: state.period,
+                                  onChanged: context
+                                      .read<StatsCubit>()
+                                      .setPeriod,
                                 ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
+                                const SizedBox(height: 18),
+                                const _StatsFilterChips(),
+                                const SizedBox(height: 18),
+                                MoodDistributionChart(
+                                  items: state.moodDistribution,
+                                ),
+                                const SizedBox(height: 18),
+                                WeeklyTrendChart(points: state.weeklyTrend),
+                                const SizedBox(height: 18),
+                                MonthlyMoodCalendar(
+                                  days: state.monthlyHeatmap,
+                                  focusedMonth: state.calendarMonth,
+                                ),
+                                const SizedBox(height: 18),
+                                ActivityCorrelationChart(
+                                  correlations: state.activityCorrelations,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 );
               },
             );
@@ -203,90 +141,17 @@ class _StatsScreenState extends State<StatsScreen> {
     );
   }
 
-  void _goPrevious() {
-    setState(() {
-      _anchorDate = switch (_period) {
-        _StatsPeriod.week => _anchorDate.subtract(const Duration(days: 7)),
-        _StatsPeriod.month => DateTime(
-          _anchorDate.year,
-          _anchorDate.month - 1,
-          _anchorDate.day,
-        ),
-        _StatsPeriod.year => DateTime(
-          _anchorDate.year - 1,
-          _anchorDate.month,
-          _anchorDate.day,
-        ),
-      };
-    });
-  }
-
-  void _goNext() {
-    setState(() {
-      _anchorDate = switch (_period) {
-        _StatsPeriod.week => _anchorDate.add(const Duration(days: 7)),
-        _StatsPeriod.month => DateTime(
-          _anchorDate.year,
-          _anchorDate.month + 1,
-          _anchorDate.day,
-        ),
-        _StatsPeriod.year => DateTime(
-          _anchorDate.year + 1,
-          _anchorDate.month,
-          _anchorDate.day,
-        ),
-      };
-    });
-  }
-
-  DateTime _weekStartFor(DateTime date) {
-    final today = DateTime(date.year, date.month, date.day);
-    return today.subtract(Duration(days: today.weekday - DateTime.monday));
-  }
-
-  DateTime _monthStartFor(DateTime date) {
-    return DateTime(date.year, date.month);
-  }
-
-  String _rangeLabel(BuildContext context, _StatsRange range) {
+  String _rangeLabel(BuildContext context, StatsState state) {
     final l10n = context.l10n;
-    return switch (_period) {
-      _StatsPeriod.week =>
+    final range = state.range;
+    return switch (state.period) {
+      StatsPeriod.week =>
         '${l10n.shortMonth(range.start.month)} ${range.start.day} - '
             '${l10n.shortMonth(range.end.subtract(const Duration(days: 1)).month)} '
             '${range.end.subtract(const Duration(days: 1)).day}',
-      _StatsPeriod.month =>
+      StatsPeriod.month =>
         '${l10n.monthName(range.start.month)} ${range.start.year}',
-      _StatsPeriod.year => range.start.year.toString(),
-    };
-  }
-}
-
-final class _StatsRange {
-  const _StatsRange({required this.start, required this.end});
-
-  final DateTime start;
-  final DateTime end;
-
-  factory _StatsRange.forPeriod(_StatsPeriod period, DateTime anchorDate) {
-    final local = anchorDate.toLocal();
-    return switch (period) {
-      _StatsPeriod.week => () {
-        final day = DateTime(local.year, local.month, local.day);
-        final start = day.subtract(Duration(days: day.weekday - 1));
-        return _StatsRange(
-          start: start,
-          end: start.add(const Duration(days: 7)),
-        );
-      }(),
-      _StatsPeriod.month => _StatsRange(
-        start: DateTime(local.year, local.month),
-        end: DateTime(local.year, local.month + 1),
-      ),
-      _StatsPeriod.year => _StatsRange(
-        start: DateTime(local.year),
-        end: DateTime(local.year + 1),
-      ),
+      StatsPeriod.year => range.start.year.toString(),
     };
   }
 }
@@ -294,8 +159,8 @@ final class _StatsRange {
 class _StatsPeriodSelector extends StatelessWidget {
   const _StatsPeriodSelector({required this.value, required this.onChanged});
 
-  final _StatsPeriod value;
-  final ValueChanged<_StatsPeriod> onChanged;
+  final StatsPeriod value;
+  final ValueChanged<StatsPeriod> onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -303,14 +168,14 @@ class _StatsPeriodSelector extends StatelessWidget {
 
     return SizedBox(
       width: double.infinity,
-      child: SegmentedButton<_StatsPeriod>(
+      child: SegmentedButton<StatsPeriod>(
         key: const ValueKey('stats_period_segmented_button'),
         showSelectedIcon: false,
         selected: {value},
         segments: [
-          ButtonSegment(value: _StatsPeriod.week, label: Text(l10n.week)),
-          ButtonSegment(value: _StatsPeriod.month, label: Text(l10n.month)),
-          ButtonSegment(value: _StatsPeriod.year, label: Text(l10n.year)),
+          ButtonSegment(value: StatsPeriod.week, label: Text(l10n.week)),
+          ButtonSegment(value: StatsPeriod.month, label: Text(l10n.month)),
+          ButtonSegment(value: StatsPeriod.year, label: Text(l10n.year)),
         ],
         onSelectionChanged: (selection) => onChanged(selection.single),
       ),

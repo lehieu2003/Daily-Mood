@@ -12,9 +12,9 @@ import 'data/backup_import_parser.dart';
 import 'data/local_data_reset_service.dart';
 import 'data/settings_preferences_repository.dart';
 import 'state/delete_all_data_cubit.dart';
-import 'state/delete_all_data_state.dart';
 import 'state/settings_preferences_cubit.dart';
 import 'state/settings_preferences_state.dart';
+import 'widgets/delete_all_data_dialog.dart';
 import 'widgets/settings_divider.dart';
 import 'widgets/settings_section.dart';
 import 'widgets/settings_tile.dart';
@@ -246,9 +246,7 @@ class _SettingsView extends StatelessWidget {
         SnackBar(content: Text(l10n.exportReady(file.fileName))),
       );
     } catch (_) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(l10n.exportFailed)),
-      );
+      messenger.showSnackBar(SnackBar(content: Text(l10n.exportFailed)));
     }
   }
 
@@ -268,14 +266,10 @@ class _SettingsView extends StatelessWidget {
       );
     } on BackupImportParseException catch (error) {
       messenger.showSnackBar(
-        SnackBar(
-          content: Text(l10n.importFailedWithMessage(error.message)),
-        ),
+        SnackBar(content: Text(l10n.importFailedWithMessage(error.message))),
       );
     } catch (_) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(l10n.importFailed)),
-      );
+      messenger.showSnackBar(SnackBar(content: Text(l10n.importFailed)));
     }
   }
 
@@ -302,7 +296,7 @@ class _SettingsView extends StatelessWidget {
       builder: (dialogContext) {
         return BlocProvider(
           create: (_) => DeleteAllDataCubit(resetService: resetService),
-          child: _DeleteAllDataDialog(
+          child: DeleteAllDataDialog(
             onDeleted: () {
               Navigator.of(dialogContext).pop();
               ScaffoldMessenger.of(settingsContext).showSnackBar(
@@ -316,106 +310,6 @@ class _SettingsView extends StatelessWidget {
               }
             },
           ),
-        );
-      },
-    );
-  }
-}
-
-class _DeleteAllDataDialog extends StatefulWidget {
-  const _DeleteAllDataDialog({required this.onDeleted});
-
-  final VoidCallback onDeleted;
-
-  @override
-  State<_DeleteAllDataDialog> createState() => _DeleteAllDataDialogState();
-}
-
-class _DeleteAllDataDialogState extends State<_DeleteAllDataDialog> {
-  static const _confirmationText = 'DELETE';
-
-  final _controller = TextEditingController();
-  bool _canDelete = false;
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _onConfirmationChanged(String value) {
-    setState(() => _canDelete = value.trim() == _confirmationText);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final l10n = context.l10n;
-
-    return BlocConsumer<DeleteAllDataCubit, DeleteAllDataState>(
-      listenWhen: (previous, current) => previous.status != current.status,
-      listener: (context, state) {
-        if (state.isSuccess) {
-          widget.onDeleted();
-        }
-      },
-      builder: (context, state) {
-        return AlertDialog(
-          title: Text(l10n.deleteAllLocalData),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(l10n.deleteAllLocalDataBody),
-              const SizedBox(height: 12),
-              Text(
-                l10n.typeDeleteToConfirm,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                key: const ValueKey('delete_all_data_confirmation_field'),
-                controller: _controller,
-                enabled: !state.isDeleting,
-                textCapitalization: TextCapitalization.characters,
-                onChanged: _onConfirmationChanged,
-                decoration: const InputDecoration(hintText: 'DELETE'),
-              ),
-              if (state.errorMessage != null) ...[
-                const SizedBox(height: 8),
-                Text(
-                  state.errorMessage!,
-                  style: TextStyle(color: theme.colorScheme.error),
-                ),
-              ],
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: state.isDeleting
-                  ? null
-                  : () => Navigator.of(context).pop(),
-              child: Text(l10n.cancel),
-            ),
-            FilledButton(
-              key: const ValueKey('delete_all_data_confirm_button'),
-              style: FilledButton.styleFrom(
-                backgroundColor: theme.colorScheme.error,
-                foregroundColor: theme.colorScheme.onError,
-              ),
-              onPressed: !_canDelete || state.isDeleting
-                  ? null
-                  : context.read<DeleteAllDataCubit>().deleteAllData,
-              child: state.isDeleting
-                  ? const SizedBox.square(
-                      dimension: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(l10n.delete),
-            ),
-          ],
         );
       },
     );

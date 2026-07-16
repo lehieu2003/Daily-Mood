@@ -25,7 +25,7 @@ class HistoryEntryGroup extends StatelessWidget {
       children: [
         Text(
           localizedHistoryGroupLabel(date, context.l10n),
-          style: const TextStyle(
+          style: TextStyle(
             color: DashboardPalette.deepText,
             fontSize: 15,
             fontWeight: FontWeight.w900,
@@ -47,7 +47,7 @@ class HistoryEntryGroup extends StatelessWidget {
                       : () => onOpenEntry!(entries[index]),
                 ),
                 if (index != entries.length - 1)
-                  const Divider(
+                  Divider(
                     height: 1,
                     thickness: 1,
                     indent: 16,

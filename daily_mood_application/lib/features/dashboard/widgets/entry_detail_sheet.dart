@@ -94,7 +94,7 @@ class _EntryDetailSheetState extends State<EntryDetailSheet> {
       padding: EdgeInsets.only(bottom: bottomInset),
       child: Container(
         key: const ValueKey('entry_detail_sheet'),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: DashboardPalette.background,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
@@ -124,7 +124,7 @@ class _EntryDetailSheetState extends State<EntryDetailSheet> {
                       children: [
                         Text(
                           localizedMoodLabel(_selectedScore, l10n),
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: DashboardPalette.deepText,
                             fontSize: 22,
                             fontWeight: FontWeight.w900,
@@ -136,7 +136,7 @@ class _EntryDetailSheetState extends State<EntryDetailSheet> {
                             widget.entry.createdAt,
                             l10n,
                           ),
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: DashboardPalette.mutedText,
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
@@ -360,7 +360,7 @@ class _SectionTitle extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               color: DashboardPalette.deepText,
               fontSize: 14,
               fontWeight: FontWeight.w900,
@@ -370,7 +370,7 @@ class _SectionTitle extends StatelessWidget {
         if (trailing != null)
           Text(
             trailing!,
-            style: const TextStyle(
+            style: TextStyle(
               color: DashboardPalette.mutedText,
               fontSize: 11,
               fontWeight: FontWeight.w800,
@@ -413,7 +413,7 @@ class _ActivityEditor extends StatelessWidget {
         if (activities.isEmpty) {
           return Text(
             context.l10n.noReasonsAvailable,
-            style: const TextStyle(
+            style: TextStyle(
               color: DashboardPalette.mutedText,
               fontSize: 12,
             ),
@@ -553,7 +553,7 @@ class _FallbackChipWrap extends StatelessWidget {
     if (names.isEmpty) {
       return Text(
         context.l10n.noReasonsSelected,
-        style: const TextStyle(color: DashboardPalette.mutedText, fontSize: 12),
+        style: TextStyle(color: DashboardPalette.mutedText, fontSize: 12),
       );
     }
 

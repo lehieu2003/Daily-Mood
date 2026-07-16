@@ -35,7 +35,7 @@ class HistoryEntryTile extends StatelessWidget {
                       Expanded(
                         child: Text(
                           localizedMoodLabel(entry.moodScore, l10n),
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: DashboardPalette.deepText,
                             fontSize: 15,
                             fontWeight: FontWeight.w900,
@@ -44,7 +44,7 @@ class HistoryEntryTile extends StatelessWidget {
                       ),
                       Text(
                         formatLocalizedEntryDate(entry.createdAt, l10n),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: DashboardPalette.mutedText,
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -57,7 +57,7 @@ class HistoryEntryTile extends StatelessWidget {
                     note == null || note.isEmpty ? l10n.noNoteAdded : note,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: DashboardPalette.mutedText,
                       fontSize: 12,
                       height: 1.3,
@@ -103,7 +103,7 @@ class _MetadataChip extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           color: DashboardPalette.deepText,
           fontSize: 10,
           fontWeight: FontWeight.w800,

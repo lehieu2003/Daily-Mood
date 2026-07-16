@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../../../app/localization/app_localizations.dart';
-import '../../../app/theme/app_colors.dart';
 import '../../../domain/models/monthly_mood_day.dart';
 import '../../dashboard/dashboard_formatters.dart';
 import 'monthly_heatmap_empty_state.dart';
@@ -32,13 +31,16 @@ class MonthlyMoodCalendar extends StatelessWidget {
       return const MonthlyHeatmapEmptyState();
     }
     final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Container(
       key: const ValueKey('monthly_mood_calendar'),
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,17 +52,15 @@ class MonthlyMoodCalendar extends StatelessWidget {
                 Expanded(
                   child: Text(
                     l10n.moodCalendar,
-                    style: TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 18,
+                    style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.w900,
                     ),
                   ),
                 ),
                 Text(
                   l10n.entryCount(entryCount),
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                   ),
@@ -83,12 +83,12 @@ class MonthlyMoodCalendar extends StatelessWidget {
             ),
             daysOfWeekStyle: DaysOfWeekStyle(
               weekdayStyle: TextStyle(
-                color: AppColors.textTertiary,
+                color: colorScheme.onSurfaceVariant,
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
               ),
               weekendStyle: TextStyle(
-                color: AppColors.textTertiary,
+                color: colorScheme.onSurfaceVariant,
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
               ),
@@ -133,6 +133,7 @@ class _MoodDayCell extends StatelessWidget {
     final score = averageMood?.round().clamp(1, 5);
     final color = score == null ? Colors.transparent : moodColor(score);
     final hasMood = moodDay?.hasEntries ?? false;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       key: ValueKey('monthly_heatmap_day_${day.year}-${day.month}-${day.day}'),
@@ -144,7 +145,7 @@ class _MoodDayCell extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isToday
-              ? AppColors.primaryPurple
+              ? colorScheme.primary
               : hasMood
               ? color.withValues(alpha: 0.72)
               : Colors.transparent,
@@ -157,7 +158,7 @@ class _MoodDayCell extends StatelessWidget {
           Text(
             day.day.toString(),
             style: TextStyle(
-              color: AppColors.textPrimary,
+              color: colorScheme.onSurface,
               fontSize: 12,
               fontWeight: FontWeight.w900,
             ),
@@ -167,7 +168,7 @@ class _MoodDayCell extends StatelessWidget {
             Text(
               averageMood!.toStringAsFixed(1),
               style: TextStyle(
-                color: AppColors.textSecondary,
+                color: colorScheme.onSurfaceVariant,
                 fontSize: 9,
                 fontWeight: FontWeight.w900,
               ),

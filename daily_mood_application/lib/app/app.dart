@@ -15,9 +15,12 @@ import '../data/services/activity_local_service.dart';
 import '../data/services/mood_analytics_local_service.dart';
 import '../data/services/mood_entry_local_service.dart';
 import '../features/settings/data/settings_preferences_repository.dart';
+import '../features/dashboard/dashboard_palette.dart';
 import 'localization/app_locale_cubit.dart';
 import 'localization/app_localizations.dart';
 import 'routes/app_router.dart';
+import 'theme/app_theme.dart';
+import 'theme/app_theme_mode_cubit.dart';
 
 /// Root widget.
 ///
@@ -43,6 +46,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   late final ActivityRepository _activityRepository;
   late final SettingsPreferencesRepository _settingsPreferencesRepository;
   late final AppLocaleCubit _localeCubit;
+  late final AppThemeModeCubit _themeModeCubit;
   late final PinRepository _pinRepository;
   late final AppLockCubit _lockCubit;
   late final GoRouter _router;
@@ -66,6 +70,9 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     );
     _settingsPreferencesRepository = SettingsPreferencesRepository();
     _localeCubit = AppLocaleCubit(repository: _settingsPreferencesRepository);
+    _themeModeCubit = AppThemeModeCubit(
+      repository: _settingsPreferencesRepository,
+    );
     _pinRepository = PinRepository();
     _lockCubit = AppLockCubit(pinRepository: _pinRepository);
     _router = buildAppRouter(_lockCubit, _pinRepository);
@@ -89,6 +96,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _localeCubit.close();
+    _themeModeCubit.close();
     _lockCubit.close();
     // Releases the native sqlite3/SQLCipher connection cleanly.
     _database.close();
@@ -118,40 +126,37 @@ class _AppState extends State<App> with WidgetsBindingObserver {
         providers: [
           BlocProvider<AppLockCubit>.value(value: _lockCubit),
           BlocProvider<AppLocaleCubit>.value(value: _localeCubit),
+          BlocProvider<AppThemeModeCubit>.value(value: _themeModeCubit),
         ],
         child: BlocBuilder<AppLocaleCubit, Locale>(
           builder: (context, locale) {
-            return MaterialApp.router(
-              title: AppLocalizations(const Locale('en')).appTitle,
-              debugShowCheckedModeBanner: false,
-              locale: locale,
-              supportedLocales: AppLocalizations.supportedLocales,
-              localizationsDelegates: const [
-                AppLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-              ],
-              theme: ThemeData(
-                useMaterial3: true,
-                scaffoldBackgroundColor: const Color(0xFFF8FAFC), // Slate 50
-                colorScheme: ColorScheme.fromSeed(
-                  seedColor: const Color(
-                    0xFFBAE6FD,
-                  ), // Sky pastel, matches spec
-                  brightness: Brightness.light,
-                ),
-              ),
-              darkTheme: ThemeData(
-                useMaterial3: true,
-                scaffoldBackgroundColor: const Color(0xFF0F172A), // Slate 900
-                colorScheme: ColorScheme.fromSeed(
-                  seedColor: const Color(0xFF075985),
-                  brightness: Brightness.dark,
-                ),
-              ),
-              themeMode: ThemeMode.system,
-              routerConfig: _router,
+            return BlocBuilder<AppThemeModeCubit, ThemeMode>(
+              builder: (context, themeMode) {
+                DashboardPalette.resolve(
+                  themeMode: themeMode,
+                  platformBrightness: WidgetsBinding
+                      .instance
+                      .platformDispatcher
+                      .platformBrightness,
+                );
+
+                return MaterialApp.router(
+                  title: AppLocalizations(const Locale('en')).appTitle,
+                  debugShowCheckedModeBanner: false,
+                  locale: locale,
+                  supportedLocales: AppLocalizations.supportedLocales,
+                  localizationsDelegates: const [
+                    AppLocalizations.delegate,
+                    GlobalMaterialLocalizations.delegate,
+                    GlobalCupertinoLocalizations.delegate,
+                    GlobalWidgetsLocalizations.delegate,
+                  ],
+                  theme: AppTheme.lightTheme,
+                  darkTheme: AppTheme.darkTheme,
+                  themeMode: themeMode,
+                  routerConfig: _router,
+                );
+              },
             );
           },
         ),

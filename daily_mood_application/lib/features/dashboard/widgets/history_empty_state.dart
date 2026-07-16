@@ -17,7 +17,7 @@ class HistoryEmptyState extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const ExcludeSemantics(
+          ExcludeSemantics(
             child: Icon(
               Icons.history,
               color: DashboardPalette.purple,
@@ -27,7 +27,7 @@ class HistoryEmptyState extends StatelessWidget {
           const SizedBox(height: 18),
           Text(
             context.l10n.noHistoryYet,
-            style: const TextStyle(
+            style: TextStyle(
               color: DashboardPalette.deepText,
               fontSize: 20,
               fontWeight: FontWeight.w900,

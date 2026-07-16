@@ -232,14 +232,14 @@ class _HistoryHeader extends StatelessWidget {
         Expanded(
           child: Text(
             context.l10n.history,
-            style: const TextStyle(
+            style: TextStyle(
               color: DashboardPalette.deepText,
               fontSize: 24,
               fontWeight: FontWeight.w900,
             ),
           ),
         ),
-        const Icon(
+        Icon(
           Icons.calendar_month_outlined,
           color: DashboardPalette.purple,
           size: 22,
@@ -442,7 +442,7 @@ class _HistoryNoMatchesState extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Icon(
+          Icon(
             Icons.manage_search_rounded,
             color: DashboardPalette.purple,
             size: 34,
@@ -450,7 +450,7 @@ class _HistoryNoMatchesState extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             context.l10n.noMatchingEntries,
-            style: const TextStyle(
+            style: TextStyle(
               color: DashboardPalette.deepText,
               fontSize: 16,
               fontWeight: FontWeight.w900,

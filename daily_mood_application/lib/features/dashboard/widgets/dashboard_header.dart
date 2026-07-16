@@ -21,7 +21,7 @@ class DashboardHeader extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             text: TextSpan(
-              style: const TextStyle(
+              style: TextStyle(
                 color: DashboardPalette.deepText,
                 fontSize: 20,
                 fontWeight: FontWeight.w500,
@@ -73,7 +73,7 @@ class _HeaderPill extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               color: DashboardPalette.deepText,
               fontSize: 11,
               fontWeight: FontWeight.w800,
@@ -107,7 +107,7 @@ class _StreakPill extends StatelessWidget {
             color: DashboardPalette.surface,
             borderRadius: BorderRadius.circular(999),
           ),
-          child: const Row(
+          child: Row(
             children: [
               Text('🔥', style: TextStyle(fontSize: 16)),
               SizedBox(width: 5),

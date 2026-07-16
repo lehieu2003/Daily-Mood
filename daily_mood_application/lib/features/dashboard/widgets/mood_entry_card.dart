@@ -40,7 +40,7 @@ class MoodEntryCard extends StatelessWidget {
                       children: [
                         Text(
                           title,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: DashboardPalette.deepText,
                             fontSize: 16,
                             fontWeight: FontWeight.w900,
@@ -49,7 +49,7 @@ class MoodEntryCard extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           formatLocalizedEntryDate(entry.createdAt, l10n),
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: DashboardPalette.mutedText,
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -79,7 +79,7 @@ class MoodEntryCard extends StatelessWidget {
               const SizedBox(height: 12),
               Text.rich(
                 TextSpan(
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: DashboardPalette.deepText,
                     fontSize: 13,
                     height: 1.3,
@@ -103,7 +103,7 @@ class MoodEntryCard extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text.rich(
                   TextSpan(
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: DashboardPalette.deepText,
                       fontSize: 12,
                       height: 1.25,
@@ -122,7 +122,7 @@ class MoodEntryCard extends StatelessWidget {
                 const SizedBox(height: 10),
                 Text(
                   l10n.readMore,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: DashboardPalette.purple,
                     fontSize: 12,
                     fontWeight: FontWeight.w700,

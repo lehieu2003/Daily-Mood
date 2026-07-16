@@ -11,7 +11,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       fontFamily: AppTypography.fontFamily,
-      scaffoldBackgroundColor: Colors.white,
+      scaffoldBackgroundColor: const Color(0xFFFAF5FF),
 
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primaryPurple,
@@ -21,6 +21,8 @@ class AppTheme {
         tertiary: AppColors.pink,
         error: AppColors.accentRed,
         surface: Colors.white,
+        surfaceContainerHighest: const Color(0xFFF7F3FD),
+        outlineVariant: const Color(0xFFEFE7FC),
       ),
 
       // ---------------------------------------------------------------
@@ -94,6 +96,93 @@ class AppTheme {
     );
   }
 
-  // No dark theme is defined in the source style guide — add one here
-  // if/when design provides dark-mode tokens.
+  static ThemeData get darkTheme {
+    return ThemeData(
+      useMaterial3: true,
+      fontFamily: AppTypography.fontFamily,
+      scaffoldBackgroundColor: AppColors.darkBackground,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: AppColors.darkPrimaryPurple,
+        brightness: Brightness.dark,
+        primary: AppColors.darkPrimaryPurple,
+        secondary: AppColors.darkLavender,
+        tertiary: AppColors.darkPink,
+        error: const Color(0xFFFF8A8A),
+        surface: AppColors.darkSurface,
+        surfaceContainerHighest: AppColors.darkSurfaceVariant,
+        outlineVariant: AppColors.darkDivider,
+      ),
+      textTheme: TextTheme(
+        headlineLarge: AppTypography.heading1.copyWith(
+          color: AppColors.darkTextPrimary,
+        ),
+        headlineSmall: AppTypography.heading2.copyWith(
+          color: AppColors.darkTextPrimary,
+        ),
+        titleMedium: AppTypography.heading3.copyWith(
+          color: AppColors.darkTextPrimary,
+        ),
+        bodyLarge: AppTypography.subText1Regular.copyWith(
+          color: AppColors.darkTextPrimary,
+        ),
+        bodyMedium: AppTypography.subText2Regular.copyWith(
+          color: AppColors.darkTextSecondary,
+        ),
+        bodySmall: AppTypography.subText3Regular.copyWith(
+          color: AppColors.darkTextTertiary,
+        ),
+        labelLarge: AppTypography.subText1Medium.copyWith(
+          color: AppColors.darkTextPrimary,
+        ),
+        labelMedium: AppTypography.subText2Medium.copyWith(
+          color: AppColors.darkTextSecondary,
+        ),
+      ),
+      appBarTheme: AppBarTheme(
+        backgroundColor: AppColors.darkBackground,
+        elevation: 0,
+        foregroundColor: AppColors.darkTextPrimary,
+        titleTextStyle: AppTypography.heading2.copyWith(
+          color: AppColors.darkTextPrimary,
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.darkPrimaryPurple,
+          foregroundColor: AppColors.darkBackground,
+          textStyle: AppTypography.subText1Medium,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: AppColors.darkPrimaryPurple,
+          textStyle: AppTypography.subText1Medium,
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: AppColors.darkSurfaceVariant,
+        hintStyle: AppTypography.subText2Regular.copyWith(
+          color: AppColors.darkTextTertiary,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+      ),
+      cardTheme: CardThemeData(
+        color: AppColors.darkSurface,
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+      dividerTheme: const DividerThemeData(
+        color: AppColors.darkDivider,
+        thickness: 1,
+      ),
+    );
+  }
 }

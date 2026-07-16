@@ -60,6 +60,19 @@ class AppColors {
   static const Color navActiveSurface = Color(0xFF005A76);
   static const Color navActiveItem = primaryPurple;
   static const Color navInactiveItem = Color(0xFF5F646B);
+  static const Color darkBackground = Color(0xFF15131B);
+  static const Color darkSurface = Color(0xFF211D2A);
+  static const Color darkSurfaceVariant = Color(0xFF2B2535);
+  static const Color darkPrimaryPurple = Color(0xFFB89CFF);
+  static const Color darkLavender = Color(0xFF3A3158);
+  static const Color darkPink = Color(0xFF4D2638);
+  static const Color darkTextPrimary = Color(0xFFF8F4FF);
+  static const Color darkTextSecondary = Color(0xFFCFC6D9);
+  static const Color darkTextTertiary = Color(0xFFAFA4BD);
+  static const Color darkDivider = Color(0xFF3A3344);
+  static const Color darkNavSurface = Color(0xFF211D2A);
+  static const Color darkNavActiveSurface = Color(0xFF33284F);
+  static const Color darkNavInactiveItem = Color(0xFFCFC6D9);
 
   // ---------------------------------------------------------------------
   // 1.4 Gradients

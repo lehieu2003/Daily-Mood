@@ -2,7 +2,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 import '../../../app/localization/app_localizations.dart';
-import '../../../app/theme/app_colors.dart';
 import '../../../domain/models/weekly_mood_point.dart';
 import '../../dashboard/dashboard_formatters.dart';
 import 'weekly_trend_empty_state.dart';
@@ -35,12 +34,15 @@ class WeeklyTrendChart extends StatelessWidget {
 
     final lineColor = moodColor(_latestRoundedMood(points));
     final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(18, 18, 18, 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,17 +52,15 @@ class WeeklyTrendChart extends StatelessWidget {
               Expanded(
                 child: Text(
                   l10n.weeklyTrend,
-                  style: TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 18,
+                  style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w900,
                   ),
                 ),
               ),
               Text(
                 l10n.entryCount(entryCount),
-                style: TextStyle(
-                  color: AppColors.textSecondary,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),
@@ -82,7 +82,7 @@ class WeeklyTrendChart extends StatelessWidget {
                   drawVerticalLine: false,
                   horizontalInterval: 1,
                   getDrawingHorizontalLine: (_) => FlLine(
-                    color: AppColors.textPrimary.withValues(alpha: 0.08),
+                    color: colorScheme.onSurface.withValues(alpha: 0.08),
                     strokeWidth: 1,
                   ),
                 ),
@@ -102,7 +102,7 @@ class WeeklyTrendChart extends StatelessWidget {
                       getTitlesWidget: (value, meta) => Text(
                         value.toInt().toString(),
                         style: TextStyle(
-                          color: AppColors.textTertiary,
+                          color: colorScheme.onSurfaceVariant,
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                         ),
@@ -125,7 +125,7 @@ class WeeklyTrendChart extends StatelessWidget {
                           child: Text(
                             l10n.weekdayShort(index + 1),
                             style: TextStyle(
-                              color: AppColors.textTertiary,
+                              color: colorScheme.onSurfaceVariant,
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
                             ),

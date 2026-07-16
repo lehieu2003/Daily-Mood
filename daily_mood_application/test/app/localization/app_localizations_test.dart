@@ -33,6 +33,8 @@ void main() {
 
     expect(l10n.locale.languageCode, 'en');
     expect(l10n.settings, 'Settings');
+    expect(l10n.appearance, 'Appearance');
+    expect(l10n.darkMode, 'Dark');
     expect(l10n.moodLabel(1), 'Awful');
   });
 }

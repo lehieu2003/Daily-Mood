@@ -44,6 +44,11 @@ class AppLocalizations {
   String get deleteAllLocalDataSubtitle => _text('deleteAllLocalDataSubtitle');
   String get experience => _text('experience');
   String get hapticFeedback => _text('hapticFeedback');
+  String get appearance => _text('appearance');
+  String get appearanceSubtitle => _text('appearanceSubtitle');
+  String get systemMode => _text('systemMode');
+  String get lightMode => _text('lightMode');
+  String get darkMode => _text('darkMode');
   String get language => _text('language');
   String get languageSubtitle => _text('languageSubtitle');
   String get english => _text('english');
@@ -385,6 +390,11 @@ const _en = {
   'deleteAllLocalDataSubtitle':
       'Permanent local reset will require confirmation.',
   'experience': 'Experience',
+  'appearance': 'Appearance',
+  'appearanceSubtitle': 'Match your device or choose a fixed theme.',
+  'systemMode': 'System',
+  'lightMode': 'Light',
+  'darkMode': 'Dark',
   'hapticFeedback': 'Haptic feedback',
   'language': 'Language',
   'languageSubtitle': 'Choose the app display language.',
@@ -533,6 +543,11 @@ const _vi = {
   'deleteAllLocalData': 'Xóa toàn bộ dữ liệu cục bộ',
   'deleteAllLocalDataSubtitle': 'Đặt lại cục bộ vĩnh viễn cần xác nhận.',
   'experience': 'Trải nghiệm',
+  'appearance': 'Giao diện',
+  'appearanceSubtitle': 'Theo thiết bị hoặc chọn giao diện cố định.',
+  'systemMode': 'Hệ thống',
+  'lightMode': 'Sáng',
+  'darkMode': 'Tối',
   'hapticFeedback': 'Phản hồi rung',
   'language': 'Ngôn ngữ',
   'languageSubtitle': 'Chọn ngôn ngữ hiển thị của ứng dụng.',

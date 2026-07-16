@@ -49,7 +49,7 @@ class WeeklyTrendEntryCard extends StatelessWidget {
                   children: [
                     Text(
                       l10n.weeklyTrend,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: DashboardPalette.deepText,
                         fontSize: 16,
                         fontWeight: FontWeight.w900,
@@ -58,7 +58,7 @@ class WeeklyTrendEntryCard extends StatelessWidget {
                     const SizedBox(height: 5),
                     Text(
                       l10n.weeklyTrendSummary(entries.length, average),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: DashboardPalette.mutedText,
                         fontSize: 12,
                         height: 1.25,
@@ -76,7 +76,7 @@ class WeeklyTrendEntryCard extends StatelessWidget {
                   color: DashboardPalette.purple.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.arrow_forward,
                   color: DashboardPalette.purple,
                   size: 18,

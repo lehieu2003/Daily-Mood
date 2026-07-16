@@ -20,13 +20,16 @@ class ActivityCorrelationChart extends StatelessWidget {
         .map((correlation) => correlation.entryCount)
         .fold<int>(1, (max, count) => count > max ? count : max);
     final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Container(
       key: const ValueKey('activity_correlation_chart'),
       padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,16 +39,14 @@ class ActivityCorrelationChart extends StatelessWidget {
               Expanded(
                 child: Text(
                   l10n.activityImpact,
-                  style: TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 18,
+                  style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w900,
                   ),
                 ),
               ),
               Icon(
                 Icons.bar_chart_rounded,
-                color: AppColors.textTertiary,
+                color: colorScheme.onSurfaceVariant,
                 size: 20,
               ),
             ],
@@ -82,6 +83,7 @@ class _ActivityCorrelationBar extends StatelessWidget {
     final fraction = correlation.entryCount / maxCount;
     final l10n = context.l10n;
     final activityName = l10n.activityLabel(correlation.activityName);
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Semantics(
       label: l10n.activityCorrelationSemantics(
@@ -100,7 +102,7 @@ class _ActivityCorrelationBar extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: AppColors.textPrimary,
+                    color: colorScheme.onSurface,
                     fontSize: 13,
                     fontWeight: FontWeight.w900,
                   ),
@@ -110,7 +112,7 @@ class _ActivityCorrelationBar extends StatelessWidget {
               Text(
                 l10n.averageMood(correlation.averageMood),
                 style: TextStyle(
-                  color: AppColors.textSecondary,
+                  color: colorScheme.onSurfaceVariant,
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                 ),
@@ -127,7 +129,7 @@ class _ActivityCorrelationBar extends StatelessWidget {
                     children: [
                       Container(
                         height: 12,
-                        color: AppColors.textPrimary.withValues(alpha: 0.07),
+                        color: colorScheme.onSurface.withValues(alpha: 0.07),
                       ),
                       FractionallySizedBox(
                         widthFactor: fraction,
@@ -149,7 +151,7 @@ class _ActivityCorrelationBar extends StatelessWidget {
                   l10n.entryCount(correlation.entryCount),
                   textAlign: TextAlign.right,
                   style: TextStyle(
-                    color: AppColors.textTertiary,
+                    color: colorScheme.onSurfaceVariant,
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
                   ),

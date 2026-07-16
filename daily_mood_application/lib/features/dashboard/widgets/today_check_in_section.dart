@@ -31,7 +31,7 @@ class TodayCheckInSection extends StatelessWidget {
             Expanded(
               child: Text(
                 l10n.checkInTitleForDate(selectedDate, today),
-                style: const TextStyle(
+                style: TextStyle(
                   color: DashboardPalette.deepText,
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -76,7 +76,7 @@ class TodayCheckInSection extends StatelessWidget {
                 Expanded(
                   child: Text(
                     l10n.checkIn,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: DashboardPalette.deepText,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -85,7 +85,7 @@ class TodayCheckInSection extends StatelessWidget {
                 ),
                 Text(
                   '${entries.length.clamp(0, 3)}/3',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: DashboardPalette.deepText,
                     fontSize: 14,
                     fontWeight: FontWeight.w900,
@@ -96,7 +96,7 @@ class TodayCheckInSection extends StatelessWidget {
                   width: 34,
                   height: 34,
                   alignment: Alignment.center,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: DashboardPalette.hotPink,
                     shape: BoxShape.circle,
                   ),

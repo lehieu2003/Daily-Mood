@@ -15,10 +15,12 @@ class SettingsPreferencesCubit extends Cubit<SettingsPreferencesState> {
   Future<void> load() async {
     final hapticsEnabled = await _repository.readHapticsEnabled();
     final languageCode = await _repository.readLanguageCode() ?? 'en';
+    final themeModeName = await _repository.readThemeModeName();
     emit(
       SettingsPreferencesState.ready(
         hapticsEnabled: hapticsEnabled,
         languageCode: languageCode,
+        themeModeName: themeModeName,
       ),
     );
   }
@@ -28,6 +30,7 @@ class SettingsPreferencesCubit extends Cubit<SettingsPreferencesState> {
       SettingsPreferencesState.ready(
         hapticsEnabled: enabled,
         languageCode: state.languageCode,
+        themeModeName: state.themeModeName,
       ),
     );
     await _repository.setHapticsEnabled(enabled);
@@ -38,8 +41,20 @@ class SettingsPreferencesCubit extends Cubit<SettingsPreferencesState> {
       SettingsPreferencesState.ready(
         hapticsEnabled: state.hapticsEnabled,
         languageCode: languageCode,
+        themeModeName: state.themeModeName,
       ),
     );
     await _repository.setLanguageCode(languageCode);
+  }
+
+  Future<void> setThemeModeName(String themeModeName) async {
+    emit(
+      SettingsPreferencesState.ready(
+        hapticsEnabled: state.hapticsEnabled,
+        languageCode: state.languageCode,
+        themeModeName: themeModeName,
+      ),
+    );
+    await _repository.setThemeModeName(themeModeName);
   }
 }

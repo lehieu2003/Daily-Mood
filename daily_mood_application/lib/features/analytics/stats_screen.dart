@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../app/localization/app_localizations.dart';
-import '../../app/theme/app_colors.dart';
 import '../../data/repositories/mood_analytics_repository.dart';
 import '../../domain/models/activity_mood_correlation.dart';
 import '../../domain/models/monthly_mood_day.dart';
@@ -43,7 +42,7 @@ class StatsScreen extends StatelessWidget {
     final calendarMonth = _focusedMonthStart();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F1F3),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: StreamBuilder<List<WeeklyMoodPoint>>(
           stream: stream,
@@ -160,21 +159,21 @@ class _StatsHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Row(
       children: [
         Expanded(
           child: Text(
             context.l10n.stats,
-            style: TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: 24,
+            style: theme.textTheme.headlineLarge?.copyWith(
               fontWeight: FontWeight.w900,
             ),
           ),
         ),
-        const Icon(
+        Icon(
           Icons.insights_rounded,
-          color: AppColors.primaryPurple,
+          color: theme.colorScheme.primary,
           size: 24,
         ),
       ],

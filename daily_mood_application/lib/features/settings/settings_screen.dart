@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../app/localization/app_locale_cubit.dart';
 import '../../app/localization/app_localizations.dart';
+import '../../app/theme/app_theme_mode_cubit.dart';
 import '../../core/database/app_database.dart';
 import '../../core/security/app_lock_cubit.dart';
 import 'data/backup_export_service.dart';
@@ -173,6 +174,8 @@ class _SettingsView extends StatelessWidget {
               SettingsSection(
                 title: l10n.experience,
                 children: const [
+                  _AppearanceTile(),
+                  SettingsDivider(),
                   _LanguageTile(),
                   SettingsDivider(),
                   _HapticsTile(),
@@ -419,6 +422,51 @@ class _DeleteAllDataDialogState extends State<_DeleteAllDataDialog> {
         );
       },
     );
+  }
+}
+
+class _AppearanceTile extends StatelessWidget {
+  const _AppearanceTile();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SettingsPreferencesCubit, SettingsPreferencesState>(
+      builder: (context, state) {
+        return SettingsTile(
+          key: const ValueKey('settings_appearance_tile'),
+          icon: Icons.contrast_rounded,
+          title: context.l10n.appearance,
+          subtitle: context.l10n.appearanceSubtitle,
+          trailing: SegmentedButton<String>(
+            key: const ValueKey('settings_appearance_segmented_button'),
+            segments: [
+              ButtonSegment(
+                value: 'system',
+                label: Text(context.l10n.systemMode),
+              ),
+              ButtonSegment(value: 'light', label: Text(context.l10n.lightMode)),
+              ButtonSegment(value: 'dark', label: Text(context.l10n.darkMode)),
+            ],
+            selected: {state.themeModeName},
+            showSelectedIcon: false,
+            onSelectionChanged: state.isLoading
+                ? null
+                : (selection) => _setThemeMode(context, selection.single),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _setThemeMode(BuildContext context, String themeModeName) async {
+    await context.read<SettingsPreferencesCubit>().setThemeModeName(
+      themeModeName,
+    );
+    try {
+      await context.read<AppThemeModeCubit>().setThemeModeName(themeModeName);
+    } catch (_) {
+      // Feature-level widget tests pump Settings without the app root Cubit.
+    }
   }
 }
 

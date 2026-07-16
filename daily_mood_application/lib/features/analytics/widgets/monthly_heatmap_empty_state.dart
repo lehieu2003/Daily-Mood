@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/localization/app_localizations.dart';
-import '../../../app/theme/app_colors.dart';
-
 class MonthlyHeatmapEmptyState extends StatelessWidget {
   const MonthlyHeatmapEmptyState({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       key: const ValueKey('monthly_heatmap_empty_state'),
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: colorScheme.outlineVariant),
       ),
       child: Row(
         children: [
@@ -22,12 +23,12 @@ class MonthlyHeatmapEmptyState extends StatelessWidget {
             height: 48,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: AppColors.pink.withValues(alpha: 0.7),
+              color: colorScheme.tertiary.withValues(alpha: 0.24),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.calendar_month_rounded,
-              color: AppColors.primaryPurple,
+              color: colorScheme.primary,
             ),
           ),
           const SizedBox(width: 14),
@@ -35,7 +36,7 @@ class MonthlyHeatmapEmptyState extends StatelessWidget {
             child: Text(
               context.l10n.monthlyHeatmapEmpty,
               style: TextStyle(
-                color: AppColors.textSecondary,
+                color: colorScheme.onSurfaceVariant,
                 fontSize: 13,
                 height: 1.3,
                 fontWeight: FontWeight.w700,

@@ -24,7 +24,7 @@ class NatureTipCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   l10n.connectWithNature,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: DashboardPalette.deepText,
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
@@ -50,7 +50,7 @@ class NatureTipCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             l10n.natureTipBody,
-            style: const TextStyle(
+            style: TextStyle(
               color: DashboardPalette.mutedText,
               fontSize: 13,
               height: 1.25,

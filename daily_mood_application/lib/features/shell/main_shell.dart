@@ -57,8 +57,18 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
-    const inactiveItemColor = AppColors.navInactiveItem;
-    const activeItemColor = AppColors.navSurface;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final navSurface = isDark ? AppColors.darkNavSurface : AppColors.navSurface;
+    final notchColor = isDark
+        ? AppColors.darkPrimaryPurple
+        : AppColors.primaryPurple;
+    final inactiveItemColor = isDark
+        ? AppColors.darkNavInactiveItem
+        : AppColors.navInactiveItem;
+    final activeItemColor = isDark
+        ? AppColors.darkBackground
+        : AppColors.navSurface;
     final l10n = context.l10n;
 
     return Scaffold(
@@ -77,11 +87,12 @@ class _MainShellState extends State<MainShell> {
       bottomNavigationBar: AnimatedNotchBottomBar(
         kIconSize: 30,
         notchBottomBarController: _notchController,
-        color: AppColors.navSurface,
-        notchColor: AppColors.primaryPurple,
+        color: navSurface,
+        notchColor: notchColor,
         showLabel: true,
         durationInMilliSeconds: 300,
-        itemLabelStyle: const TextStyle(
+        itemLabelStyle: TextStyle(
+          color: theme.colorScheme.onSurface,
           fontSize: 11,
           fontWeight: FontWeight.w500,
         ),

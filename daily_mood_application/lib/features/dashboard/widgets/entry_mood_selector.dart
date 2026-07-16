@@ -61,7 +61,9 @@ class _MoodScoreButton extends StatelessWidget {
           height: 56,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: isSelected ? color.withValues(alpha: 0.22) : Colors.white,
+            color: isSelected
+                ? color.withValues(alpha: 0.22)
+                : DashboardPalette.surface,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: isSelected ? color : DashboardPalette.divider,

@@ -24,7 +24,7 @@ class DashboardMoodChart extends StatelessWidget {
         children: [
           Text(
             context.l10n.moodChart,
-            style: const TextStyle(
+            style: TextStyle(
               color: DashboardPalette.deepText,
               fontSize: 15,
               fontWeight: FontWeight.w800,
@@ -125,7 +125,7 @@ class _MoodBar extends StatelessWidget {
           Text(
             label,
             key: ValueKey('dashboard_mood_bar_label_$dateKey'),
-            style: const TextStyle(
+            style: TextStyle(
               color: DashboardPalette.mutedText,
               fontSize: 9,
               fontWeight: FontWeight.w600,
@@ -148,7 +148,7 @@ class _EmptyMoodChart extends StatelessWidget {
       alignment: Alignment.center,
       child: Text(
         context.l10n.noCheckInsToday,
-        style: const TextStyle(
+        style: TextStyle(
           color: DashboardPalette.mutedText,
           fontSize: 13,
           fontWeight: FontWeight.w700,

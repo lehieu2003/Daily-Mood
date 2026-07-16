@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../app/localization/app_localizations.dart';
 import '../../../app/theme/app_colors.dart';
-import '../../../app/theme/app_typography.dart';
 import '../dashboard_palette.dart';
 
 class DashboardEmptyState extends StatelessWidget {
@@ -49,13 +48,18 @@ class DashboardEmptyState extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          Text(l10n.noMoodEntriesYet, style: AppTypography.heading1),
+          Text(
+            l10n.noMoodEntriesYet,
+            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+              color: DashboardPalette.deepText,
+            ),
+          ),
           const SizedBox(height: 8),
           Text(
             l10n.dashboardEmptyBody,
             textAlign: TextAlign.center,
-            style: AppTypography.subText1Regular.copyWith(
-              color: AppColors.textSecondary,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: DashboardPalette.mutedText,
             ),
           ),
           const SizedBox(height: 24),

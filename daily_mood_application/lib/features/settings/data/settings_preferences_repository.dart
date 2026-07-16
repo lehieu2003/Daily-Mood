@@ -40,7 +40,9 @@ class SettingsPreferencesRepository {
 
   static const _hapticsEnabledKey = 'settings_haptics_enabled_v1';
   static const _languageCodeKey = 'settings_language_code_v1';
+  static const _themeModeKey = 'settings_theme_mode_v1';
   static const supportedLanguageCodes = {'en', 'vi'};
+  static const supportedThemeModeNames = {'system', 'light', 'dark'};
 
   Future<bool> readHapticsEnabled() async {
     final value = await _store.read(key: _hapticsEnabledKey);
@@ -61,5 +63,16 @@ class SettingsPreferencesRepository {
   Future<void> setLanguageCode(String languageCode) {
     assert(supportedLanguageCodes.contains(languageCode));
     return _store.write(key: _languageCodeKey, value: languageCode);
+  }
+
+  Future<String> readThemeModeName() async {
+    final value = await _store.read(key: _themeModeKey);
+    if (supportedThemeModeNames.contains(value)) return value!;
+    return 'system';
+  }
+
+  Future<void> setThemeModeName(String themeModeName) {
+    assert(supportedThemeModeNames.contains(themeModeName));
+    return _store.write(key: _themeModeKey, value: themeModeName);
   }
 }

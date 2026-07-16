@@ -36,8 +36,8 @@ class SettingsTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final stackTrailing = trailingWidget != null &&
-                constraints.maxWidth < 420;
+            final stackTrailing =
+                trailingWidget != null && constraints.maxWidth < 420;
 
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),

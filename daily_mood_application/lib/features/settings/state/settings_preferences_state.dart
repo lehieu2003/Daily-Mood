@@ -22,13 +22,12 @@ class SettingsPreferencesState extends Equatable {
     required bool hapticsEnabled,
     required String languageCode,
     required String themeModeName,
-  })
-    : this(
-        status: SettingsPreferenceStatus.ready,
-        hapticsEnabled: hapticsEnabled,
-        languageCode: languageCode,
-        themeModeName: themeModeName,
-      );
+  }) : this(
+         status: SettingsPreferenceStatus.ready,
+         hapticsEnabled: hapticsEnabled,
+         languageCode: languageCode,
+         themeModeName: themeModeName,
+       );
 
   final SettingsPreferenceStatus status;
   final bool hapticsEnabled;

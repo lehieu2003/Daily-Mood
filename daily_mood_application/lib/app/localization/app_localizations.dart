@@ -98,6 +98,16 @@ class AppLocalizations {
   String get readMore => _text('readMore');
   String get loadingMoodInsights => _text('loadingMoodInsights');
   String get couldNotLoadMoodInsights => _text('couldNotLoadMoodInsights');
+  String get week => _text('week');
+  String get month => _text('month');
+  String get year => _text('year');
+  String get allStats => _text('allStats');
+  String get moodStats => _text('moodStats');
+  String get topActivities => _text('topActivities');
+  String get previousPeriod => _text('previousPeriod');
+  String get nextPeriod => _text('nextPeriod');
+  String get moodStatistics => _text('moodStatistics');
+  String get moodDistributionEmpty => _text('moodDistributionEmpty');
   String get moodCalendar => _text('moodCalendar');
   String get activityImpact => _text('activityImpact');
   String get monthlyHeatmapEmpty => _text('monthlyHeatmapEmpty');
@@ -191,6 +201,10 @@ class AppLocalizations {
 
   String entryCount(int count) {
     return isVietnamese ? '$count mục' : '$count entries';
+  }
+
+  String entryMultiplier(int count) {
+    return '${count}x';
   }
 
   String logMoreMoods(int remaining) {
@@ -448,10 +462,20 @@ const _en = {
   'readMore': '+ Read more',
   'loadingMoodInsights': 'Loading mood insights',
   'couldNotLoadMoodInsights': 'Could not load mood insights.',
+  'week': 'Week',
+  'month': 'Month',
+  'year': 'Year',
+  'allStats': 'All',
+  'moodStats': 'Mood Stats',
+  'topActivities': 'Top Activities',
+  'previousPeriod': 'Previous period',
+  'nextPeriod': 'Next period',
+  'moodStatistics': 'Mood Statistics',
+  'moodDistributionEmpty':
+      'Log moods in this period to build your mood distribution.',
   'moodCalendar': 'Mood calendar',
   'activityImpact': 'Activity impact',
-  'monthlyHeatmapEmpty':
-      'Log moods this month to build your calendar heatmap.',
+  'monthlyHeatmapEmpty': 'Log moods this month to build your calendar heatmap.',
   'activityCorrelationEmpty':
       'Add reasons to mood entries to reveal activity patterns.',
   'whatsYourMoodNow': "What's your mood now?",
@@ -461,7 +485,8 @@ const _en = {
   'quickLogReasonTitle': "What's reason making you feel\nthis way?",
   'quickLogReasonSubtitle': 'Select reasons that reflected your emotions',
   'quickLogNoteTitle': 'Any thing you want to add',
-  'quickLogNoteSubtitle': 'Add your notes on any thought that reflating your mood',
+  'quickLogNoteSubtitle':
+      'Add your notes on any thought that reflating your mood',
   'couldNotSaveMoodEntry': 'Could not save mood entry',
   'searchEmotions': 'Search emotions',
   'recentlyUsed': 'Recently used',
@@ -602,10 +627,20 @@ const _vi = {
   'readMore': '+ Đọc thêm',
   'loadingMoodInsights': 'Đang tải thông tin tâm trạng',
   'couldNotLoadMoodInsights': 'Không thể tải thông tin tâm trạng.',
+  'week': 'Tuần',
+  'month': 'Tháng',
+  'year': 'Năm',
+  'allStats': 'Tất cả',
+  'moodStats': 'Tâm trạng',
+  'topActivities': 'Hoạt động',
+  'previousPeriod': 'Giai đoạn trước',
+  'nextPeriod': 'Giai đoạn sau',
+  'moodStatistics': 'Thống kê tâm trạng',
+  'moodDistributionEmpty':
+      'Ghi tâm trạng trong giai đoạn này để tạo phân bố tâm trạng.',
   'moodCalendar': 'Lịch tâm trạng',
   'activityImpact': 'Tác động hoạt động',
-  'monthlyHeatmapEmpty':
-      'Ghi tâm trạng trong tháng này để tạo lịch heatmap.',
+  'monthlyHeatmapEmpty': 'Ghi tâm trạng trong tháng này để tạo lịch heatmap.',
   'activityCorrelationEmpty':
       'Thêm lý do vào mục tâm trạng để thấy mô thức hoạt động.',
   'whatsYourMoodNow': 'Bây giờ bạn thấy thế nào?',
@@ -670,21 +705,9 @@ const _vi = {
   'couldNotAddReason': 'Không thể thêm lý do',
 };
 
-const _enMoodLabels = {
-  1: 'Awful',
-  2: 'Bad',
-  3: 'Okay',
-  4: 'Good',
-  5: 'Great',
-};
+const _enMoodLabels = {1: 'Awful', 2: 'Bad', 3: 'Okay', 4: 'Good', 5: 'Great'};
 
-const _viMoodLabels = {
-  1: 'Rất tệ',
-  2: 'Tệ',
-  3: 'Ổn',
-  4: 'Tốt',
-  5: 'Tuyệt',
-};
+const _viMoodLabels = {1: 'Rất tệ', 2: 'Tệ', 3: 'Ổn', 4: 'Tốt', 5: 'Tuyệt'};
 
 const _enMoodFeelingLabels = {
   1: 'awful',
@@ -772,8 +795,16 @@ const _viActivityLabels = {
   'Food': 'Ăn uống',
 };
 
-const _enCategoryLabels = {'Health': 'Health', 'Life': 'Life', 'Other': 'Other'};
-const _viCategoryLabels = {'Health': 'Sức khỏe', 'Life': 'Cuộc sống', 'Other': 'Khác'};
+const _enCategoryLabels = {
+  'Health': 'Health',
+  'Life': 'Life',
+  'Other': 'Other',
+};
+const _viCategoryLabels = {
+  'Health': 'Sức khỏe',
+  'Life': 'Cuộc sống',
+  'Other': 'Khác',
+};
 
 const _enShortMonths = [
   'Jan',

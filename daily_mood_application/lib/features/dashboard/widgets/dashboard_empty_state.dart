@@ -58,9 +58,9 @@ class DashboardEmptyState extends StatelessWidget {
           Text(
             l10n.dashboardEmptyBody,
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: DashboardPalette.mutedText,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyLarge?.copyWith(color: DashboardPalette.mutedText),
           ),
           const SizedBox(height: 24),
           FilledButton.icon(

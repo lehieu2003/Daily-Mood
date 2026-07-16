@@ -1,5 +1,6 @@
 import '../../core/database/daos/mood_entry_dao.dart';
 import '../../domain/models/activity_mood_correlation.dart';
+import '../../domain/models/mood_distribution_item.dart';
 import '../../domain/models/monthly_mood_day.dart';
 import '../../domain/models/weekly_mood_point.dart';
 
@@ -79,6 +80,56 @@ final class MoodAnalyticsLocalService {
             entryCount: row.read<int>('entry_count'),
             averageMood: row.read<double>('average_mood'),
           ),
+      ];
+    });
+  }
+
+  Stream<List<ActivityMoodCorrelation>> watchActivityMoodCorrelationsBetween({
+    required DateTime start,
+    required DateTime end,
+    int limit = 6,
+  }) {
+    return _moodEntryDao
+        .watchActivityMoodCorrelationRowsBetween(
+          start: start,
+          end: end,
+          limit: limit,
+        )
+        .map((rows) {
+          return [
+            for (final row in rows)
+              ActivityMoodCorrelation(
+                activityId: row.read<int>('activity_id'),
+                activityName: row.read<String>('activity_name'),
+                entryCount: row.read<int>('entry_count'),
+                averageMood: row.read<double>('average_mood'),
+              ),
+          ];
+        });
+  }
+
+  Stream<List<MoodDistributionItem>> watchMoodDistribution(
+    DateTime start,
+    DateTime end,
+  ) {
+    return _moodEntryDao.watchEntriesBetween(start, end).map((entries) {
+      final counts = <int, int>{
+        for (var score = 1; score <= 5; score++) score: 0,
+      };
+
+      for (final entry in entries) {
+        counts.update(entry.moodScore, (count) => count + 1, ifAbsent: () => 1);
+      }
+
+      final scores = counts.keys.toList()..sort((a, b) => b.compareTo(a));
+      return [
+        for (final score in scores)
+          if (counts[score]! > 0)
+            MoodDistributionItem(
+              moodScore: score,
+              entryCount: counts[score]!,
+              totalCount: entries.length,
+            ),
       ];
     });
   }

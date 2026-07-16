@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/localization/app_localizations.dart';
+
 class WeeklyTrendEmptyState extends StatelessWidget {
   const WeeklyTrendEmptyState({required this.entryCount, super.key});
 
@@ -31,10 +32,7 @@ class WeeklyTrendEmptyState extends StatelessWidget {
               color: colorScheme.primary.withValues(alpha: 0.14),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              Icons.show_chart_rounded,
-              color: colorScheme.primary,
-            ),
+            child: Icon(Icons.show_chart_rounded, color: colorScheme.primary),
           ),
           const SizedBox(width: 14),
           Expanded(

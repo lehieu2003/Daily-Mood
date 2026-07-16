@@ -51,9 +51,7 @@ class SettingsScreen extends StatelessWidget {
         SettingsPreferencesRepository();
 
     return BlocProvider(
-      create: (_) => SettingsPreferencesCubit(
-        repository: repository,
-      ),
+      create: (_) => SettingsPreferencesCubit(repository: repository),
       child: _SettingsView(
         onLockNow: onLockNow,
         onExportData: onExportData,
@@ -237,6 +235,7 @@ class _SettingsView extends StatelessWidget {
     BackupExportFormat format,
   ) async {
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
     final service =
         backupExportService ??
         DriftBackupExportService(database: context.read<AppDatabase>());
@@ -244,17 +243,18 @@ class _SettingsView extends StatelessWidget {
     try {
       final file = await service.exportAndShare(format);
       messenger.showSnackBar(
-        SnackBar(content: Text(context.l10n.exportReady(file.fileName))),
+        SnackBar(content: Text(l10n.exportReady(file.fileName))),
       );
     } catch (_) {
       messenger.showSnackBar(
-        SnackBar(content: Text(context.l10n.exportFailed)),
+        SnackBar(content: Text(l10n.exportFailed)),
       );
     }
   }
 
   Future<void> _importData(BuildContext context) async {
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
     final service =
         backupImportService ??
         LocalBackupImportFileService(database: context.read<AppDatabase>());
@@ -264,25 +264,22 @@ class _SettingsView extends StatelessWidget {
       if (result == null) return;
 
       messenger.showSnackBar(
-        SnackBar(content: Text(_importSummary(context.l10n, result))),
+        SnackBar(content: Text(_importSummary(l10n, result))),
       );
     } on BackupImportParseException catch (error) {
       messenger.showSnackBar(
         SnackBar(
-          content: Text(context.l10n.importFailedWithMessage(error.message)),
+          content: Text(l10n.importFailedWithMessage(error.message)),
         ),
       );
     } catch (_) {
       messenger.showSnackBar(
-        SnackBar(content: Text(context.l10n.importFailed)),
+        SnackBar(content: Text(l10n.importFailed)),
       );
     }
   }
 
-  String _importSummary(
-    AppLocalizations l10n,
-    BackupImportFileResult result,
-  ) {
+  String _importSummary(AppLocalizations l10n, BackupImportFileResult result) {
     final apply = result.restore.applyResult;
     return l10n.importSummary(
       fileName: result.fileName,
@@ -444,7 +441,10 @@ class _AppearanceTile extends StatelessWidget {
                 value: 'system',
                 label: Text(context.l10n.systemMode),
               ),
-              ButtonSegment(value: 'light', label: Text(context.l10n.lightMode)),
+              ButtonSegment(
+                value: 'light',
+                label: Text(context.l10n.lightMode),
+              ),
               ButtonSegment(value: 'dark', label: Text(context.l10n.darkMode)),
             ],
             selected: {state.themeModeName},
@@ -459,14 +459,16 @@ class _AppearanceTile extends StatelessWidget {
   }
 
   Future<void> _setThemeMode(BuildContext context, String themeModeName) async {
-    await context.read<SettingsPreferencesCubit>().setThemeModeName(
-      themeModeName,
-    );
+    final settingsCubit = context.read<SettingsPreferencesCubit>();
+    AppThemeModeCubit? appThemeModeCubit;
     try {
-      await context.read<AppThemeModeCubit>().setThemeModeName(themeModeName);
+      appThemeModeCubit = context.read<AppThemeModeCubit>();
     } catch (_) {
       // Feature-level widget tests pump Settings without the app root Cubit.
     }
+
+    await settingsCubit.setThemeModeName(themeModeName);
+    await appThemeModeCubit?.setThemeModeName(themeModeName);
   }
 }
 
@@ -500,14 +502,16 @@ class _LanguageTile extends StatelessWidget {
   }
 
   Future<void> _setLanguage(BuildContext context, String languageCode) async {
-    await context.read<SettingsPreferencesCubit>().setLanguageCode(
-      languageCode,
-    );
+    final settingsCubit = context.read<SettingsPreferencesCubit>();
+    AppLocaleCubit? appLocaleCubit;
     try {
-      await context.read<AppLocaleCubit>().setLanguageCode(languageCode);
+      appLocaleCubit = context.read<AppLocaleCubit>();
     } catch (_) {
       // Feature-level widget tests pump Settings without the app root Cubit.
     }
+
+    await settingsCubit.setLanguageCode(languageCode);
+    await appLocaleCubit?.setLanguageCode(languageCode);
   }
 }
 

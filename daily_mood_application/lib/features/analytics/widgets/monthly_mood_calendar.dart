@@ -134,6 +134,7 @@ class _MoodDayCell extends StatelessWidget {
     final color = score == null ? Colors.transparent : moodColor(score);
     final hasMood = moodDay?.hasEntries ?? false;
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
 
     return Container(
       key: ValueKey('monthly_heatmap_day_${day.year}-${day.month}-${day.day}'),
@@ -164,13 +165,20 @@ class _MoodDayCell extends StatelessWidget {
             ),
           ),
           if (hasMood) ...[
-            const SizedBox(height: 1),
-            Text(
-              averageMood!.toStringAsFixed(1),
-              style: TextStyle(
-                color: colorScheme.onSurfaceVariant,
-                fontSize: 9,
-                fontWeight: FontWeight.w900,
+            const SizedBox(height: 3),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+              decoration: BoxDecoration(
+                color: colorScheme.primary,
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Text(
+                l10n.entryMultiplier(moodDay!.entryCount),
+                style: TextStyle(
+                  color: colorScheme.onPrimary,
+                  fontSize: 9,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
             ),
           ],

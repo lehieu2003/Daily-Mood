@@ -21,7 +21,7 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | Current active phase | Phase 8 - Feature Gap Backlog                                                                              |
 | Last updated         | 2026-07-16                                                                                                 |
 | Latest verification  | P8.8 user-reported pub get, format, targeted tests, and analyze passed                                      |
-| Main next task       | Finish P8.10 light and dark mode design verification                                                       |
+| Main next task       | Verify P8.11 advanced stats views                                                                          |
 | Known blockers       | Real privacy-policy effective date/contact; final chart green; Gradient 1 confirmation; WCAG contrast pass |
 
 ## Update Rules
@@ -134,6 +134,7 @@ These tasks come from the 2026-07-13 feature-gap review of the current codebase,
 | P8.7 | Local reminders and streaks           | Not Started | Notifications/dashboard       | User can opt into local-only reminder scheduling and see a non-punitive streak     | Keep privacy-safe and local-only; avoid usage-pattern tracking unless product/privacy docs are updated.                                                   |
 | P8.8 | Vietnamese and English localization   | Done        | App/localization/content      | App strings switch between Vietnamese and English based on locale or user choice   | Added app-level English/Vietnamese localization with an in-app Settings language switch, English fallback, localized high-traffic screens, default mood/activity labels, and focused localization tests. User-reported pub get, format, targeted tests, and analyze passed. |
 | P8.10 | Light and dark mode design           | Done | App/theme/dashboard/analytics/settings | App supports coherent light, dark, and system appearance modes with readable contrast | Added persisted appearance mode, app-level light/dark themes, Settings switch, and adaptive dashboard/analytics surfaces. Needs user-run format, targeted tests, analyze, and light/dark smoke check. |
+| P8.11 | Advanced stats views                 | In Progress | Analytics UI/data            | Stats supports week/month/year ranges, mood distribution, calendar count badges, and clear section filters | Added period/date navigation, mood distribution data and donut chart, count badges in the calendar, and reference-style stats filters. Needs user-run format, targeted tests, analyze, and Stats smoke check. |
 | P8.9 | Local guided insights                 | Not Started | Analytics/dashboard           | App explains simple local patterns in plain language without sending data anywhere | Build from existing local analytics, e.g. activity/mood trend summaries; avoid medical claims and keep it framed as reflection support.                   |
 
 ## Phase 9 - Post-MVP Expansion

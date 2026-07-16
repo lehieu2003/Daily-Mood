@@ -54,10 +54,7 @@ class SubEmotionGrid extends StatelessWidget {
         final label = l10n.subEmotionLabel(emotion.id, emotion.label);
         return FilterChip(
           key: ValueKey('sub_emotion_${emotion.id}'),
-          avatar: EmotionAsset(
-            path: emotion.assetPath,
-            semanticLabel: label,
-          ),
+          avatar: EmotionAsset(path: emotion.assetPath, semanticLabel: label),
           label: Text(label),
           selected: selected,
           onSelected: (_) {

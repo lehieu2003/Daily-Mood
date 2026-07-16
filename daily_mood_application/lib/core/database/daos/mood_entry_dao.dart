@@ -117,6 +117,37 @@ LIMIT ?
     ).watch();
   }
 
+  Stream<List<QueryRow>> watchActivityMoodCorrelationRowsBetween({
+    required DateTime start,
+    required DateTime end,
+    int limit = 6,
+  }) {
+    return customSelect(
+      '''
+SELECT
+  a.id AS activity_id,
+  a.name AS activity_name,
+  COUNT(me.id) AS entry_count,
+  AVG(me.mood_score) AS average_mood
+FROM activities a
+INNER JOIN mood_entry_activities mea ON mea.activity_id = a.id
+INNER JOIN mood_entries me ON me.id = mea.mood_entry_id
+WHERE me.is_deleted = 0
+  AND me.created_at >= ?
+  AND me.created_at < ?
+GROUP BY a.id, a.name
+ORDER BY entry_count DESC, average_mood DESC, a.name ASC
+LIMIT ?
+''',
+      variables: [
+        Variable<DateTime>(start),
+        Variable<DateTime>(end),
+        Variable<int>(limit),
+      ],
+      readsFrom: {activities, moodEntryActivities, moodEntries},
+    ).watch();
+  }
+
   /// Creates a new entry plus its activity tag links in a single
   /// transaction, so the dashboard never sees a half-written entry.
   Future<int> createEntry({

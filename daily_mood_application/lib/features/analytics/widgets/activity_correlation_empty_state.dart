@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/localization/app_localizations.dart';
+
 class ActivityCorrelationEmptyState extends StatelessWidget {
   const ActivityCorrelationEmptyState({super.key});
 
@@ -26,10 +27,7 @@ class ActivityCorrelationEmptyState extends StatelessWidget {
               color: colorScheme.secondary.withValues(alpha: 0.24),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              Icons.hub_rounded,
-              color: colorScheme.primary,
-            ),
+            child: Icon(Icons.hub_rounded, color: colorScheme.primary),
           ),
           const SizedBox(width: 14),
           Expanded(

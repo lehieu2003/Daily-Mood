@@ -413,10 +413,7 @@ class _ActivityEditor extends StatelessWidget {
         if (activities.isEmpty) {
           return Text(
             context.l10n.noReasonsAvailable,
-            style: TextStyle(
-              color: DashboardPalette.mutedText,
-              fontSize: 12,
-            ),
+            style: TextStyle(color: DashboardPalette.mutedText, fontSize: 12),
           );
         }
 

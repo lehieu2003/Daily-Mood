@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/localization/app_localizations.dart';
+
 class MonthlyHeatmapEmptyState extends StatelessWidget {
   const MonthlyHeatmapEmptyState({super.key});
 

@@ -16,7 +16,7 @@ Future<void> showEntryDetailSheet({
   required EntryUpdateAction onUpdateEntry,
   required EntryDeleteAction onDeleteEntry,
   Stream<List<MoodActivity>>? activityOptions,
-  QuickLogMediaService? mediaService,
+  QuickLogMediaGateway? mediaService,
 }) {
   return showModalBottomSheet<void>(
     context: context,
@@ -49,7 +49,7 @@ class EntryDetailSheet extends StatefulWidget {
   final EntryUpdateAction onUpdateEntry;
   final EntryDeleteAction onDeleteEntry;
   final Stream<List<MoodActivity>>? activityOptions;
-  final QuickLogMediaService? mediaService;
+  final QuickLogMediaGateway? mediaService;
 
   @override
   State<EntryDetailSheet> createState() => _EntryDetailSheetState();
@@ -347,9 +347,21 @@ class _EntryDetailSheetState extends State<EntryDetailSheet> {
   }
 
   Future<void> _pickPhoto() async {
-    final path = await widget.mediaService?.pickPhoto();
-    if (path == null || !mounted) return;
-    setState(() => _photoRelativePath = path);
+    try {
+      final path = await widget.mediaService?.pickPhoto();
+      if (path == null || !mounted) return;
+      setState(() => _photoRelativePath = path);
+    } on QuickLogPhotoException catch (error) {
+      if (!mounted) return;
+      final l10n = context.l10n;
+      final message = switch (error.error) {
+        QuickLogPhotoError.tooLarge => l10n.photoTooLarge,
+        QuickLogPhotoError.processingFailed => l10n.photoProcessingFailed,
+      };
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    }
   }
 }
 

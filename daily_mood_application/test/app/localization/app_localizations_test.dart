@@ -1,5 +1,6 @@
 import 'package:daily_mood_application/app/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -12,7 +13,12 @@ void main() {
       MaterialApp(
         locale: const Locale('vi'),
         supportedLocales: AppLocalizations.supportedLocales,
-        localizationsDelegates: const [AppLocalizations.delegate],
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
         home: Builder(
           builder: (context) {
             l10n = context.l10n;
@@ -21,6 +27,7 @@ void main() {
         ),
       ),
     );
+    await tester.pump();
 
     expect(find.text('Cài đặt'), findsOneWidget);
     expect(l10n.home, 'Trang chủ');

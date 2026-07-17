@@ -75,7 +75,7 @@ void main() {
       expect(result.skippedEntries, 0);
       expect(entry.moodScore, 5);
       expect(entry.note, 'New note');
-      expect(entry.updatedAt, DateTime.utc(2026, 7, 14));
+      expect(entry.updatedAt.toUtc(), DateTime.utc(2026, 7, 14));
     } finally {
       await db.close();
     }

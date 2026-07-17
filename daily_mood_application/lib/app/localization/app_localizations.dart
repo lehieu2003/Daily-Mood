@@ -133,6 +133,8 @@ class AppLocalizations {
   String get stopVoice => _text('stopVoice');
   String get microphonePermissionRequired =>
       _text('microphonePermissionRequired');
+  String get photoTooLarge => _text('photoTooLarge');
+  String get photoProcessingFailed => _text('photoProcessingFailed');
   String get photoAttached => _text('photoAttached');
   String get voiceAttached => _text('voiceAttached');
   String get replacePhoto => _text('replacePhoto');
@@ -501,6 +503,8 @@ const _en = {
   'addVoice': 'Add voice',
   'stopVoice': 'Stop voice',
   'microphonePermissionRequired': 'Microphone permission is required.',
+  'photoTooLarge': 'Choose a smaller photo.',
+  'photoProcessingFailed': 'Could not prepare this photo. Please try another.',
   'photoAttached': 'Photo attached',
   'voiceAttached': 'Voice attached',
   'replacePhoto': 'Replace photo',
@@ -664,6 +668,8 @@ const _vi = {
   'addVoice': 'Thêm giọng nói',
   'stopVoice': 'Dừng ghi âm',
   'microphonePermissionRequired': 'Cần quyền truy cập micro.',
+  'photoTooLarge': 'Hãy chọn ảnh nhỏ hơn.',
+  'photoProcessingFailed': 'Không thể xử lý ảnh này. Vui lòng thử ảnh khác.',
   'photoAttached': 'Đã đính kèm ảnh',
   'voiceAttached': 'Đã đính kèm ghi âm',
   'replacePhoto': 'Thay ảnh',

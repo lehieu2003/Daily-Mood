@@ -116,3 +116,14 @@ Agent execution rule: the user runs formatting, analysis, and tests. Do not run 
 - `.agents/settings.json` points tools to `.agents/rules`, `.agents/commands`, `.agents/skills`, and `.agents/agents`.
 - `.agents/AGENTS.md` should stay aligned with this root `AGENTS.md`.
 - The local `.agents/rules/` folder still contains some generic web/backend guidance. Apply only the parts that fit this Flutter offline-first app.
+
+## Architecture Principles
+
+- Follow SOLID principles.
+- Keep every class focused on a single responsibility.
+- Keep every method focused on a single responsibility.
+- Prefer composition over inheritance.
+- Depend on abstractions rather than concrete implementations.
+- Separate presentation, application, domain, and infrastructure concerns.
+- Avoid tight coupling between features.
+- Design code to be testable through dependency injection.

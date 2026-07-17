@@ -5,6 +5,7 @@ import '../../../../app/localization/app_localizations.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../../cubit/mood_form_cubit.dart';
 import '../../cubit/mood_form_state.dart';
+import '../quick_log_media_service.dart';
 
 class NoteStep extends StatelessWidget {
   const NoteStep({
@@ -23,9 +24,21 @@ class NoteStep extends StatelessWidget {
   final Future<void> Function() onCancelVoiceRecording;
 
   Future<void> _attachPhoto(BuildContext context) async {
-    final relativePath = await onPickPhoto();
-    if (relativePath == null || !context.mounted) return;
-    context.read<MoodFormCubit>().setPhotoRelativePath(relativePath);
+    try {
+      final relativePath = await onPickPhoto();
+      if (relativePath == null || !context.mounted) return;
+      context.read<MoodFormCubit>().setPhotoRelativePath(relativePath);
+    } on QuickLogPhotoException catch (error) {
+      if (!context.mounted) return;
+      final l10n = context.l10n;
+      final message = switch (error.error) {
+        QuickLogPhotoError.tooLarge => l10n.photoTooLarge,
+        QuickLogPhotoError.processingFailed => l10n.photoProcessingFailed,
+      };
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    }
   }
 
   @override

@@ -1,8 +1,10 @@
 import 'package:daily_mood_application/domain/models/mood_activity.dart';
 import 'package:daily_mood_application/features/mood_tracker/cubit/mood_form_cubit.dart';
 import 'package:daily_mood_application/features/mood_tracker/cubit/mood_form_state.dart';
+import 'package:daily_mood_application/features/mood_tracker/quick_log/quick_log_media_service.dart';
 import 'package:daily_mood_application/features/mood_tracker/quick_log/quick_log_screen.dart';
 import 'package:daily_mood_application/features/mood_tracker/quick_log/widgets/completion_dialog.dart';
+import 'package:daily_mood_application/features/mood_tracker/quick_log/widgets/note_step.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -170,5 +172,35 @@ void main() {
     expect(find.text('That sounds really hard.'), findsOneWidget);
     expect(find.text('Thank you for\nchecking in'), findsOneWidget);
     expect(find.text('Your day is going\namazing'), findsNothing);
+  });
+
+  testWidgets('shows a warning when picked photo is too large', (tester) async {
+    final cubit = MoodFormCubit();
+    addTearDown(cubit.close);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: BlocProvider.value(
+            value: cubit,
+            child: NoteStep(
+              state: cubit.state,
+              onPickPhoto: () async {
+                throw const QuickLogPhotoException(QuickLogPhotoError.tooLarge);
+              },
+              onStartVoiceRecording: () async => false,
+              onStopVoiceRecording: () async => null,
+              onCancelVoiceRecording: () async {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byKey(const ValueKey('quick_log_attach_photo')));
+    await tester.pump();
+
+    expect(find.text('Choose a smaller photo.'), findsOneWidget);
+    expect(cubit.state.photoRelativePath, isNull);
   });
 }

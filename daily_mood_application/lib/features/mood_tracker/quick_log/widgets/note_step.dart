@@ -108,29 +108,41 @@ class _NoteStepBodyState extends State<_NoteStepBody> {
     if (_isVoiceBusy) return;
 
     setState(() => _isVoiceBusy = true);
-    if (!_isRecording) {
-      final started = await widget.onStartVoiceRecording();
+
+    try {
+      if (!_isRecording) {
+        final started = await widget.onStartVoiceRecording();
+        if (!mounted) return;
+        setState(() {
+          _isRecording = started;
+          _isVoiceBusy = false;
+        });
+        if (!started) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(context.l10n.microphonePermissionRequired)),
+          );
+        }
+        return;
+      }
+
+      final relativePath = await widget.onStopVoiceRecording();
       if (!mounted) return;
       setState(() {
-        _isRecording = started;
+        _isRecording = false;
         _isVoiceBusy = false;
       });
-      if (!started) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.microphonePermissionRequired)),
-        );
-      }
-      return;
+      if (relativePath == null) return;
+      context.read<MoodFormCubit>().setVoiceNoteRelativePath(relativePath);
+    } on Exception {
+      if (!mounted) return;
+      setState(() {
+        _isRecording = false;
+        _isVoiceBusy = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.microphonePermissionRequired)),
+      );
     }
-
-    final relativePath = await widget.onStopVoiceRecording();
-    if (!mounted) return;
-    setState(() {
-      _isRecording = false;
-      _isVoiceBusy = false;
-    });
-    if (relativePath == null) return;
-    context.read<MoodFormCubit>().setVoiceNoteRelativePath(relativePath);
   }
 
   @override

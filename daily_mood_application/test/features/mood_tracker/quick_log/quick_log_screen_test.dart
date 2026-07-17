@@ -203,4 +203,43 @@ void main() {
     expect(find.text('Choose a smaller photo.'), findsOneWidget);
     expect(cubit.state.photoRelativePath, isNull);
   });
+
+  testWidgets('re-enables voice button after recorder start failure', (
+    tester,
+  ) async {
+    final cubit = MoodFormCubit();
+    var startAttempts = 0;
+    addTearDown(cubit.close);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: BlocProvider.value(
+            value: cubit,
+            child: NoteStep(
+              state: cubit.state,
+              onPickPhoto: () async => null,
+              onStartVoiceRecording: () async {
+                startAttempts++;
+                if (startAttempts == 1) {
+                  throw Exception('recorder failed');
+                }
+                return false;
+              },
+              onStopVoiceRecording: () async => null,
+              onCancelVoiceRecording: () async {},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byKey(const ValueKey('quick_log_record_voice')));
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey('quick_log_record_voice')));
+    await tester.pump();
+
+    expect(startAttempts, 2);
+    expect(find.text('Microphone permission is required.'), findsWidgets);
+  });
 }

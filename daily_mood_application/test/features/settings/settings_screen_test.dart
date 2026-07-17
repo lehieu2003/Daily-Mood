@@ -8,6 +8,7 @@ import 'package:daily_mood_application/features/settings/data/backup_import_file
 import 'package:daily_mood_application/features/settings/data/backup_import_restore_service.dart';
 import 'package:daily_mood_application/features/settings/data/backup_snapshot_service.dart';
 import 'package:daily_mood_application/features/settings/data/local_data_reset_service.dart';
+import 'package:daily_mood_application/features/settings/data/local_reminder_scheduler.dart';
 import 'package:daily_mood_application/features/settings/data/settings_preferences_repository.dart';
 import 'package:daily_mood_application/features/settings/settings_screen.dart';
 import 'package:drift/native.dart';
@@ -47,6 +48,7 @@ void main() {
     expect(find.text('Language'), findsOneWidget);
     expect(find.text('English'), findsOneWidget);
     expect(find.text('Tiếng Việt'), findsOneWidget);
+    expect(find.text('Daily reminder'), findsOneWidget);
     expect(find.text('Haptic feedback'), findsOneWidget);
     expect(find.textContaining('TODO'), findsNothing);
   });
@@ -119,6 +121,59 @@ void main() {
 
     expect(adaptiveSwitch().value, isFalse);
     expect(await repository.readHapticsEnabled(), isFalse);
+  });
+
+  testWidgets('persists daily reminder opt-in and schedules locally', (
+    tester,
+  ) async {
+    final store = InMemorySettingsPreferencesStore();
+    final repository = SettingsPreferencesRepository(store: store);
+    final scheduler = _FakeLocalReminderScheduler();
+
+    await tester.pumpWidget(
+      _app(
+        SettingsScreen(
+          preferencesRepository: repository,
+          reminderScheduler: scheduler,
+        ),
+      ),
+    );
+    await tester.pump();
+
+    Switch reminderSwitch() {
+      return tester.widget<Switch>(
+        find.byKey(const ValueKey('settings_daily_reminder_switch')),
+      );
+    }
+
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('settings_daily_reminder_switch')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(reminderSwitch().value, isFalse);
+    expect(await repository.readDailyReminderEnabled(), isFalse);
+
+    await tester.tap(
+      find.byKey(const ValueKey('settings_daily_reminder_switch')),
+    );
+    await tester.pump();
+
+    expect(reminderSwitch().value, isTrue);
+    expect(await repository.readDailyReminderEnabled(), isTrue);
+    expect(await repository.readDailyReminderTime(), const DailyReminderTime(hour: 20, minute: 0));
+    expect(scheduler.scheduledTimes, const [
+      DailyReminderTime(hour: 20, minute: 0),
+    ]);
+
+    await tester.tap(
+      find.byKey(const ValueKey('settings_daily_reminder_switch')),
+    );
+    await tester.pump();
+
+    expect(reminderSwitch().value, isFalse);
+    expect(await repository.readDailyReminderEnabled(), isFalse);
+    expect(scheduler.cancelCount, 1);
   });
 
   testWidgets('lock now tile calls lock action', (tester) async {
@@ -385,5 +440,20 @@ class _FakeBackupImportFileService implements BackupImportFileService {
         ),
       ),
     );
+  }
+}
+
+class _FakeLocalReminderScheduler implements LocalReminderScheduler {
+  final scheduledTimes = <DailyReminderTime>[];
+  int cancelCount = 0;
+
+  @override
+  Future<void> cancelDaily() async {
+    cancelCount++;
+  }
+
+  @override
+  Future<void> scheduleDaily(DailyReminderTime time) async {
+    scheduledTimes.add(time);
   }
 }

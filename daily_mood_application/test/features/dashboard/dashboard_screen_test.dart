@@ -227,6 +227,44 @@ void main() {
     expect(trendOpened, isTrue);
   });
 
+  testWidgets('shows non-punitive reflection streak from local entries', (
+    tester,
+  ) async {
+    final today = DateTime(2026, 7, 17, 10);
+    final entries = [
+      _entry(
+        id: 1,
+        moodScore: 4,
+        note: 'Yesterday reflection.',
+        createdAt: DateTime(2026, 7, 16, 20),
+      ),
+      _entry(
+        id: 2,
+        moodScore: 3,
+        note: 'Two days ago.',
+        createdAt: DateTime(2026, 7, 15, 21),
+      ),
+      _entry(
+        id: 3,
+        moodScore: 5,
+        note: 'Older break.',
+        createdAt: DateTime(2026, 7, 13, 9),
+      ),
+    ];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DashboardScreen(entries: Stream.value(entries), today: today),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.byKey(const ValueKey('reflection_streak_card')), findsOneWidget);
+    expect(find.text('Reflection streak'), findsOneWidget);
+    expect(find.text('2 day rhythm'), findsOneWidget);
+    expect(find.text('Private and pressure-free'), findsOneWidget);
+  });
+
   testWidgets('opens entry detail sheet and saves edits', (tester) async {
     int? updatedId;
     int? updatedScore;

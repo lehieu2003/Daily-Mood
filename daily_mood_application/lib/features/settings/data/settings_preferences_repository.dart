@@ -41,6 +41,9 @@ class SettingsPreferencesRepository {
   static const _hapticsEnabledKey = 'settings_haptics_enabled_v1';
   static const _languageCodeKey = 'settings_language_code_v1';
   static const _themeModeKey = 'settings_theme_mode_v1';
+  static const _dailyReminderEnabledKey = 'daily_reminder_enabled_v1';
+  static const _dailyReminderHourKey = 'daily_reminder_hour_v1';
+  static const _dailyReminderMinuteKey = 'daily_reminder_minute_v1';
   static const supportedLanguageCodes = {'en', 'vi'};
   static const supportedThemeModeNames = {'system', 'light', 'dark'};
 
@@ -75,4 +78,69 @@ class SettingsPreferencesRepository {
     assert(supportedThemeModeNames.contains(themeModeName));
     return _store.write(key: _themeModeKey, value: themeModeName);
   }
+
+  Future<bool> readDailyReminderEnabled() async {
+    final value = await _store.read(key: _dailyReminderEnabledKey);
+    return value == 'true';
+  }
+
+  Future<void> setDailyReminderEnabled(bool enabled) {
+    return _store.write(
+      key: _dailyReminderEnabledKey,
+      value: enabled.toString(),
+    );
+  }
+
+  Future<DailyReminderTime> readDailyReminderTime() async {
+    final hour = int.tryParse(
+      await _store.read(key: _dailyReminderHourKey) ?? '',
+    );
+    final minute = int.tryParse(
+      await _store.read(key: _dailyReminderMinuteKey) ?? '',
+    );
+
+    if (hour == null || minute == null) {
+      return const DailyReminderTime(hour: 20, minute: 0);
+    }
+    return DailyReminderTime.normalized(hour: hour, minute: minute);
+  }
+
+  Future<void> setDailyReminderTime(DailyReminderTime time) async {
+    await _store.write(key: _dailyReminderHourKey, value: '${time.hour}');
+    await _store.write(key: _dailyReminderMinuteKey, value: '${time.minute}');
+  }
+}
+
+class DailyReminderTime {
+  const DailyReminderTime({required this.hour, required this.minute});
+
+  factory DailyReminderTime.normalized({
+    required int hour,
+    required int minute,
+  }) {
+    final safeHour = hour.clamp(0, 23);
+    final safeMinute = minute.clamp(0, 59);
+    return DailyReminderTime(hour: safeHour, minute: safeMinute);
+  }
+
+  final int hour;
+  final int minute;
+
+  String get storageLabel {
+    final hourText = hour.toString().padLeft(2, '0');
+    final minuteText = minute.toString().padLeft(2, '0');
+    return '$hourText:$minuteText';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is DailyReminderTime &&
+            runtimeType == other.runtimeType &&
+            hour == other.hour &&
+            minute == other.minute;
+  }
+
+  @override
+  int get hashCode => Object.hash(hour, minute);
 }

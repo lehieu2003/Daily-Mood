@@ -86,6 +86,8 @@ class AppLocalizations {
   String get weeklyTrendUnlocked => _text('weeklyTrendUnlocked');
   String get opensStatsTab => _text('opensStatsTab');
   String get weeklyTrendReady => _text('weeklyTrendReady');
+  String get reflectionStreak => _text('reflectionStreak');
+  String get streakNoPressure => _text('streakNoPressure');
   String get dashboardEmptyBody => _text('dashboardEmptyBody');
   String get noCheckInsToday => _text('noCheckInsToday');
   String get tip => _text('tip');
@@ -161,6 +163,8 @@ class AppLocalizations {
   String get activeTag => _text('activeTag');
   String get archivedTag => _text('archivedTag');
   String get customTagUpdateFailed => _text('customTagUpdateFailed');
+  String get dailyReminder => _text('dailyReminder');
+  String get dailyReminderOff => _text('dailyReminderOff');
   String get deleteAllLocalDataBody => _text('deleteAllLocalDataBody');
   String get typeDeleteToConfirm => _text('typeDeleteToConfirm');
   String get hapticsOn => _text('hapticsOn');
@@ -208,6 +212,29 @@ class AppLocalizations {
     return isVietnamese
         ? '$count mục đã sẵn sàng - Trung bình ${average.toStringAsFixed(1)}'
         : '$count entries ready - Average ${average.toStringAsFixed(1)}';
+  }
+
+  String streakDayCount(int count) {
+    return isVietnamese
+        ? '$count ngày nhịp ghi'
+        : '$count day ${count == 1 ? 'rhythm' : 'rhythm'}';
+  }
+
+  String streakHelper(int count) {
+    if (count == 0) {
+      return isVietnamese
+          ? 'Ghi một tâm trạng khi bạn sẵn sàng.'
+          : 'Log a mood whenever you are ready.';
+    }
+    return isVietnamese
+        ? 'Bạn đã ghi đều gần đây. Không cần hoàn hảo.'
+        : 'You have checked in recently. No perfect streak required.';
+  }
+
+  String dailyReminderOn(String time) {
+    return isVietnamese
+        ? 'Nhắc cục bộ mỗi ngày lúc $time.'
+        : 'Local daily nudge at $time.';
   }
 
   String entryCount(int count) {
@@ -467,6 +494,8 @@ const _en = {
   'weeklyTrendUnlocked': 'Weekly trend unlocked',
   'opensStatsTab': 'Opens the Stats tab',
   'weeklyTrendReady': 'Weekly trend is ready for the next analytics slice.',
+  'reflectionStreak': 'Reflection streak',
+  'streakNoPressure': 'Private and pressure-free',
   'dashboardEmptyBody':
       'Start with one quick check-in. Your first entry will appear here.',
   'noCheckInsToday': 'No check-ins today',
@@ -551,6 +580,8 @@ const _en = {
   'activeTag': 'Active',
   'archivedTag': 'Archived',
   'customTagUpdateFailed': 'Could not update this tag. Please try again.',
+  'dailyReminder': 'Daily reminder',
+  'dailyReminderOff': 'Off. Turn on a local nudge when it helps.',
   'deleteAllLocalDataBody':
       'This permanently removes mood entries, notes, media links, and custom tags from this device.',
   'typeDeleteToConfirm': 'Type DELETE to confirm.',
@@ -644,6 +675,8 @@ const _vi = {
   'weeklyTrendUnlocked': 'Đã mở xu hướng tuần',
   'opensStatsTab': 'Mở tab Thống kê',
   'weeklyTrendReady': 'Xu hướng tuần đã sẵn sàng cho phần phân tích tiếp theo.',
+  'reflectionStreak': 'Nhịp ghi chép',
+  'streakNoPressure': 'Riêng tư và không áp lực',
   'dashboardEmptyBody':
       'Bắt đầu bằng một lần check-in nhanh. Mục đầu tiên của bạn sẽ xuất hiện ở đây.',
   'noCheckInsToday': 'Hôm nay chưa có check-in',
@@ -727,6 +760,8 @@ const _vi = {
   'activeTag': 'Đang dùng',
   'archivedTag': 'Đã lưu trữ',
   'customTagUpdateFailed': 'Không thể cập nhật thẻ này. Vui lòng thử lại.',
+  'dailyReminder': 'Nhắc hằng ngày',
+  'dailyReminderOff': 'Đang tắt. Bật nhắc cục bộ khi hữu ích.',
   'deleteAllLocalDataBody':
       'Thao tác này xóa vĩnh viễn tâm trạng, ghi chú, liên kết media và thẻ tùy chỉnh khỏi thiết bị này.',
   'typeDeleteToConfirm': 'Nhập DELETE để xác nhận.',

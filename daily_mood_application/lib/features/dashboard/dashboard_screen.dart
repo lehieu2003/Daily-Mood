@@ -15,6 +15,7 @@ import 'widgets/dashboard_header.dart';
 import 'widgets/entry_detail_sheet.dart';
 import 'widgets/mood_entry_card.dart';
 import 'widgets/nature_tip_card.dart';
+import 'widgets/reflection_streak_card.dart';
 import 'widgets/today_check_in_section.dart';
 import 'widgets/weekly_trend_entry_card.dart';
 import 'widgets/week_mood_selector.dart';
@@ -194,6 +195,8 @@ class _DashboardContent extends StatelessWidget {
           onLogMood: () => context.push(AppRoutes.quickLog),
         ),
         const SizedBox(height: 18),
+        ReflectionStreakCard(entries: entries, today: today),
+        const SizedBox(height: 14),
         if (entries.length >= 3) ...[
           WeeklyTrendEntryCard(
             entries: entries,

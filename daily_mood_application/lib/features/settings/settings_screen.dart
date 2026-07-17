@@ -12,6 +12,7 @@ import 'data/backup_export_service.dart';
 import 'data/backup_import_file_service.dart';
 import 'data/backup_import_parser.dart';
 import 'data/local_data_reset_service.dart';
+import 'data/local_reminder_scheduler.dart';
 import 'data/settings_preferences_repository.dart';
 import 'state/delete_all_data_cubit.dart';
 import 'state/settings_preferences_cubit.dart';
@@ -33,6 +34,7 @@ class SettingsScreen extends StatelessWidget {
     this.backupExportService,
     this.backupImportService,
     this.onDataDeleted,
+    this.reminderScheduler = const NoopLocalReminderScheduler(),
   }) : _preferencesRepository = preferencesRepository;
 
   final SettingsPreferencesRepository? _preferencesRepository;
@@ -44,6 +46,7 @@ class SettingsScreen extends StatelessWidget {
   final BackupExportService? backupExportService;
   final BackupImportFileService? backupImportService;
   final VoidCallback? onDataDeleted;
+  final LocalReminderScheduler reminderScheduler;
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +56,10 @@ class SettingsScreen extends StatelessWidget {
         SettingsPreferencesRepository();
 
     return BlocProvider(
-      create: (_) => SettingsPreferencesCubit(repository: repository),
+      create: (_) => SettingsPreferencesCubit(
+        repository: repository,
+        reminderScheduler: reminderScheduler,
+      ),
       child: _SettingsView(
         onLockNow: onLockNow,
         onExportData: onExportData,
@@ -185,6 +191,8 @@ class _SettingsView extends StatelessWidget {
                   _AppearanceTile(),
                   SettingsDivider(),
                   _LanguageTile(),
+                  SettingsDivider(),
+                  _DailyReminderTile(),
                   SettingsDivider(),
                   _HapticsTile(),
                 ],
@@ -618,6 +626,66 @@ class _HapticsTile extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _DailyReminderTile extends StatelessWidget {
+  const _DailyReminderTile();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SettingsPreferencesCubit, SettingsPreferencesState>(
+      builder: (context, state) {
+        final l10n = context.l10n;
+        return SettingsTile(
+          key: const ValueKey('settings_daily_reminder_tile'),
+          icon: Icons.notifications_none_rounded,
+          title: l10n.dailyReminder,
+          subtitle: state.dailyReminderEnabled
+              ? l10n.dailyReminderOn(state.dailyReminderTimeLabel)
+              : l10n.dailyReminderOff,
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextButton(
+                key: const ValueKey('settings_daily_reminder_time_button'),
+                onPressed: state.isLoading
+                    ? null
+                    : () => _pickReminderTime(context, state),
+                child: Text(state.dailyReminderTimeLabel),
+              ),
+              Switch.adaptive(
+                key: const ValueKey('settings_daily_reminder_switch'),
+                value: state.dailyReminderEnabled,
+                onChanged: state.isLoading
+                    ? null
+                    : context
+                          .read<SettingsPreferencesCubit>()
+                          .setDailyReminderEnabled,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickReminderTime(
+    BuildContext context,
+    SettingsPreferencesState state,
+  ) async {
+    final selected = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(
+        hour: state.dailyReminderHour,
+        minute: state.dailyReminderMinute,
+      ),
+    );
+    if (selected == null || !context.mounted) return;
+
+    await context.read<SettingsPreferencesCubit>().setDailyReminderTime(
+      DailyReminderTime(hour: selected.hour, minute: selected.minute),
     );
   }
 }

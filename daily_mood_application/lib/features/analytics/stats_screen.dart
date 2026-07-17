@@ -7,9 +7,11 @@ import '../../domain/models/activity_mood_correlation.dart';
 import '../../domain/models/mood_distribution_item.dart';
 import '../../domain/models/monthly_mood_day.dart';
 import '../../domain/models/weekly_mood_point.dart';
+import 'guided_insights.dart';
 import 'state/stats_cubit.dart';
 import 'state/stats_state.dart';
 import 'widgets/activity_correlation_chart.dart';
+import 'widgets/guided_insights_card.dart';
 import 'widgets/mood_distribution_chart.dart';
 import 'widgets/monthly_mood_calendar.dart';
 import 'widgets/weekly_trend_chart.dart';
@@ -110,6 +112,15 @@ class _StatsView extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 18),
                                 const _StatsFilterChips(),
+                                const SizedBox(height: 18),
+                                GuidedInsightsCard(
+                                  insights: buildGuidedInsights(
+                                    weeklyTrend: state.weeklyTrend,
+                                    activityCorrelations:
+                                        state.activityCorrelations,
+                                    moodDistribution: state.moodDistribution,
+                                  ),
+                                ),
                                 const SizedBox(height: 18),
                                 MoodDistributionChart(
                                   items: state.moodDistribution,

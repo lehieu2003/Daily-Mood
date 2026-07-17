@@ -108,6 +108,11 @@ class AppLocalizations {
   String get allStats => _text('allStats');
   String get moodStats => _text('moodStats');
   String get topActivities => _text('topActivities');
+  String get guidedInsights => _text('guidedInsights');
+  String get guidedInsightsSubtitle => _text('guidedInsightsSubtitle');
+  String get trendShiftInsightTitle => _text('trendShiftInsightTitle');
+  String get starterInsightTitle => _text('starterInsightTitle');
+  String get starterInsightBody => _text('starterInsightBody');
   String get previousPeriod => _text('previousPeriod');
   String get nextPeriod => _text('nextPeriod');
   String get moodStatistics => _text('moodStatistics');
@@ -279,6 +284,52 @@ class AppLocalizations {
     return isVietnamese
         ? '$activityName, $count mục, tâm trạng trung bình ${average.toStringAsFixed(1)}'
         : '$activityName, $count entries, average mood ${average.toStringAsFixed(1)}';
+  }
+
+  String activityLiftInsightTitle(String activityName) {
+    return isVietnamese
+        ? '$activityName xuất hiện cùng tâm trạng cao hơn'
+        : '$activityName showed up with higher moods';
+  }
+
+  String activityLiftInsightBody({
+    required String activityName,
+    required double activityAverage,
+    required double overallAverage,
+  }) {
+    return isVietnamese
+        ? '$activityName trung bình ${activityAverage.toStringAsFixed(1)}, so với mức chung ${overallAverage.toStringAsFixed(1)}. Bạn có thể ghi chú điều gì đã hỗ trợ những lúc đó.'
+        : '$activityName averaged ${activityAverage.toStringAsFixed(1)}, compared with your overall ${overallAverage.toStringAsFixed(1)}. You might note what felt supportive in those moments.';
+  }
+
+  String activityWeightInsightTitle(String activityName) {
+    return isVietnamese
+        ? '$activityName xuất hiện cùng tâm trạng thấp hơn'
+        : '$activityName showed up with lower moods';
+  }
+
+  String activityWeightInsightBody({
+    required String activityName,
+    required double activityAverage,
+    required double overallAverage,
+  }) {
+    return isVietnamese
+        ? '$activityName trung bình ${activityAverage.toStringAsFixed(1)}, thấp hơn mức chung ${overallAverage.toStringAsFixed(1)}. Lần tới bạn có thể thêm một chi tiết nhỏ về điều khiến ngày đó nặng hơn.'
+        : '$activityName averaged ${activityAverage.toStringAsFixed(1)}, below your overall ${overallAverage.toStringAsFixed(1)}. Next time, one extra detail may help you spot what felt heavier.';
+  }
+
+  String trendShiftInsightBody({
+    required double recentAverage,
+    required double earlierAverage,
+  }) {
+    final direction = recentAverage >= earlierAverage;
+    return isVietnamese
+        ? direction
+              ? 'Các ngày gần đây trung bình ${recentAverage.toStringAsFixed(1)}, cao hơn phần đầu kỳ ${earlierAverage.toStringAsFixed(1)}. Hãy nhìn lại điều gì đã giúp.'
+              : 'Các ngày gần đây trung bình ${recentAverage.toStringAsFixed(1)}, thấp hơn phần đầu kỳ ${earlierAverage.toStringAsFixed(1)}. Một ghi chú ngắn về ngủ, năng lượng hoặc áp lực có thể hữu ích.'
+        : direction
+        ? 'Recent days averaged ${recentAverage.toStringAsFixed(1)}, up from ${earlierAverage.toStringAsFixed(1)} earlier. You may want to look back at what helped.'
+        : 'Recent days averaged ${recentAverage.toStringAsFixed(1)}, down from ${earlierAverage.toStringAsFixed(1)} earlier. A short note about sleep, energy, or stress may help later.';
   }
 
   String pinErrorMessage(String message) {
@@ -518,6 +569,13 @@ const _en = {
   'allStats': 'All',
   'moodStats': 'Mood Stats',
   'topActivities': 'Top Activities',
+  'guidedInsights': 'Guided insights',
+  'guidedInsightsSubtitle':
+      'Generated privately from your local mood patterns, not medical advice.',
+  'trendShiftInsightTitle': 'Your recent mood shifted',
+  'starterInsightTitle': 'More check-ins will make this clearer',
+  'starterInsightBody':
+      'A few more moods with tags or notes will help the app reflect patterns back to you.',
   'previousPeriod': 'Previous period',
   'nextPeriod': 'Next period',
   'moodStatistics': 'Mood Statistics',
@@ -700,6 +758,13 @@ const _vi = {
   'allStats': 'Tất cả',
   'moodStats': 'Tâm trạng',
   'topActivities': 'Hoạt động',
+  'guidedInsights': 'Gợi ý phản chiếu',
+  'guidedInsightsSubtitle':
+      'Tạo riêng tư từ mô thức tâm trạng cục bộ, không phải lời khuyên y tế.',
+  'trendShiftInsightTitle': 'Tâm trạng gần đây đã thay đổi',
+  'starterInsightTitle': 'Thêm check-in sẽ giúp rõ hơn',
+  'starterInsightBody':
+      'Một vài tâm trạng kèm thẻ hoặc ghi chú sẽ giúp ứng dụng phản chiếu mô thức lại cho bạn.',
   'previousPeriod': 'Giai đoạn trước',
   'nextPeriod': 'Giai đoạn sau',
   'moodStatistics': 'Thống kê tâm trạng',

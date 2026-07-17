@@ -17,11 +17,11 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 
 | Field                | Value                                                                                                      |
 | -------------------- | ---------------------------------------------------------------------------------------------------------- |
-| Overall MVP status   | Feature-gap backlog implementation has started                                                             |
-| Current active phase | Phase 8 - Feature Gap Backlog                                                                              |
+| Overall MVP status   | Feature-gap backlog implementation is complete                                                              |
+| Current active phase | Phase 7 - Polish, QA, Store Readiness                                                                      |
 | Last updated         | 2026-07-17                                                                                                 |
-| Latest verification  | P8.7 user-reported local reminders and streaks tests passed                                                 |
-| Main next task       | P8.9 local guided insights                                                                                  |
+| Latest verification  | P8.9 user-reported local guided insights tests passed                                                       |
+| Main next task       | P7.4 app icon and launch screen branding                                                                    |
 | Known blockers       | Real privacy-policy effective date/contact; final chart green; Gradient 1 confirmation; WCAG contrast pass |
 
 ## Update Rules
@@ -135,7 +135,7 @@ These tasks come from the 2026-07-13 feature-gap review of the current codebase,
 | P8.8 | Vietnamese and English localization   | Done        | App/localization/content      | App strings switch between Vietnamese and English based on locale or user choice   | Added app-level English/Vietnamese localization with an in-app Settings language switch, English fallback, localized high-traffic screens, default mood/activity labels, and focused localization tests. User-reported pub get, format, targeted tests, and analyze passed. |
 | P8.10 | Light and dark mode design           | Done        | App/theme/dashboard/analytics/settings | App supports coherent light, dark, and system appearance modes with readable contrast | Added persisted appearance mode, app-level light/dark themes, Settings switch, and adaptive dashboard/analytics surfaces. Needs user-run format, targeted tests, analyze, and light/dark smoke check. |
 | P8.11 | Advanced stats views                 | Done        | Analytics UI/data            | Stats supports week/month/year ranges, mood distribution, calendar count badges, and clear section filters | Added period/date navigation, mood distribution data and donut chart, count badges in the calendar, and reference-style stats filters. User-reported advanced stats tests passed. |
-| P8.9 | Local guided insights                 | Not Started | Analytics/dashboard           | App explains simple local patterns in plain language without sending data anywhere | Build from existing local analytics, e.g. activity/mood trend summaries; avoid medical claims and keep it framed as reflection support.                   |
+| P8.9 | Local guided insights                 | Done        | Analytics/dashboard           | App explains simple local patterns in plain language without sending data anywhere | Added local rule-based guided insight cards from weekly trends, mood distribution, and activity correlations, framed as reflection prompts rather than medical advice. User-reported verification passed. |
 
 ## Phase 9 - Post-MVP Expansion
 
@@ -242,6 +242,7 @@ These tasks come from the 2026-07-13 feature-gap review of the current codebase,
 | 2026-07-17 | P8.11 advanced stats views verification                                                                                                                                                     | Passed | Reported by user after advanced stats tests passed.                                        |
 | 2026-07-17 | P8.6 custom tag management verification                                                                                                                                                     | Passed | Reported by user after all tests passed.                                                   |
 | 2026-07-17 | P8.7 local reminders and streaks verification                                                                                                                                               | Passed | Reported by user after all tests passed.                                                   |
+| 2026-07-17 | P8.9 local guided insights verification                                                                                                                                                     | Passed | Reported by user after all tests passed.                                                   |
 
 ## Reference Docs
 

@@ -1,4 +1,5 @@
 import 'package:daily_mood_application/domain/models/activity_mood_correlation.dart';
+import 'package:daily_mood_application/domain/models/mood_distribution_item.dart';
 import 'package:daily_mood_application/domain/models/monthly_mood_day.dart';
 import 'package:daily_mood_application/domain/models/weekly_mood_point.dart';
 import 'package:daily_mood_application/features/analytics/stats_screen.dart';
@@ -154,6 +155,53 @@ void main() {
       find.byKey(const ValueKey('activity_correlation_empty_state')),
       findsNothing,
     );
+  });
+
+  testWidgets('renders local guided insights from mood patterns', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: StatsScreen(
+          weeklyTrend: Stream.value([
+            _point(0, averageMood: 2, entryCount: 1),
+            _point(1, averageMood: 2.5, entryCount: 1),
+            _point(2, averageMood: 3, entryCount: 1),
+            _point(3, averageMood: 4, entryCount: 1),
+            _point(4, averageMood: 4.5, entryCount: 1),
+          ]),
+          monthlyHeatmap: Stream.value(_monthlyDays(hasEntries: true)),
+          activityCorrelations: Stream.value(const [
+            ActivityMoodCorrelation(
+              activityId: 1,
+              activityName: 'Work',
+              entryCount: 3,
+              averageMood: 2.2,
+            ),
+            ActivityMoodCorrelation(
+              activityId: 2,
+              activityName: 'Exercise',
+              entryCount: 2,
+              averageMood: 4.6,
+            ),
+          ]),
+          moodDistribution: Stream.value(const [
+            MoodDistributionItem(moodScore: 5, entryCount: 1, totalCount: 5),
+            MoodDistributionItem(moodScore: 4, entryCount: 1, totalCount: 5),
+            MoodDistributionItem(moodScore: 3, entryCount: 1, totalCount: 5),
+            MoodDistributionItem(moodScore: 2, entryCount: 2, totalCount: 5),
+          ]),
+          focusedMonth: DateTime(2026, 7),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.byKey(const ValueKey('guided_insights_card')), findsOneWidget);
+    expect(find.text('Guided insights'), findsOneWidget);
+    expect(find.text('Work showed up with lower moods'), findsOneWidget);
+    expect(find.text('Exercise showed up with higher moods'), findsOneWidget);
+    expect(find.textContaining('not medical advice'), findsOneWidget);
   });
 }
 

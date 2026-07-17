@@ -14,11 +14,25 @@ final class ActivityRepository {
     );
   }
 
+  Stream<List<MoodActivity>> watchCustomActivities() {
+    return _localService.watchCustomActivities().map(
+      (activities) => activities.map(_toDomain).toList(growable: false),
+    );
+  }
+
   Future<int> createCustomActivity({
     required String name,
     String category = 'Other',
   }) {
     return _localService.createCustomActivity(name: name, category: category);
+  }
+
+  Future<void> archiveCustomActivity(int id) {
+    return _localService.archiveActivity(id);
+  }
+
+  Future<void> restoreCustomActivity(int id) {
+    return _localService.restoreActivity(id);
   }
 
   MoodActivity _toDomain(db.Activity activity) {
@@ -27,6 +41,7 @@ final class ActivityRepository {
       name: activity.name,
       category: activity.category,
       isCustom: activity.isCustom,
+      isArchived: activity.isArchived,
     );
   }
 }

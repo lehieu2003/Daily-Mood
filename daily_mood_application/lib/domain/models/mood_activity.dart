@@ -6,13 +6,15 @@ final class MoodActivity extends Equatable {
     required this.name,
     required this.category,
     required this.isCustom,
+    this.isArchived = false,
   });
 
   final int id;
   final String name;
   final String category;
   final bool isCustom;
+  final bool isArchived;
 
   @override
-  List<Object?> get props => [id, name, category, isCustom];
+  List<Object?> get props => [id, name, category, isCustom, isArchived];
 }

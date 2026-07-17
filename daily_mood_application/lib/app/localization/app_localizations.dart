@@ -55,6 +55,8 @@ class AppLocalizations {
   String get vietnamese => _text('vietnamese');
   String get cancel => _text('cancel');
   String get delete => _text('delete');
+  String get archive => _text('archive');
+  String get restore => _text('restore');
   String get save => _text('save');
   String get continueLabel => _text('continueLabel');
   String get skipAndSave => _text('skipAndSave');
@@ -152,6 +154,13 @@ class AppLocalizations {
   String get exportFailed => _text('exportFailed');
   String get importFailed => _text('importFailed');
   String get localDataDeleted => _text('localDataDeleted');
+  String get manageCustomTags => _text('manageCustomTags');
+  String get manageCustomTagsSubtitle => _text('manageCustomTagsSubtitle');
+  String get manageCustomTagsBody => _text('manageCustomTagsBody');
+  String get noCustomTags => _text('noCustomTags');
+  String get activeTag => _text('activeTag');
+  String get archivedTag => _text('archivedTag');
+  String get customTagUpdateFailed => _text('customTagUpdateFailed');
   String get deleteAllLocalDataBody => _text('deleteAllLocalDataBody');
   String get typeDeleteToConfirm => _text('typeDeleteToConfirm');
   String get hapticsOn => _text('hapticsOn');
@@ -308,6 +317,14 @@ class AppLocalizations {
         : 'Imported $fileName: $added added, $updated updated, $skipped skipped.';
   }
 
+  String customTagArchived(String name) {
+    return isVietnamese ? 'Đã lưu trữ $name.' : 'Archived $name.';
+  }
+
+  String customTagRestored(String name) {
+    return isVietnamese ? 'Đã khôi phục $name.' : 'Restored $name.';
+  }
+
   String moodLabel(int score) {
     final labels = isVietnamese ? _viMoodLabels : _enMoodLabels;
     return labels[score] ?? labels[3]!;
@@ -418,6 +435,8 @@ const _en = {
   'vietnamese': 'Tiếng Việt',
   'cancel': 'Cancel',
   'delete': 'Delete',
+  'archive': 'Archive',
+  'restore': 'Restore',
   'save': 'Save',
   'continueLabel': 'Continue',
   'skipAndSave': 'Skip and Save',
@@ -523,6 +542,15 @@ const _en = {
   'exportFailed': 'Export failed. Please try again.',
   'importFailed': 'Import failed. Please try again.',
   'localDataDeleted': 'Local data deleted.',
+  'manageCustomTags': 'Manage custom tags',
+  'manageCustomTagsSubtitle':
+      'Archive rarely used reasons or restore them later.',
+  'manageCustomTagsBody':
+      'Archived custom tags are hidden from new check-ins but stay attached to older entries.',
+  'noCustomTags': 'No custom tags yet.',
+  'activeTag': 'Active',
+  'archivedTag': 'Archived',
+  'customTagUpdateFailed': 'Could not update this tag. Please try again.',
   'deleteAllLocalDataBody':
       'This permanently removes mood entries, notes, media links, and custom tags from this device.',
   'typeDeleteToConfirm': 'Type DELETE to confirm.',
@@ -584,6 +612,8 @@ const _vi = {
   'vietnamese': 'Tiếng Việt',
   'cancel': 'Hủy',
   'delete': 'Xóa',
+  'archive': 'Lưu trữ',
+  'restore': 'Khôi phục',
   'save': 'Lưu',
   'continueLabel': 'Tiếp tục',
   'skipAndSave': 'Bỏ qua và lưu',
@@ -688,6 +718,15 @@ const _vi = {
   'exportFailed': 'Xuất dữ liệu thất bại. Vui lòng thử lại.',
   'importFailed': 'Nhập dữ liệu thất bại. Vui lòng thử lại.',
   'localDataDeleted': 'Đã xóa dữ liệu cục bộ.',
+  'manageCustomTags': 'Quản lý thẻ tùy chỉnh',
+  'manageCustomTagsSubtitle':
+      'Lưu trữ lý do ít dùng hoặc khôi phục lại sau.',
+  'manageCustomTagsBody':
+      'Thẻ tùy chỉnh đã lưu trữ sẽ ẩn khỏi check-in mới nhưng vẫn gắn với mục cũ.',
+  'noCustomTags': 'Chưa có thẻ tùy chỉnh.',
+  'activeTag': 'Đang dùng',
+  'archivedTag': 'Đã lưu trữ',
+  'customTagUpdateFailed': 'Không thể cập nhật thẻ này. Vui lòng thử lại.',
   'deleteAllLocalDataBody':
       'Thao tác này xóa vĩnh viễn tâm trạng, ghi chú, liên kết media và thẻ tùy chỉnh khỏi thiết bị này.',
   'typeDeleteToConfirm': 'Nhập DELETE để xác nhận.',

@@ -65,4 +65,52 @@ void main() {
       await db.close();
     }
   });
+
+  test('watches custom activities and toggles archived state', () async {
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final dao = ActivityDao(db);
+
+    try {
+      final readingId = await dao.createCustomActivity(
+        name: 'Reading',
+        category: 'Other',
+      );
+      await dao.createCustomActivity(name: 'Sketching', category: 'Other');
+
+      final customActivities = await dao.watchCustomActivities().first;
+
+      expect(customActivities.map((activity) => activity.name), [
+        'Reading',
+        'Sketching',
+      ]);
+      expect(customActivities.every((activity) => activity.isCustom), isTrue);
+
+      await dao.archiveActivity(readingId);
+      final archived = await dao.watchCustomActivities().firstWhere((items) {
+        return items.any(
+          (activity) => activity.id == readingId && activity.isArchived,
+        );
+      });
+
+      expect(archived.last.name, 'Reading');
+      expect(
+        await dao.watchActiveActivities().first,
+        isNot(contains(isA<Activity>().having((a) => a.id, 'id', readingId))),
+      );
+
+      await dao.restoreActivity(readingId);
+      final restored = await dao.watchCustomActivities().firstWhere((items) {
+        return items.any(
+          (activity) => activity.id == readingId && !activity.isArchived,
+        );
+      });
+
+      expect(
+        restored.singleWhere((activity) => activity.id == readingId).isArchived,
+        isFalse,
+      );
+    } finally {
+      await db.close();
+    }
+  });
 }

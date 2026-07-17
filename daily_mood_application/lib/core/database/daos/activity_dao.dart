@@ -36,6 +36,16 @@ class ActivityDao extends DatabaseAccessor<AppDatabase>
     });
   }
 
+  Stream<List<Activity>> watchCustomActivities() {
+    final query = select(activities)
+      ..where((t) => t.isCustom.equals(true))
+      ..orderBy([
+        (t) => OrderingTerm.asc(t.isArchived),
+        (t) => OrderingTerm.asc(t.name),
+      ]);
+    return query.watch();
+  }
+
   Future<int> createCustomActivity({
     required String name,
     required String category,
@@ -74,6 +84,12 @@ class ActivityDao extends DatabaseAccessor<AppDatabase>
   Future<void> archiveActivity(int id) {
     return (update(activities)..where((t) => t.id.equals(id))).write(
       const ActivitiesCompanion(isArchived: Value(true)),
+    );
+  }
+
+  Future<void> restoreActivity(int id) {
+    return (update(activities)..where((t) => t.id.equals(id))).write(
+      const ActivitiesCompanion(isArchived: Value(false)),
     );
   }
 }

@@ -1,3 +1,7 @@
+import 'package:daily_mood_application/core/database/app_database.dart';
+import 'package:daily_mood_application/core/database/daos/activity_dao.dart';
+import 'package:daily_mood_application/data/repositories/activity_repository.dart';
+import 'package:daily_mood_application/data/services/activity_local_service.dart';
 import 'package:daily_mood_application/features/settings/data/backup_export_service.dart';
 import 'package:daily_mood_application/features/settings/data/backup_import_apply_service.dart';
 import 'package:daily_mood_application/features/settings/data/backup_import_file_service.dart';
@@ -6,7 +10,9 @@ import 'package:daily_mood_application/features/settings/data/backup_snapshot_se
 import 'package:daily_mood_application/features/settings/data/local_data_reset_service.dart';
 import 'package:daily_mood_application/features/settings/data/settings_preferences_repository.dart';
 import 'package:daily_mood_application/features/settings/settings_screen.dart';
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -31,6 +37,7 @@ void main() {
     expect(find.text('Data control'), findsOneWidget);
     expect(find.text('Export data'), findsOneWidget);
     expect(find.text('Import data'), findsOneWidget);
+    expect(find.text('Manage custom tags'), findsOneWidget);
     expect(find.text('Delete all local data'), findsOneWidget);
     expect(find.text('Experience'), findsOneWidget);
     expect(find.text('Appearance'), findsOneWidget);
@@ -196,6 +203,81 @@ void main() {
       ),
       findsOneWidget,
     );
+  });
+
+  testWidgets('manage custom tags sheet archives and restores tags', (
+    tester,
+  ) async {
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final activityDao = ActivityDao(db);
+    final repository = ActivityRepository(
+      localService: ActivityLocalService(activityDao: activityDao),
+    );
+
+    try {
+      final readingId = await activityDao.createCustomActivity(
+        name: 'Reading',
+        category: 'Other',
+      );
+      final sketchingId = await activityDao.createCustomActivity(
+        name: 'Sketching',
+        category: 'Other',
+      );
+      await activityDao.archiveActivity(sketchingId);
+
+      await tester.pumpWidget(
+        RepositoryProvider<ActivityRepository>.value(
+          value: repository,
+          child: _app(
+            SettingsScreen(
+              preferencesRepository: SettingsPreferencesRepository(
+                store: InMemorySettingsPreferencesStore(),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      await tester.tap(
+        find.byKey(const ValueKey('settings_manage_custom_tags_tile')),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Manage custom tags'), findsWidgets);
+      expect(find.text('Reading'), findsOneWidget);
+      expect(find.text('Sketching'), findsOneWidget);
+      expect(find.text('Other • Active'), findsOneWidget);
+      expect(find.text('Other • Archived'), findsOneWidget);
+
+      await tester.tap(find.byKey(ValueKey('archive_custom_tag_$readingId')));
+      await tester.pumpAndSettle();
+
+      var reading = await (db.select(
+        db.activities,
+      )..where((row) => row.id.equals(readingId))).getSingle();
+      expect(reading.isArchived, isTrue);
+      expect(find.text('Archived Reading.'), findsOneWidget);
+      expect(
+        find.byKey(ValueKey('restore_custom_tag_$readingId')),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.byKey(ValueKey('restore_custom_tag_$sketchingId')));
+      await tester.pumpAndSettle();
+
+      final sketching = await (db.select(
+        db.activities,
+      )..where((row) => row.id.equals(sketchingId))).getSingle();
+      expect(sketching.isArchived, isFalse);
+      expect(find.text('Restored Sketching.'), findsOneWidget);
+      reading = await (db.select(
+        db.activities,
+      )..where((row) => row.id.equals(readingId))).getSingle();
+      expect(reading.isArchived, isTrue);
+    } finally {
+      await db.close();
+    }
   });
 
   testWidgets('delete data flow requires confirmation before reset', (

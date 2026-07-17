@@ -18,11 +18,28 @@ void main() {
     () async {
       final sourceDb = AppDatabase.forTesting(NativeDatabase.memory());
       final targetDb = AppDatabase.forTesting(NativeDatabase.memory());
+      final sourceDocumentsDirectory = await Directory.systemTemp.createTemp(
+        'daily_mood_source_documents',
+      );
+      final targetDocumentsDirectory = await Directory.systemTemp.createTemp(
+        'daily_mood_target_documents',
+      );
       final snapshotDirectory = await Directory.systemTemp.createTemp(
         'daily_mood_restore_flow_snapshots',
       );
 
       try {
+        final sourcePhoto = File(
+          '${sourceDocumentsDirectory.path}/mood_photos/source.jpg',
+        );
+        await sourcePhoto.parent.create(recursive: true);
+        await sourcePhoto.writeAsBytes([1, 2, 3, 4]);
+        final sourceVoice = File(
+          '${sourceDocumentsDirectory.path}/mood_voices/source.m4a',
+        );
+        await sourceVoice.parent.create(recursive: true);
+        await sourceVoice.writeAsBytes([5, 6, 7, 8]);
+
         final sourceActivityDao = ActivityDao(sourceDb);
         final sourceMoodDao = MoodEntryDao(sourceDb);
         final activityId = await sourceActivityDao.createCustomActivity(
@@ -35,6 +52,7 @@ void main() {
         await sourceMoodDao.createEntry(
           moodScore: 4,
           note: 'Backup note',
+          voiceNotePath: 'mood_voices/source.m4a',
           photoRelativePath: 'mood_photos/source.jpg',
           activityIds: [activityId],
           subEmotionIds: [calm.id],
@@ -43,6 +61,7 @@ void main() {
         final export = await DriftBackupExportService(
           database: sourceDb,
           clock: () => DateTime.utc(2026, 7, 13, 8),
+          documentsDirectoryProvider: () async => sourceDocumentsDirectory,
         ).buildExport(BackupExportFormat.json);
         final parsed = const BackupImportParser().parseJson(export.content);
         final restore = BackupImportRestoreService(
@@ -51,7 +70,10 @@ void main() {
             snapshotsDirectory: snapshotDirectory,
             clock: () => DateTime.utc(2026, 7, 13, 9),
           ),
-          applyService: BackupImportApplyService(database: targetDb),
+          applyService: BackupImportApplyService(
+            database: targetDb,
+            documentsDirectoryProvider: () async => targetDocumentsDirectory,
+          ),
         );
 
         final result = await restore.restore(parsed);
@@ -70,9 +92,35 @@ void main() {
         );
         final photos = await targetDb.select(targetDb.moodPhotos).get();
         expect(photos.single.relativePath, 'mood_photos/source.jpg');
+        expect(parsed.mediaPackaging, 'embedded_base64');
+        expect(
+          parsed.mediaFiles.map((file) => file.relativePath),
+          unorderedEquals([
+            'mood_photos/source.jpg',
+            'mood_voices/source.m4a',
+          ]),
+        );
+        expect(
+          File(
+            '${targetDocumentsDirectory.path}/mood_photos/source.jpg',
+          ).readAsBytesSync(),
+          [1, 2, 3, 4],
+        );
+        expect(
+          File(
+            '${targetDocumentsDirectory.path}/mood_voices/source.m4a',
+          ).readAsBytesSync(),
+          [5, 6, 7, 8],
+        );
       } finally {
         await sourceDb.close();
         await targetDb.close();
+        if (sourceDocumentsDirectory.existsSync()) {
+          sourceDocumentsDirectory.deleteSync(recursive: true);
+        }
+        if (targetDocumentsDirectory.existsSync()) {
+          targetDocumentsDirectory.deleteSync(recursive: true);
+        }
         if (snapshotDirectory.existsSync()) {
           snapshotDirectory.deleteSync(recursive: true);
         }
@@ -235,6 +283,7 @@ ParsedBackup _backup({List<ParsedBackupMoodEntry> entries = const []}) {
     schemaVersion: 2,
     exportedAt: DateTime.utc(2026, 7, 13),
     mediaPackaging: 'relative_paths_only',
+    mediaFiles: const [],
     activities: const [],
     subEmotions: const [],
     entries: entries,

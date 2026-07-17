@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:drift/drift.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 
 import '../../../core/database/app_database.dart';
 import 'backup_import_parser.dart';
@@ -26,10 +30,15 @@ abstract interface class BackupImportApplier {
 }
 
 final class BackupImportApplyService implements BackupImportApplier {
-  BackupImportApplyService({required AppDatabase database})
-    : _database = database;
+  BackupImportApplyService({
+    required AppDatabase database,
+    Future<Directory> Function()? documentsDirectoryProvider,
+  }) : _database = database,
+       _documentsDirectoryProvider =
+           documentsDirectoryProvider ?? getApplicationDocumentsDirectory;
 
   final AppDatabase _database;
+  final Future<Directory> Function() _documentsDirectoryProvider;
 
   @override
   Future<BackupImportApplyResult> apply(ParsedBackup backup) {
@@ -68,6 +77,7 @@ final class BackupImportApplyService implements BackupImportApplier {
             activityIdByImportedUuid: activityIdByImportedUuid,
             subEmotionIdByName: subEmotionIdByName,
           );
+          await _restoreEntryMedia(entry, backup.mediaFiles);
           insertedEntries++;
           continue;
         }
@@ -85,6 +95,7 @@ final class BackupImportApplyService implements BackupImportApplier {
           activityIdByImportedUuid: activityIdByImportedUuid,
           subEmotionIdByName: subEmotionIdByName,
         );
+        await _restoreEntryMedia(entry, backup.mediaFiles);
         updatedEntries++;
       }
 
@@ -266,6 +277,63 @@ final class BackupImportApplyService implements BackupImportApplier {
       }
     }
     return activityIds;
+  }
+
+  Future<void> _restoreEntryMedia(
+    ParsedBackupMoodEntry entry,
+    List<ParsedBackupMediaFile> mediaFiles,
+  ) async {
+    if (mediaFiles.isEmpty) return;
+
+    final referencedPaths = {
+      if (entry.photoRelativePath != null) entry.photoRelativePath!,
+      if (entry.voiceNotePath != null) entry.voiceNotePath!,
+    };
+    if (referencedPaths.isEmpty) return;
+
+    final mediaByPath = {
+      for (final mediaFile in mediaFiles) mediaFile.relativePath: mediaFile,
+    };
+    for (final relativePath in referencedPaths) {
+      final mediaFile = mediaByPath[relativePath];
+      if (mediaFile == null) continue;
+      await _writeMediaFile(mediaFile);
+    }
+  }
+
+  Future<void> _writeMediaFile(ParsedBackupMediaFile mediaFile) async {
+    final documents = await _documentsDirectoryProvider();
+    final relativePath = _normalizeMediaRelativePath(mediaFile.relativePath);
+    final target = File(
+      p.joinAll([documents.path, ...p.posix.split(relativePath)]),
+    );
+    await target.parent.create(recursive: true);
+
+    final temp = File('${target.path}.importing');
+    await temp.writeAsBytes(mediaFile.bytes, flush: true);
+    if (await target.exists()) {
+      await target.delete();
+    }
+    await temp.rename(target.path);
+  }
+
+  String _normalizeMediaRelativePath(String relativePath) {
+    final path = relativePath.replaceAll('\\', '/');
+    final normalizedPath = p.posix.normalize(path);
+    final segments = p.posix.split(normalizedPath);
+    if (p.posix.isAbsolute(path) ||
+        normalizedPath == '.' ||
+        normalizedPath == '..' ||
+        normalizedPath.startsWith('../') ||
+        segments.length < 2 ||
+        (segments.first != 'mood_photos' && segments.first != 'mood_voices')) {
+      throw ArgumentError.value(
+        relativePath,
+        'relativePath',
+        'Must be a relative mood media path.',
+      );
+    }
+    return normalizedPath;
   }
 }
 

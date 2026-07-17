@@ -41,13 +41,17 @@ final class DriftBackupExportService implements BackupExportService {
     required AppDatabase database,
     BackupFileSharer? fileSharer,
     DateTime Function()? clock,
+    Future<Directory> Function()? documentsDirectoryProvider,
   }) : _database = database,
        _fileSharer = fileSharer ?? const BackupFileSharer(),
-       _clock = clock ?? DateTime.now;
+       _clock = clock ?? DateTime.now,
+       _documentsDirectoryProvider =
+           documentsDirectoryProvider ?? getApplicationDocumentsDirectory;
 
   final AppDatabase _database;
   final BackupFileSharer _fileSharer;
   final DateTime Function() _clock;
+  final Future<Directory> Function() _documentsDirectoryProvider;
 
   @override
   Future<BackupExportFile> buildExport(BackupExportFormat format) async {
@@ -55,6 +59,7 @@ final class DriftBackupExportService implements BackupExportService {
     final snapshot = await _BackupSnapshot.fromDatabase(
       _database,
       exportedAt: exportedAt,
+      documentsDirectoryProvider: _documentsDirectoryProvider,
     );
     final content = switch (format) {
       BackupExportFormat.json => const JsonEncoder.withIndent(
@@ -112,6 +117,7 @@ final class _BackupSnapshot {
     required this.activities,
     required this.subEmotions,
     required this.entries,
+    required this.mediaFiles,
   });
 
   final DateTime exportedAt;
@@ -119,10 +125,12 @@ final class _BackupSnapshot {
   final List<Activity> activities;
   final List<SubEmotion> subEmotions;
   final List<_ExportMoodEntry> entries;
+  final List<_ExportMediaFile> mediaFiles;
 
   static Future<_BackupSnapshot> fromDatabase(
     AppDatabase database, {
     required DateTime exportedAt,
+    required Future<Directory> Function() documentsDirectoryProvider,
   }) async {
     final entries = await (database.select(
       database.moodEntries,
@@ -164,12 +172,21 @@ final class _BackupSnapshot {
     final photosByEntryId = {
       for (final photo in photos) photo.moodEntryId: photo,
     };
+    final mediaPaths = <String>{
+      for (final entry in entries)
+        if (entry.voiceNotePath != null) entry.voiceNotePath!,
+      for (final photo in photos) photo.relativePath,
+    };
 
     return _BackupSnapshot(
       exportedAt: exportedAt,
       schemaVersion: database.schemaVersion,
       activities: activities,
       subEmotions: subEmotions,
+      mediaFiles: await _ExportMediaFile.fromRelativePaths(
+        mediaPaths,
+        documentsDirectoryProvider: documentsDirectoryProvider,
+      ),
       entries: entries
           .map(
             (entry) => _ExportMoodEntry(
@@ -188,7 +205,10 @@ final class _BackupSnapshot {
       'exportVersion': 1,
       'schemaVersion': schemaVersion,
       'exportedAt': exportedAt.toIso8601String(),
-      'mediaPackaging': 'relative_paths_only',
+      'mediaPackaging': 'embedded_base64',
+      'mediaFiles': mediaFiles.map((file) => file.toJson()).toList(
+        growable: false,
+      ),
       'activities': activities.map(_activityToJson).toList(growable: false),
       'subEmotions': subEmotions.map(_subEmotionToJson).toList(growable: false),
       'moodEntries': entries
@@ -244,6 +264,62 @@ final class _BackupSnapshot {
     final text = value?.toString() ?? '';
     final escaped = text.replaceAll('"', '""');
     return '"$escaped"';
+  }
+}
+
+final class _ExportMediaFile {
+  const _ExportMediaFile({required this.relativePath, required this.bytes});
+
+  final String relativePath;
+  final List<int> bytes;
+
+  static Future<List<_ExportMediaFile>> fromRelativePaths(
+    Set<String> relativePaths, {
+    required Future<Directory> Function() documentsDirectoryProvider,
+  }) async {
+    if (relativePaths.isEmpty) return const [];
+
+    final documents = await documentsDirectoryProvider();
+    final files = <_ExportMediaFile>[];
+    for (final relativePath in relativePaths) {
+      final normalizedPath = _normalizeMediaRelativePath(relativePath);
+      if (normalizedPath == null) continue;
+
+      final file = File(
+        p.joinAll([documents.path, ...p.posix.split(normalizedPath)]),
+      );
+      if (!await file.exists()) continue;
+
+      files.add(
+        _ExportMediaFile(
+          relativePath: normalizedPath,
+          bytes: await file.readAsBytes(),
+        ),
+      );
+    }
+    return files;
+  }
+
+  Map<String, Object?> toJson() {
+    return {
+      'relativePath': relativePath,
+      'contentBase64': base64Encode(bytes),
+    };
+  }
+
+  static String? _normalizeMediaRelativePath(String relativePath) {
+    final path = relativePath.replaceAll('\\', '/');
+    final normalizedPath = p.posix.normalize(path);
+    final segments = p.posix.split(normalizedPath);
+    if (p.posix.isAbsolute(path) ||
+        normalizedPath == '.' ||
+        normalizedPath == '..' ||
+        normalizedPath.startsWith('../') ||
+        segments.length < 2 ||
+        (segments.first != 'mood_photos' && segments.first != 'mood_voices')) {
+      return null;
+    }
+    return normalizedPath;
   }
 }
 

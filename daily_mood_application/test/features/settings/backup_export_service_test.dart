@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:daily_mood_application/core/database/app_database.dart';
 import 'package:daily_mood_application/core/database/daos/activity_dao.dart';
@@ -14,8 +15,15 @@ void main() {
       final db = AppDatabase.forTesting(NativeDatabase.memory());
       final activityDao = ActivityDao(db);
       final moodEntryDao = MoodEntryDao(db);
+      final documentsDirectory = await Directory.systemTemp.createTemp(
+        'daily_mood_export_documents',
+      );
 
       try {
+        final photo = File('${documentsDirectory.path}/mood_photos/photo-1.jpg');
+        await photo.parent.create(recursive: true);
+        await photo.writeAsBytes([1, 2, 3, 4]);
+
         final activityId = await activityDao.createCustomActivity(
           name: 'Reading',
           category: 'Other',
@@ -34,17 +42,27 @@ void main() {
         final service = DriftBackupExportService(
           database: db,
           clock: () => DateTime.utc(2026, 7, 13, 9, 30, 5),
+          documentsDirectoryProvider: () async => documentsDirectory,
         );
 
         final file = await service.buildExport(BackupExportFormat.json);
         final json = jsonDecode(file.content) as Map<String, Object?>;
         final entries = json['moodEntries'] as List<Object?>;
         final entry = entries.single as Map<String, Object?>;
+        final mediaFiles = json['mediaFiles'] as List<Object?>;
+        final mediaFile = mediaFiles.single as Map<String, Object?>;
 
         expect(file.fileName, 'daily_mood_export_20260713_093005.json');
         expect(json['exportVersion'], 1);
         expect(json['schemaVersion'], db.schemaVersion);
-        expect(json['mediaPackaging'], 'relative_paths_only');
+        expect(json['mediaPackaging'], 'embedded_base64');
+        expect(mediaFile['relativePath'], 'mood_photos/photo-1.jpg');
+        expect(base64Decode(mediaFile['contentBase64']! as String), [
+          1,
+          2,
+          3,
+          4,
+        ]);
         expect(json['activities'], isA<List<Object?>>());
         expect(entry['moodScore'], 4);
         expect(entry['note'], 'Quiet morning');
@@ -54,6 +72,9 @@ void main() {
         expect(entry['uuid'], isNotEmpty);
       } finally {
         await db.close();
+        if (documentsDirectory.existsSync()) {
+          documentsDirectory.deleteSync(recursive: true);
+        }
       }
     },
   );

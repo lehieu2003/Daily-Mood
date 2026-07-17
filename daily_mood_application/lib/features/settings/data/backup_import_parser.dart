@@ -17,6 +17,7 @@ final class ParsedBackup {
     required this.schemaVersion,
     required this.exportedAt,
     required this.mediaPackaging,
+    required this.mediaFiles,
     required this.activities,
     required this.subEmotions,
     required this.entries,
@@ -26,9 +27,20 @@ final class ParsedBackup {
   final int schemaVersion;
   final DateTime? exportedAt;
   final String? mediaPackaging;
+  final List<ParsedBackupMediaFile> mediaFiles;
   final List<ParsedBackupActivity> activities;
   final List<ParsedBackupSubEmotion> subEmotions;
   final List<ParsedBackupMoodEntry> entries;
+}
+
+final class ParsedBackupMediaFile {
+  const ParsedBackupMediaFile({
+    required this.relativePath,
+    required this.bytes,
+  });
+
+  final String relativePath;
+  final List<int> bytes;
 }
 
 final class ParsedBackupActivity {
@@ -132,6 +144,14 @@ final class BackupImportParser {
       schemaVersion: schemaVersion,
       exportedAt: _optionalDateTime(root, 'exportedAt', 'backup'),
       mediaPackaging: _optionalString(root, 'mediaPackaging', 'backup'),
+      mediaFiles: _optionalList(root, 'mediaFiles', 'backup')
+          .asMap()
+          .entries
+          .map((entry) {
+            final path = 'mediaFiles[${entry.key}]';
+            return _parseMediaFileJson(_asMap(entry.value, path), path);
+          })
+          .toList(growable: false),
       activities: _optionalList(root, 'activities', 'backup')
           .asMap()
           .entries
@@ -197,6 +217,7 @@ final class BackupImportParser {
       schemaVersion: 0,
       exportedAt: null,
       mediaPackaging: 'relative_paths_only',
+      mediaFiles: const [],
       activities: const [],
       subEmotions: const [],
       entries: entries,
@@ -223,6 +244,18 @@ final class BackupImportParser {
       createdAt: _requiredDateTime(value, 'createdAt', path),
       updatedAt: _requiredDateTime(value, 'updatedAt', path),
       isDeleted: _optionalBool(value, 'isDeleted', path) ?? false,
+    );
+  }
+
+  ParsedBackupMediaFile _parseMediaFileJson(
+    Map<String, Object?> value,
+    String path,
+  ) {
+    final encoded = _requiredNonEmptyString(value, 'contentBase64', path);
+    final bytes = _parseBase64Bytes(encoded, '$path.contentBase64');
+    return ParsedBackupMediaFile(
+      relativePath: _requiredMediaRelativePath(value, 'relativePath', path),
+      bytes: bytes,
     );
   }
 
@@ -318,6 +351,25 @@ final class BackupImportParser {
     final value = source[key];
     if (value is String) return _nonEmptyText(value, '$path.$key');
     throw BackupImportParseException('$path.$key must be text.');
+  }
+
+  String _requiredMediaRelativePath(
+    Map<String, Object?> source,
+    String key,
+    String path,
+  ) {
+    final relativePath = _optionalRelativePath(source, key, path);
+    if (relativePath == null) {
+      throw BackupImportParseException('$path.$key must not be empty.');
+    }
+    final segments = relativePath.split('/');
+    if (segments.length < 2 ||
+        (segments.first != 'mood_photos' && segments.first != 'mood_voices')) {
+      throw BackupImportParseException(
+        '$path.$key must be a mood media path.',
+      );
+    }
+    return relativePath;
   }
 
   String? _optionalString(
@@ -419,6 +471,14 @@ final class BackupImportParser {
       throw BackupImportParseException('$path must be a relative path.');
     }
     return normalized;
+  }
+
+  List<int> _parseBase64Bytes(String value, String path) {
+    try {
+      return base64Decode(value);
+    } on FormatException catch (_) {
+      throw BackupImportParseException('$path must be valid base64.');
+    }
   }
 
   int _parseMoodScoreText(String value, String path) {

@@ -12,7 +12,13 @@ void main() {
         'exportVersion': 1,
         'schemaVersion': 2,
         'exportedAt': '2026-07-13T09:30:05.000Z',
-        'mediaPackaging': 'relative_paths_only',
+        'mediaPackaging': 'embedded_base64',
+        'mediaFiles': [
+          {
+            'relativePath': 'mood_photos/photo-1.jpg',
+            'contentBase64': base64Encode([1, 2, 3, 4]),
+          },
+        ],
         'activities': [
           {
             'uuid': 'activity-1',
@@ -51,6 +57,9 @@ void main() {
     expect(backup.exportVersion, 1);
     expect(backup.schemaVersion, 2);
     expect(backup.exportedAt, DateTime.utc(2026, 7, 13, 9, 30, 5));
+    expect(backup.mediaPackaging, 'embedded_base64');
+    expect(backup.mediaFiles.single.relativePath, 'mood_photos/photo-1.jpg');
+    expect(backup.mediaFiles.single.bytes, [1, 2, 3, 4]);
     expect(backup.activities.single.name, 'Reading');
     expect(backup.subEmotions.single.name, 'Calm');
     expect(backup.entries.single.uuid, 'entry-1');
@@ -147,6 +156,31 @@ void main() {
           (error) => error.message,
           'message',
           contains('relative path'),
+        ),
+      ),
+    );
+  });
+
+  test('rejects packaged media outside mood media folders', () {
+    expect(
+      () => parser.parseJson(
+        jsonEncode({
+          'exportVersion': 1,
+          'schemaVersion': 2,
+          'mediaFiles': [
+            {
+              'relativePath': 'exports/photo.jpg',
+              'contentBase64': base64Encode([1]),
+            },
+          ],
+          'moodEntries': const [],
+        }),
+      ),
+      throwsA(
+        isA<BackupImportParseException>().having(
+          (error) => error.message,
+          'message',
+          contains('mood media path'),
         ),
       ),
     );

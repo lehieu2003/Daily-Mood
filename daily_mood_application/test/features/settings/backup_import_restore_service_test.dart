@@ -49,6 +49,7 @@ ParsedBackup _backup() {
     schemaVersion: 2,
     exportedAt: DateTime.utc(2026, 7, 13),
     mediaPackaging: 'relative_paths_only',
+    mediaFiles: const [],
     activities: const [],
     subEmotions: const [],
     entries: const [],

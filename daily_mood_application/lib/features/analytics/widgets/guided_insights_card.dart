@@ -68,7 +68,6 @@ class _InsightTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -121,14 +120,12 @@ class _InsightTile extends StatelessWidget {
   String _title(BuildContext context, GuidedInsight insight) {
     final l10n = context.l10n;
     return switch (insight.type) {
-      GuidedInsightType.activityLift =>
-        l10n.activityLiftInsightTitle(
-          l10n.activityLabel(insight.activityName ?? ''),
-        ),
-      GuidedInsightType.activityWeight =>
-        l10n.activityWeightInsightTitle(
-          l10n.activityLabel(insight.activityName ?? ''),
-        ),
+      GuidedInsightType.activityLift => l10n.activityLiftInsightTitle(
+        l10n.activityLabel(insight.activityName ?? ''),
+      ),
+      GuidedInsightType.activityWeight => l10n.activityWeightInsightTitle(
+        l10n.activityLabel(insight.activityName ?? ''),
+      ),
       GuidedInsightType.trendShift => l10n.trendShiftInsightTitle,
       GuidedInsightType.starter => l10n.starterInsightTitle,
     };

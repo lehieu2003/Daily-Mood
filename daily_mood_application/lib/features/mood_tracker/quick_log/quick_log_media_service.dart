@@ -107,12 +107,7 @@ class QuickLogMediaService implements QuickLogMediaGateway {
     final documents = await _documentsDirectoryProvider();
     final normalizedPath = _normalizePhotoRelativePath(relativePath);
 
-    return File(
-      p.joinAll([
-        documents.path,
-        ...p.posix.split(normalizedPath),
-      ]),
-    );
+    return File(p.joinAll([documents.path, ...p.posix.split(normalizedPath)]));
   }
 
   /// Deletes a stored quick-log photo when it exists.

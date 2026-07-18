@@ -161,7 +161,10 @@ void main() {
 
     expect(reminderSwitch().value, isTrue);
     expect(await repository.readDailyReminderEnabled(), isTrue);
-    expect(await repository.readDailyReminderTime(), const DailyReminderTime(hour: 20, minute: 0));
+    expect(
+      await repository.readDailyReminderTime(),
+      const DailyReminderTime(hour: 20, minute: 0),
+    );
     expect(scheduler.scheduledTimes, const [
       DailyReminderTime(hour: 20, minute: 0),
     ]);

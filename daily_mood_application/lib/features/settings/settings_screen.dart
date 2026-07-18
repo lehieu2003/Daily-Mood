@@ -392,10 +392,7 @@ class _CustomTagsSheet extends StatelessWidget {
                     separatorBuilder: (_, _) => const SizedBox(height: 8),
                     itemBuilder: (context, index) {
                       final tag = tags[index];
-                      return _CustomTagTile(
-                        tag: tag,
-                        repository: repository,
-                      );
+                      return _CustomTagTile(tag: tag, repository: repository);
                     },
                   );
                 },

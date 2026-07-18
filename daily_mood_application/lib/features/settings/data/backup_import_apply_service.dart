@@ -203,10 +203,11 @@ final class BackupImportApplyService implements BackupImportApplier {
     ParsedBackupDailyReflection reflection,
   ) {
     return (_database.select(_database.dailyReflections)..where(
-      (row) =>
-          row.uuid.equals(reflection.uuid) |
-          row.dateKey.equals(reflection.dateKey),
-    )).get();
+          (row) =>
+              row.uuid.equals(reflection.uuid) |
+              row.dateKey.equals(reflection.dateKey),
+        ))
+        .get();
   }
 
   Future<int> _insertEntry(ParsedBackupMoodEntry entry) {

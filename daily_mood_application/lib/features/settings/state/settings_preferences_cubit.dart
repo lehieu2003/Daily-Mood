@@ -7,11 +7,11 @@ import 'settings_preferences_state.dart';
 class SettingsPreferencesCubit extends Cubit<SettingsPreferencesState> {
   SettingsPreferencesCubit({
     required SettingsPreferencesRepository repository,
-    LocalReminderScheduler reminderScheduler = const NoopLocalReminderScheduler(),
-  })
-    : _repository = repository,
-      _reminderScheduler = reminderScheduler,
-      super(const SettingsPreferencesState.loading()) {
+    LocalReminderScheduler reminderScheduler =
+        const NoopLocalReminderScheduler(),
+  }) : _repository = repository,
+       _reminderScheduler = reminderScheduler,
+       super(const SettingsPreferencesState.loading()) {
     load();
   }
 

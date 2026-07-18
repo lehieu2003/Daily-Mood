@@ -47,10 +47,9 @@ List<GuidedInsight> buildGuidedInsights({
   if (trendInsight != null) insights.add(trendInsight);
 
   if (insights.isEmpty) {
-    insights.add(GuidedInsight(
-      type: GuidedInsightType.starter,
-      entryCount: totalEntries,
-    ));
+    insights.add(
+      GuidedInsight(type: GuidedInsightType.starter, entryCount: totalEntries),
+    );
   }
 
   return insights.take(maxCount).toList(growable: false);
@@ -63,14 +62,20 @@ List<GuidedInsight> _activityInsights({
   final repeated = activityCorrelations
       .where((correlation) => correlation.entryCount >= 2)
       .toList(growable: false);
-  final lower = repeated
-      .where((correlation) => correlation.averageMood <= overallAverage - 0.4)
-      .toList()
-    ..sort((a, b) => a.averageMood.compareTo(b.averageMood));
-  final higher = repeated
-      .where((correlation) => correlation.averageMood >= overallAverage + 0.4)
-      .toList()
-    ..sort((a, b) => b.averageMood.compareTo(a.averageMood));
+  final lower =
+      repeated
+          .where(
+            (correlation) => correlation.averageMood <= overallAverage - 0.4,
+          )
+          .toList()
+        ..sort((a, b) => a.averageMood.compareTo(b.averageMood));
+  final higher =
+      repeated
+          .where(
+            (correlation) => correlation.averageMood >= overallAverage + 0.4,
+          )
+          .toList()
+        ..sort((a, b) => b.averageMood.compareTo(a.averageMood));
 
   return [
     if (lower.isNotEmpty)
@@ -99,8 +104,12 @@ GuidedInsight? _trendInsight(List<WeeklyMoodPoint> weeklyTrend) {
   if (points.length < 4) return null;
 
   final midpoint = (points.length / 2).floor();
-  final earlier = _average(points.take(midpoint).map((point) => point.averageMood!));
-  final recent = _average(points.skip(midpoint).map((point) => point.averageMood!));
+  final earlier = _average(
+    points.take(midpoint).map((point) => point.averageMood!),
+  );
+  final recent = _average(
+    points.skip(midpoint).map((point) => point.averageMood!),
+  );
   final delta = recent - earlier;
   if (delta.abs() < 0.4) return null;
 
@@ -138,7 +147,10 @@ double? _overallAverage(
     0,
     (sum, point) => sum + (point.averageMood ?? 0) * point.entryCount,
   );
-  final count = weeklyTrend.fold<int>(0, (sum, point) => sum + point.entryCount);
+  final count = weeklyTrend.fold<int>(
+    0,
+    (sum, point) => sum + point.entryCount,
+  );
   if (count == 0) return null;
   return weighted / count;
 }

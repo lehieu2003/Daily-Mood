@@ -443,9 +443,7 @@ final class BackupImportParser {
     final segments = relativePath.split('/');
     if (segments.length < 2 ||
         (segments.first != 'mood_photos' && segments.first != 'mood_voices')) {
-      throw BackupImportParseException(
-        '$path.$key must be a mood media path.',
-      );
+      throw BackupImportParseException('$path.$key must be a mood media path.');
     }
     return relativePath;
   }

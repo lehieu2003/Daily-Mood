@@ -98,9 +98,9 @@ void main() {
           await targetDb.select(targetDb.moodEntrySubEmotions).get(),
           hasLength(1),
         );
-        final reflections = await targetDb.select(
-          targetDb.dailyReflections,
-        ).get();
+        final reflections = await targetDb
+            .select(targetDb.dailyReflections)
+            .get();
         expect(reflections.single.dateKey, '2026-07-13');
         expect(reflections.single.response, 'Reading before bed.');
         final photos = await targetDb.select(targetDb.moodPhotos).get();
@@ -108,10 +108,7 @@ void main() {
         expect(parsed.mediaPackaging, 'embedded_base64');
         expect(
           parsed.mediaFiles.map((file) => file.relativePath),
-          unorderedEquals([
-            'mood_photos/source.jpg',
-            'mood_voices/source.m4a',
-          ]),
+          unorderedEquals(['mood_photos/source.jpg', 'mood_voices/source.m4a']),
         );
         expect(
           File(

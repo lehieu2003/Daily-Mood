@@ -21,7 +21,8 @@ class DailyReflectionCard extends StatefulWidget {
     required DateTime date,
     required String prompt,
     required String response,
-  }) onSave;
+  })
+  onSave;
 
   @override
   State<DailyReflectionCard> createState() => _DailyReflectionCardState();
@@ -200,7 +201,9 @@ class _DailyReflectionCardState extends State<DailyReflectionCard> {
   String _emotionSummary(AppLocalizations l10n) {
     final emotion = _mostCommonEmotion();
     return l10n.commonEmotion(
-      emotion == null ? l10n.noneYet : l10n.subEmotionLabel(emotion.id, emotion.name),
+      emotion == null
+          ? l10n.noneYet
+          : l10n.subEmotionLabel(emotion.id, emotion.name),
     );
   }
 

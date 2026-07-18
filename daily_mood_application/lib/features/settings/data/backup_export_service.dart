@@ -212,9 +212,9 @@ final class _BackupSnapshot {
       'schemaVersion': schemaVersion,
       'exportedAt': exportedAt.toIso8601String(),
       'mediaPackaging': 'embedded_base64',
-      'mediaFiles': mediaFiles.map((file) => file.toJson()).toList(
-        growable: false,
-      ),
+      'mediaFiles': mediaFiles
+          .map((file) => file.toJson())
+          .toList(growable: false),
       'activities': activities.map(_activityToJson).toList(growable: false),
       'subEmotions': subEmotions.map(_subEmotionToJson).toList(growable: false),
       'moodEntries': entries
@@ -321,10 +321,7 @@ final class _ExportMediaFile {
   }
 
   Map<String, Object?> toJson() {
-    return {
-      'relativePath': relativePath,
-      'contentBase64': base64Encode(bytes),
-    };
+    return {'relativePath': relativePath, 'contentBase64': base64Encode(bytes)};
   }
 
   static String? _normalizeMediaRelativePath(String relativePath) {

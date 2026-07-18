@@ -6,9 +6,7 @@ int currentReflectionStreak(
 }) {
   if (entries.isEmpty) return 0;
 
-  final entryDates = entries
-      .map((entry) => _dateOnly(entry.createdAt))
-      .toSet();
+  final entryDates = entries.map((entry) => _dateOnly(entry.createdAt)).toSet();
   final todayOnly = _dateOnly(today);
   var cursor = entryDates.contains(todayOnly)
       ? todayOnly

@@ -22,7 +22,9 @@ void main() {
       );
 
       try {
-        final photo = File('${documentsDirectory.path}/mood_photos/photo-1.jpg');
+        final photo = File(
+          '${documentsDirectory.path}/mood_photos/photo-1.jpg',
+        );
         await photo.parent.create(recursive: true);
         await photo.writeAsBytes([1, 2, 3, 4]);
 

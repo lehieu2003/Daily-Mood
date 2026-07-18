@@ -35,9 +35,15 @@ class ReflectionStreakCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(l10n.reflectionStreak, style: AppTypography.subText3Regular),
+                Text(
+                  l10n.reflectionStreak,
+                  style: AppTypography.subText3Regular,
+                ),
                 const SizedBox(height: 6),
-                Text(l10n.streakDayCount(streak), style: AppTypography.heading2),
+                Text(
+                  l10n.streakDayCount(streak),
+                  style: AppTypography.heading2,
+                ),
                 const SizedBox(height: 4),
                 Text(
                   l10n.streakHelper(streak),

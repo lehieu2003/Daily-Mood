@@ -139,7 +139,9 @@ class QuickLogVoiceNoteService {
 
   Future<_VoiceNoteTarget> _createTarget() async {
     final documents = await _documentsDirectoryProvider();
-    final targetDirectory = Directory(p.join(documents.path, voiceDirectoryName));
+    final targetDirectory = Directory(
+      p.join(documents.path, voiceDirectoryName),
+    );
     await targetDirectory.create(recursive: true);
 
     final fileName = '${_uuid.v4()}.m4a';

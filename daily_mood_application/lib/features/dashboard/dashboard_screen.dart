@@ -11,6 +11,7 @@ import '../../domain/models/daily_reflection.dart';
 import '../../domain/models/mood_entry.dart';
 import 'daily_reflection_actions.dart';
 import 'dashboard_formatters.dart';
+import 'mood_garden.dart';
 import 'dashboard_palette.dart';
 import 'entry_detail_actions.dart';
 import 'widgets/dashboard_empty_state.dart';
@@ -18,6 +19,7 @@ import 'widgets/dashboard_header.dart';
 import 'widgets/daily_reflection_card.dart';
 import 'widgets/entry_detail_sheet.dart';
 import 'widgets/mood_entry_card.dart';
+import 'widgets/mood_garden_card.dart';
 import 'widgets/nature_tip_card.dart';
 import 'widgets/reflection_streak_card.dart';
 import 'widgets/today_check_in_section.dart';
@@ -33,6 +35,7 @@ class DashboardScreen extends StatefulWidget {
     this.onUpdateEntry,
     this.onDeleteEntry,
     this.dailyReflectionForDate,
+    this.dailyReflections,
     this.onSaveReflection,
   });
 
@@ -42,6 +45,7 @@ class DashboardScreen extends StatefulWidget {
   final EntryUpdateAction? onUpdateEntry;
   final EntryDeleteAction? onDeleteEntry;
   final DailyReflectionStreamFactory? dailyReflectionForDate;
+  final Stream<List<DailyReflectionModel>>? dailyReflections;
   final DailyReflectionSaveAction? onSaveReflection;
 
   @override
@@ -133,6 +137,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   onDeleteEntry: widget.onDeleteEntry,
                                   dailyReflectionForDate:
                                       widget.dailyReflectionForDate,
+                                  dailyReflections: widget.dailyReflections,
                                   onSaveReflection: widget.onSaveReflection,
                                 ),
                             ]),
@@ -181,6 +186,7 @@ class _DashboardContent extends StatelessWidget {
     this.onUpdateEntry,
     this.onDeleteEntry,
     this.dailyReflectionForDate,
+    this.dailyReflections,
     this.onSaveReflection,
   });
 
@@ -191,6 +197,7 @@ class _DashboardContent extends StatelessWidget {
   final EntryUpdateAction? onUpdateEntry;
   final EntryDeleteAction? onDeleteEntry;
   final DailyReflectionStreamFactory? dailyReflectionForDate;
+  final Stream<List<DailyReflectionModel>>? dailyReflections;
   final DailyReflectionSaveAction? onSaveReflection;
 
   @override
@@ -220,6 +227,12 @@ class _DashboardContent extends StatelessWidget {
           const SizedBox(height: 14),
         ],
         ReflectionStreakCard(entries: entries, today: today),
+        const SizedBox(height: 14),
+        _MoodGardenSection(
+          entries: entries,
+          today: today,
+          dailyReflections: dailyReflections,
+        ),
         const SizedBox(height: 14),
         if (entries.length >= 3) ...[
           WeeklyTrendEntryCard(
@@ -260,6 +273,53 @@ class _DashboardContent extends StatelessWidget {
       onDeleteEntry: deleteEntry ?? repository!.softDeleteEntry,
       activityOptions: activityOptions,
     );
+  }
+}
+
+class _MoodGardenSection extends StatelessWidget {
+  const _MoodGardenSection({
+    required this.entries,
+    required this.today,
+    this.dailyReflections,
+  });
+
+  final List<MoodEntryModel> entries;
+  final DateTime today;
+  final Stream<List<DailyReflectionModel>>? dailyReflections;
+
+  @override
+  Widget build(BuildContext context) {
+    final stream = dailyReflections ?? _streamFrom(context);
+    if (stream == null) {
+      return MoodGardenCard(
+        summary: buildMoodGardenSummary(
+          entries: entries,
+          reflections: const [],
+          today: today,
+        ),
+      );
+    }
+
+    return StreamBuilder<List<DailyReflectionModel>>(
+      stream: stream,
+      builder: (context, snapshot) {
+        return MoodGardenCard(
+          summary: buildMoodGardenSummary(
+            entries: entries,
+            reflections: snapshot.data ?? const [],
+            today: today,
+          ),
+        );
+      },
+    );
+  }
+
+  Stream<List<DailyReflectionModel>>? _streamFrom(BuildContext context) {
+    try {
+      return context.read<DailyReflectionRepository>().watchAllReflections();
+    } catch (_) {
+      return null;
+    }
   }
 }
 

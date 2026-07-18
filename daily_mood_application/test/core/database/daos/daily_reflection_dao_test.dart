@@ -34,6 +34,10 @@ void main() {
       expect(updated!.id, created.id);
       expect(updated.prompt, 'What helped today?');
       expect(updated.response, 'Coffee and a clear plan.');
+
+      final allReflections = await dao.watchAllReflections().first;
+      expect(allReflections, hasLength(1));
+      expect(allReflections.single.dateKey, '2026-07-18');
     } finally {
       await db.close();
     }

@@ -260,10 +260,56 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.byKey(const ValueKey('reflection_streak_card')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('reflection_streak_card')),
+      findsOneWidget,
+    );
     expect(find.text('Reflection streak'), findsOneWidget);
     expect(find.text('2 day rhythm'), findsOneWidget);
     expect(find.text('Private and pressure-free'), findsOneWidget);
+  });
+
+  testWidgets('shows mood garden growth from entries and reflections', (
+    tester,
+  ) async {
+    final today = DateTime(2026, 7, 18, 10);
+    final entries = [
+      _entry(
+        id: 1,
+        moodScore: 4,
+        note: 'Today.',
+        createdAt: DateTime(2026, 7, 18, 9),
+      ),
+      _entry(
+        id: 2,
+        moodScore: 3,
+        note: 'Yesterday.',
+        createdAt: DateTime(2026, 7, 17, 9),
+      ),
+    ];
+    final reflections = [
+      _reflection(id: 1, date: DateTime(2026, 7, 18)),
+      _reflection(id: 2, date: DateTime(2026, 7, 16)),
+    ];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DashboardScreen(
+          entries: Stream.value(entries),
+          today: today,
+          dailyReflections: Stream.value(reflections),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.byKey(const ValueKey('mood_garden_card')), findsOneWidget);
+    expect(find.text('Mood garden'), findsOneWidget);
+    expect(find.text('Leafy'), findsOneWidget);
+    expect(find.text('2 mood days - 2 reflections'), findsOneWidget);
+    expect(find.text('3 recent care days'), findsOneWidget);
+    expect(find.text('Missed days never reset it'), findsOneWidget);
   });
 
   testWidgets('saves an optional daily reflection after a logged mood', (
@@ -322,7 +368,9 @@ void main() {
     await tester.ensureVisible(
       find.byKey(const ValueKey('daily_reflection_save_button')),
     );
-    await tester.tap(find.byKey(const ValueKey('daily_reflection_save_button')));
+    await tester.tap(
+      find.byKey(const ValueKey('daily_reflection_save_button')),
+    );
     await tester.pump();
 
     expect(savedDate, DateTime(2026, 7, 18));
@@ -333,12 +381,7 @@ void main() {
   testWidgets('shows an existing daily reflection for editing', (tester) async {
     final today = DateTime(2026, 7, 18, 10);
     final entries = [
-      _entry(
-        id: 1,
-        moodScore: 5,
-        note: 'Good day.',
-        createdAt: today,
-      ),
+      _entry(id: 1, moodScore: 5, note: 'Good day.', createdAt: today),
     ];
 
     await tester.pumpWidget(
@@ -567,5 +610,17 @@ MoodEntryModel _entry({
     activityNames: activityNames,
     subEmotionIds: subEmotionIds,
     subEmotionNames: subEmotionNames,
+  );
+}
+
+DailyReflectionModel _reflection({required int id, required DateTime date}) {
+  return DailyReflectionModel(
+    id: id,
+    uuid: 'reflection-$id',
+    date: date,
+    prompt: 'What made today better?',
+    response: 'A quiet moment.',
+    createdAt: date,
+    updatedAt: date,
   );
 }

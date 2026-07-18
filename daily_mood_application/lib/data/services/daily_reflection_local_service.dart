@@ -10,15 +10,15 @@ final class DailyReflectionLocalService {
     return _dao.watchReflectionForDate(date);
   }
 
+  Stream<List<DailyReflection>> watchAllReflections() {
+    return _dao.watchAllReflections();
+  }
+
   Future<void> saveReflection({
     required DateTime date,
     required String prompt,
     required String response,
   }) {
-    return _dao.saveReflection(
-      date: date,
-      prompt: prompt,
-      response: response,
-    );
+    return _dao.saveReflection(date: date, prompt: prompt, response: response);
   }
 }

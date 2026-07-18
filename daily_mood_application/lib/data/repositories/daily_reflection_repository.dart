@@ -15,6 +15,12 @@ final class DailyReflectionRepository {
     });
   }
 
+  Stream<List<DailyReflectionModel>> watchAllReflections() {
+    return _localService.watchAllReflections().map(
+      (reflections) => reflections.map(_toDomain).toList(growable: false),
+    );
+  }
+
   Future<void> saveReflection({
     required DateTime date,
     required String prompt,

@@ -95,6 +95,9 @@ class AppLocalizations {
   String get saveReflection => _text('saveReflection');
   String get editReflection => _text('editReflection');
   String get noneYet => _text('noneYet');
+  String get moodGarden => _text('moodGarden');
+  String get moodGardenSubtitle => _text('moodGardenSubtitle');
+  String get gardenNoReset => _text('gardenNoReset');
   String get dashboardEmptyBody => _text('dashboardEmptyBody');
   String get noCheckInsToday => _text('noCheckInsToday');
   String get tip => _text('tip');
@@ -253,6 +256,33 @@ class AppLocalizations {
 
   String commonReason(String reason) {
     return isVietnamese ? 'Lý do: $reason' : 'Reason: $reason';
+  }
+
+  String gardenStageLabel(String stage) {
+    if (!isVietnamese) return stage;
+    return switch (stage) {
+      'Seed' => 'Hạt mầm',
+      'Sprout' => 'Mầm non',
+      'Leafy' => 'Nhiều lá',
+      'Bloom' => 'Nở hoa',
+      'Flourishing' => 'Tươi tốt',
+      _ => stage,
+    };
+  }
+
+  String gardenGrowthSummary({
+    required int activeDays,
+    required int reflections,
+  }) {
+    return isVietnamese
+        ? '$activeDays ngày ghi mood - $reflections phản chiếu'
+        : '$activeDays mood days - $reflections reflections';
+  }
+
+  String gardenRecentSummary(int count) {
+    return isVietnamese
+        ? '$count ngày chăm sóc gần đây'
+        : '$count recent care days';
   }
 
   String dailyReminderOn(String time) {
@@ -573,6 +603,9 @@ const _en = {
   'saveReflection': 'Save reflection',
   'editReflection': 'Update reflection',
   'noneYet': 'None yet',
+  'moodGarden': 'Mood garden',
+  'moodGardenSubtitle': 'Gentle growth from check-ins and reflections.',
+  'gardenNoReset': 'Missed days never reset it',
   'dashboardEmptyBody':
       'Start with one quick check-in. Your first entry will appear here.',
   'noCheckInsToday': 'No check-ins today',
@@ -768,6 +801,9 @@ const _vi = {
   'saveReflection': 'Lưu phản chiếu',
   'editReflection': 'Cập nhật phản chiếu',
   'noneYet': 'Chưa có',
+  'moodGarden': 'Vườn tâm trạng',
+  'moodGardenSubtitle': 'Lớn nhẹ nhàng từ check-in và phản chiếu.',
+  'gardenNoReset': 'Ngày bỏ lỡ không đặt lại vườn',
   'dashboardEmptyBody':
       'Bắt đầu bằng một lần check-in nhanh. Mục đầu tiên của bạn sẽ xuất hiện ở đây.',
   'noCheckInsToday': 'Hôm nay chưa có check-in',
@@ -850,8 +886,7 @@ const _vi = {
   'importFailed': 'Nhập dữ liệu thất bại. Vui lòng thử lại.',
   'localDataDeleted': 'Đã xóa dữ liệu cục bộ.',
   'manageCustomTags': 'Quản lý thẻ tùy chỉnh',
-  'manageCustomTagsSubtitle':
-      'Lưu trữ lý do ít dùng hoặc khôi phục lại sau.',
+  'manageCustomTagsSubtitle': 'Lưu trữ lý do ít dùng hoặc khôi phục lại sau.',
   'manageCustomTagsBody':
       'Thẻ tùy chỉnh đã lưu trữ sẽ ẩn khỏi check-in mới nhưng vẫn gắn với mục cũ.',
   'noCustomTags': 'Chưa có thẻ tùy chỉnh.',

@@ -18,6 +18,12 @@ final class DailyReflectionDao {
         .watchSingleOrNull();
   }
 
+  Stream<List<DailyReflection>> watchAllReflections() {
+    return (db.select(
+      db.dailyReflections,
+    )..orderBy([(row) => OrderingTerm.desc(row.dateKey)])).watch();
+  }
+
   Future<void> saveReflection({
     required DateTime date,
     required String prompt,
@@ -27,13 +33,16 @@ final class DailyReflectionDao {
     final now = DateTime.now();
     final normalizedResponse = response.trim();
 
-    final existing = await (db.select(db.dailyReflections)
-          ..where((reflection) => reflection.dateKey.equals(dateKey))
-          ..limit(1))
-        .getSingleOrNull();
+    final existing =
+        await (db.select(db.dailyReflections)
+              ..where((reflection) => reflection.dateKey.equals(dateKey))
+              ..limit(1))
+            .getSingleOrNull();
 
     if (existing == null) {
-      await db.into(db.dailyReflections).insert(
+      await db
+          .into(db.dailyReflections)
+          .insert(
             DailyReflectionsCompanion.insert(
               uuid: _uuid.v4(),
               dateKey: dateKey,
@@ -46,9 +55,9 @@ final class DailyReflectionDao {
       return;
     }
 
-    await (db.update(db.dailyReflections)
-          ..where((reflection) => reflection.id.equals(existing.id)))
-        .write(
+    await (db.update(
+      db.dailyReflections,
+    )..where((reflection) => reflection.id.equals(existing.id))).write(
       DailyReflectionsCompanion(
         prompt: Value(prompt),
         response: Value(normalizedResponse),

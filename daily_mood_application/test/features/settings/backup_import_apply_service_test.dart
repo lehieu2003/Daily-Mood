@@ -184,11 +184,51 @@ void main() {
       await db.close();
     }
   });
+
+  test('inserts and updates daily reflections by date', () async {
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final service = BackupImportApplyService(database: db);
+
+    try {
+      final insertResult = await service.apply(
+        _backup(
+          dailyReflections: [
+            _dailyReflection(
+              uuid: 'reflection-1',
+              dateKey: '2026-07-13',
+              response: 'Quiet walk.',
+            ),
+          ],
+        ),
+      );
+      final updateResult = await service.apply(
+        _backup(
+          dailyReflections: [
+            _dailyReflection(
+              uuid: 'reflection-1',
+              dateKey: '2026-07-13',
+              response: 'Quiet walk and tea.',
+              updatedAt: DateTime.utc(2026, 7, 14),
+            ),
+          ],
+        ),
+      );
+
+      final reflections = await db.select(db.dailyReflections).get();
+      expect(insertResult.insertedDailyReflections, 1);
+      expect(updateResult.updatedDailyReflections, 1);
+      expect(reflections, hasLength(1));
+      expect(reflections.single.response, 'Quiet walk and tea.');
+    } finally {
+      await db.close();
+    }
+  });
 }
 
 ParsedBackup _backup({
   List<ParsedBackupActivity> activities = const [],
   List<ParsedBackupMoodEntry> entries = const [],
+  List<ParsedBackupDailyReflection> dailyReflections = const [],
 }) {
   return ParsedBackup(
     exportVersion: 1,
@@ -199,6 +239,7 @@ ParsedBackup _backup({
     activities: activities,
     subEmotions: const [],
     entries: entries,
+    dailyReflections: dailyReflections,
   );
 }
 
@@ -235,5 +276,21 @@ ParsedBackupMoodEntry _entry({
     createdAt: DateTime.utc(2026, 7, 13),
     updatedAt: updatedAt ?? DateTime.utc(2026, 7, 13, 1),
     isDeleted: false,
+  );
+}
+
+ParsedBackupDailyReflection _dailyReflection({
+  required String uuid,
+  required String dateKey,
+  required String response,
+  DateTime? updatedAt,
+}) {
+  return ParsedBackupDailyReflection(
+    uuid: uuid,
+    dateKey: dateKey,
+    prompt: 'What made today better?',
+    response: response,
+    createdAt: DateTime.utc(2026, 7, 13),
+    updatedAt: updatedAt ?? DateTime.utc(2026, 7, 13, 1),
   );
 }

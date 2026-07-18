@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:daily_mood_application/core/database/app_database.dart';
 import 'package:daily_mood_application/core/database/daos/activity_dao.dart';
+import 'package:daily_mood_application/core/database/daos/daily_reflection_dao.dart';
 import 'package:daily_mood_application/core/database/daos/mood_entry_dao.dart';
 import 'package:daily_mood_application/features/settings/data/backup_export_service.dart';
 import 'package:daily_mood_application/features/settings/data/backup_import_apply_service.dart';
@@ -41,6 +42,7 @@ void main() {
         await sourceVoice.writeAsBytes([5, 6, 7, 8]);
 
         final sourceActivityDao = ActivityDao(sourceDb);
+        final sourceDailyReflectionDao = DailyReflectionDao(sourceDb);
         final sourceMoodDao = MoodEntryDao(sourceDb);
         final activityId = await sourceActivityDao.createCustomActivity(
           name: 'Reading',
@@ -56,6 +58,11 @@ void main() {
           photoRelativePath: 'mood_photos/source.jpg',
           activityIds: [activityId],
           subEmotionIds: [calm.id],
+        );
+        await sourceDailyReflectionDao.saveReflection(
+          date: DateTime(2026, 7, 13, 20),
+          prompt: 'What made today better?',
+          response: 'Reading before bed.',
         );
 
         final export = await DriftBackupExportService(
@@ -79,6 +86,7 @@ void main() {
         final result = await restore.restore(parsed);
 
         expect(result.applyResult.insertedEntries, 1);
+        expect(result.applyResult.insertedDailyReflections, 1);
         expect(result.applyResult.updatedEntries, 0);
         expect(File(result.snapshot.filePath).existsSync(), isTrue);
         expect(await targetDb.select(targetDb.moodEntries).get(), hasLength(1));
@@ -90,6 +98,11 @@ void main() {
           await targetDb.select(targetDb.moodEntrySubEmotions).get(),
           hasLength(1),
         );
+        final reflections = await targetDb.select(
+          targetDb.dailyReflections,
+        ).get();
+        expect(reflections.single.dateKey, '2026-07-13');
+        expect(reflections.single.response, 'Reading before bed.');
         final photos = await targetDb.select(targetDb.moodPhotos).get();
         expect(photos.single.relativePath, 'mood_photos/source.jpg');
         expect(parsed.mediaPackaging, 'embedded_base64');

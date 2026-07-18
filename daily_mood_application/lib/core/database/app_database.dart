@@ -22,6 +22,7 @@ part 'app_database.g.dart';
     SubEmotions,
     MoodEntrySubEmotions,
     MoodPhotos,
+    DailyReflections,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -35,7 +36,7 @@ class AppDatabase extends _$AppDatabase {
   // migration step below. Never use a destructive migration once the
   // app has shipped — that drops user data.
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -49,6 +50,9 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(moodEntries, moodEntries.voiceNotePath);
         await m.createTable(subEmotions);
         await m.createTable(moodEntrySubEmotions);
+      }
+      if (from < 3) {
+        await m.createTable(dailyReflections);
       }
     },
     beforeOpen: (details) async {
@@ -137,6 +141,7 @@ class AppDatabase extends _$AppDatabase {
       await delete(moodPhotos).go();
       await delete(moodEntrySubEmotions).go();
       await delete(moodEntryActivities).go();
+      await delete(dailyReflections).go();
       await delete(moodEntries).go();
       await delete(activities).go();
       await delete(subEmotions).go();

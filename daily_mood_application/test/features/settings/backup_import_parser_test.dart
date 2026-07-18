@@ -51,6 +51,16 @@ void main() {
             'isDeleted': false,
           },
         ],
+        'dailyReflections': [
+          {
+            'uuid': 'reflection-1',
+            'dateKey': '2026-07-13',
+            'prompt': 'What made today better?',
+            'response': 'Reading before bed.',
+            'createdAt': '2026-07-13T20:00:00.000Z',
+            'updatedAt': '2026-07-13T20:05:00.000Z',
+          },
+        ],
       }),
     );
 
@@ -66,6 +76,9 @@ void main() {
     expect(backup.entries.single.moodScore, 4);
     expect(backup.entries.single.photoRelativePath, 'mood_photos/photo-1.jpg');
     expect(backup.entries.single.activityUuids, ['activity-1']);
+    expect(backup.dailyReflections.single.uuid, 'reflection-1');
+    expect(backup.dailyReflections.single.dateKey, '2026-07-13');
+    expect(backup.dailyReflections.single.response, 'Reading before bed.');
   });
 
   test('parses valid CSV backup with escaped text', () {
@@ -204,6 +217,43 @@ void main() {
               'moodScore': 3,
               'createdAt': '2026-07-14T10:00:00.000Z',
               'updatedAt': '2026-07-14T10:05:00.000Z',
+            },
+          ],
+        }),
+      ),
+      throwsA(
+        isA<BackupImportParseException>().having(
+          (error) => error.message,
+          'message',
+          contains('duplicate'),
+        ),
+      ),
+    );
+  });
+
+  test('rejects duplicate daily reflection dates', () {
+    expect(
+      () => parser.parseJson(
+        jsonEncode({
+          'exportVersion': 1,
+          'schemaVersion': 3,
+          'moodEntries': const [],
+          'dailyReflections': [
+            {
+              'uuid': 'reflection-1',
+              'dateKey': '2026-07-13',
+              'prompt': 'What made today better?',
+              'response': 'Reading.',
+              'createdAt': '2026-07-13T20:00:00.000Z',
+              'updatedAt': '2026-07-13T20:05:00.000Z',
+            },
+            {
+              'uuid': 'reflection-2',
+              'dateKey': '2026-07-13',
+              'prompt': 'What made today better?',
+              'response': 'Walking.',
+              'createdAt': '2026-07-13T21:00:00.000Z',
+              'updatedAt': '2026-07-13T21:05:00.000Z',
             },
           ],
         }),

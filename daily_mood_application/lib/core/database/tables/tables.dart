@@ -115,3 +115,25 @@ class MoodPhotos extends Table {
 
   DateTimeColumn get createdAt => dateTime()();
 }
+
+/// Optional one-sentence reflection for a local calendar day.
+///
+/// One reflection belongs to a day rather than a single entry, because users
+/// may log multiple moods and then reflect on the day as a whole.
+class DailyReflections extends Table {
+  IntColumn get id => integer().autoIncrement()();
+
+  /// Stable logical key for future import/export conflict resolution.
+  TextColumn get uuid => text().unique()();
+
+  /// Local date key in yyyy-MM-dd format.
+  TextColumn get dateKey => text().unique()();
+
+  TextColumn get prompt => text()();
+
+  TextColumn get response => text().withLength(min: 0, max: 280)();
+
+  DateTimeColumn get createdAt => dateTime()();
+
+  DateTimeColumn get updatedAt => dateTime()();
+}

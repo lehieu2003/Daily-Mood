@@ -117,6 +117,7 @@ final class _BackupSnapshot {
     required this.activities,
     required this.subEmotions,
     required this.entries,
+    required this.dailyReflections,
     required this.mediaFiles,
   });
 
@@ -125,6 +126,7 @@ final class _BackupSnapshot {
   final List<Activity> activities;
   final List<SubEmotion> subEmotions;
   final List<_ExportMoodEntry> entries;
+  final List<DailyReflection> dailyReflections;
   final List<_ExportMediaFile> mediaFiles;
 
   static Future<_BackupSnapshot> fromDatabase(
@@ -148,6 +150,9 @@ final class _BackupSnapshot {
         .select(database.moodEntrySubEmotions)
         .get();
     final photos = await database.select(database.moodPhotos).get();
+    final dailyReflections = await (database.select(
+      database.dailyReflections,
+    )..orderBy([(row) => OrderingTerm.asc(row.dateKey)])).get();
 
     final activitiesById = {
       for (final activity in activities) activity.id: activity,
@@ -183,6 +188,7 @@ final class _BackupSnapshot {
       schemaVersion: database.schemaVersion,
       activities: activities,
       subEmotions: subEmotions,
+      dailyReflections: dailyReflections,
       mediaFiles: await _ExportMediaFile.fromRelativePaths(
         mediaPaths,
         documentsDirectoryProvider: documentsDirectoryProvider,
@@ -213,6 +219,9 @@ final class _BackupSnapshot {
       'subEmotions': subEmotions.map(_subEmotionToJson).toList(growable: false),
       'moodEntries': entries
           .map((entry) => entry.toJson())
+          .toList(growable: false),
+      'dailyReflections': dailyReflections
+          .map(_dailyReflectionToJson)
           .toList(growable: false),
     };
   }
@@ -253,6 +262,17 @@ final class _BackupSnapshot {
       'name': subEmotion.name,
       'emoji': subEmotion.emoji,
       'parentMoodScore': subEmotion.parentMoodScore,
+    };
+  }
+
+  Map<String, Object?> _dailyReflectionToJson(DailyReflection reflection) {
+    return {
+      'uuid': reflection.uuid,
+      'dateKey': reflection.dateKey,
+      'prompt': reflection.prompt,
+      'response': reflection.response,
+      'createdAt': reflection.createdAt.toUtc().toIso8601String(),
+      'updatedAt': reflection.updatedAt.toUtc().toIso8601String(),
     };
   }
 

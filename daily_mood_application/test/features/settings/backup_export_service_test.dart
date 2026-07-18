@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:daily_mood_application/core/database/app_database.dart';
 import 'package:daily_mood_application/core/database/daos/activity_dao.dart';
+import 'package:daily_mood_application/core/database/daos/daily_reflection_dao.dart';
 import 'package:daily_mood_application/core/database/daos/mood_entry_dao.dart';
 import 'package:daily_mood_application/features/settings/data/backup_export_service.dart';
 import 'package:drift/native.dart';
@@ -14,6 +15,7 @@ void main() {
     () async {
       final db = AppDatabase.forTesting(NativeDatabase.memory());
       final activityDao = ActivityDao(db);
+      final dailyReflectionDao = DailyReflectionDao(db);
       final moodEntryDao = MoodEntryDao(db);
       final documentsDirectory = await Directory.systemTemp.createTemp(
         'daily_mood_export_documents',
@@ -38,6 +40,11 @@ void main() {
           activityIds: [activityId],
           subEmotionIds: [calm.id],
         );
+        await dailyReflectionDao.saveReflection(
+          date: DateTime(2026, 7, 13, 20),
+          prompt: 'What made today better?',
+          response: 'Reading before bed.',
+        );
 
         final service = DriftBackupExportService(
           database: db,
@@ -51,6 +58,8 @@ void main() {
         final entry = entries.single as Map<String, Object?>;
         final mediaFiles = json['mediaFiles'] as List<Object?>;
         final mediaFile = mediaFiles.single as Map<String, Object?>;
+        final reflections = json['dailyReflections'] as List<Object?>;
+        final reflection = reflections.single as Map<String, Object?>;
 
         expect(file.fileName, 'daily_mood_export_20260713_093005.json');
         expect(json['exportVersion'], 1);
@@ -70,6 +79,10 @@ void main() {
         expect(entry['activities'], ['Reading']);
         expect(entry['subEmotions'], ['Calm']);
         expect(entry['uuid'], isNotEmpty);
+        expect(reflection['dateKey'], '2026-07-13');
+        expect(reflection['prompt'], 'What made today better?');
+        expect(reflection['response'], 'Reading before bed.');
+        expect(reflection['uuid'], isNotEmpty);
       } finally {
         await db.close();
         if (documentsDirectory.existsSync()) {

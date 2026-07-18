@@ -15,6 +15,10 @@ final class BackupImportApplyResult {
     required this.updatedEntries,
     required this.skippedEntries,
     required this.skippedEntryUuids,
+    this.insertedDailyReflections = 0,
+    this.updatedDailyReflections = 0,
+    this.skippedDailyReflections = 0,
+    this.skippedDailyReflectionUuids = const [],
   });
 
   final int insertedActivities;
@@ -23,6 +27,10 @@ final class BackupImportApplyResult {
   final int updatedEntries;
   final int skippedEntries;
   final List<String> skippedEntryUuids;
+  final int insertedDailyReflections;
+  final int updatedDailyReflections;
+  final int skippedDailyReflections;
+  final List<String> skippedDailyReflectionUuids;
 }
 
 abstract interface class BackupImportApplier {
@@ -48,7 +56,11 @@ final class BackupImportApplyService implements BackupImportApplier {
       var insertedEntries = 0;
       var updatedEntries = 0;
       var skippedEntries = 0;
+      var insertedDailyReflections = 0;
+      var updatedDailyReflections = 0;
+      var skippedDailyReflections = 0;
       final skippedEntryUuids = <String>[];
+      final skippedDailyReflectionUuids = <String>[];
 
       final activityIdByImportedUuid = <String, int>{};
       for (final activity in backup.activities) {
@@ -99,6 +111,31 @@ final class BackupImportApplyService implements BackupImportApplier {
         updatedEntries++;
       }
 
+      for (final reflection in backup.dailyReflections) {
+        final matches = await _dailyReflectionMatches(reflection);
+        if (matches.length > 1) {
+          skippedDailyReflections++;
+          skippedDailyReflectionUuids.add(reflection.uuid);
+          continue;
+        }
+
+        final existing = matches.isEmpty ? null : matches.single;
+        if (existing == null) {
+          await _insertDailyReflection(reflection);
+          insertedDailyReflections++;
+          continue;
+        }
+
+        if (!reflection.updatedAt.isAfter(existing.updatedAt.toUtc())) {
+          skippedDailyReflections++;
+          skippedDailyReflectionUuids.add(reflection.uuid);
+          continue;
+        }
+
+        await _updateDailyReflection(existing.id, reflection);
+        updatedDailyReflections++;
+      }
+
       return BackupImportApplyResult(
         insertedActivities: insertedActivities,
         skippedActivities: skippedActivities,
@@ -106,6 +143,12 @@ final class BackupImportApplyService implements BackupImportApplier {
         updatedEntries: updatedEntries,
         skippedEntries: skippedEntries,
         skippedEntryUuids: List.unmodifiable(skippedEntryUuids),
+        insertedDailyReflections: insertedDailyReflections,
+        updatedDailyReflections: updatedDailyReflections,
+        skippedDailyReflections: skippedDailyReflections,
+        skippedDailyReflectionUuids: List.unmodifiable(
+          skippedDailyReflectionUuids,
+        ),
       );
     });
   }
@@ -156,6 +199,16 @@ final class BackupImportApplyService implements BackupImportApplier {
     )..where((row) => row.uuid.equals(uuid))).getSingleOrNull();
   }
 
+  Future<List<DailyReflection>> _dailyReflectionMatches(
+    ParsedBackupDailyReflection reflection,
+  ) {
+    return (_database.select(_database.dailyReflections)..where(
+      (row) =>
+          row.uuid.equals(reflection.uuid) |
+          row.dateKey.equals(reflection.dateKey),
+    )).get();
+  }
+
   Future<int> _insertEntry(ParsedBackupMoodEntry entry) {
     return _database
         .into(_database.moodEntries)
@@ -172,6 +225,21 @@ final class BackupImportApplyService implements BackupImportApplier {
         );
   }
 
+  Future<int> _insertDailyReflection(ParsedBackupDailyReflection reflection) {
+    return _database
+        .into(_database.dailyReflections)
+        .insert(
+          DailyReflectionsCompanion.insert(
+            uuid: reflection.uuid,
+            dateKey: reflection.dateKey,
+            prompt: reflection.prompt,
+            response: reflection.response,
+            createdAt: reflection.createdAt,
+            updatedAt: reflection.updatedAt,
+          ),
+        );
+  }
+
   Future<void> _updateEntry(int id, ParsedBackupMoodEntry entry) {
     return (_database.update(
       _database.moodEntries,
@@ -183,6 +251,24 @@ final class BackupImportApplyService implements BackupImportApplier {
         createdAt: Value(entry.createdAt),
         updatedAt: Value(entry.updatedAt),
         isDeleted: Value(entry.isDeleted),
+      ),
+    );
+  }
+
+  Future<void> _updateDailyReflection(
+    int id,
+    ParsedBackupDailyReflection reflection,
+  ) {
+    return (_database.update(
+      _database.dailyReflections,
+    )..where((row) => row.id.equals(id))).write(
+      DailyReflectionsCompanion(
+        uuid: Value(reflection.uuid),
+        dateKey: Value(reflection.dateKey),
+        prompt: Value(reflection.prompt),
+        response: Value(reflection.response),
+        createdAt: Value(reflection.createdAt),
+        updatedAt: Value(reflection.updatedAt),
       ),
     );
   }

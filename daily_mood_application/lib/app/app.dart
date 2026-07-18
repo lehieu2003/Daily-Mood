@@ -5,13 +5,16 @@ import 'package:go_router/go_router.dart';
 
 import '../core/database/app_database.dart';
 import '../core/database/daos/activity_dao.dart';
+import '../core/database/daos/daily_reflection_dao.dart';
 import '../core/database/daos/mood_entry_dao.dart';
+import '../data/repositories/daily_reflection_repository.dart';
 import '../core/security/app_lock_cubit.dart';
 import '../core/security/pin_repository.dart';
 import '../data/repositories/activity_repository.dart';
 import '../data/repositories/mood_analytics_repository.dart';
 import '../data/repositories/mood_entry_repository.dart';
 import '../data/services/activity_local_service.dart';
+import '../data/services/daily_reflection_local_service.dart';
 import '../data/services/mood_analytics_local_service.dart';
 import '../data/services/mood_entry_local_service.dart';
 import '../features/settings/data/settings_preferences_repository.dart';
@@ -41,9 +44,11 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   late final AppDatabase _database;
   late final MoodEntryDao _moodEntryDao;
   late final ActivityDao _activityDao;
+  late final DailyReflectionDao _dailyReflectionDao;
   late final MoodAnalyticsRepository _moodAnalyticsRepository;
   late final MoodEntryRepository _moodEntryRepository;
   late final ActivityRepository _activityRepository;
+  late final DailyReflectionRepository _dailyReflectionRepository;
   late final SettingsPreferencesRepository _settingsPreferencesRepository;
   late final AppLocaleCubit _localeCubit;
   late final AppThemeModeCubit _themeModeCubit;
@@ -59,6 +64,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     _database = AppDatabase();
     _moodEntryDao = MoodEntryDao(_database);
     _activityDao = ActivityDao(_database);
+    _dailyReflectionDao = DailyReflectionDao(_database);
     _moodAnalyticsRepository = MoodAnalyticsRepository(
       localService: MoodAnalyticsLocalService(moodEntryDao: _moodEntryDao),
     );
@@ -67,6 +73,9 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     );
     _activityRepository = ActivityRepository(
       localService: ActivityLocalService(activityDao: _activityDao),
+    );
+    _dailyReflectionRepository = DailyReflectionRepository(
+      localService: DailyReflectionLocalService(dao: _dailyReflectionDao),
     );
     _settingsPreferencesRepository = SettingsPreferencesRepository();
     _localeCubit = AppLocaleCubit(repository: _settingsPreferencesRepository);
@@ -116,6 +125,9 @@ class _AppState extends State<App> with WidgetsBindingObserver {
         ),
         RepositoryProvider<ActivityRepository>.value(
           value: _activityRepository,
+        ),
+        RepositoryProvider<DailyReflectionRepository>.value(
+          value: _dailyReflectionRepository,
         ),
         RepositoryProvider<SettingsPreferencesRepository>.value(
           value: _settingsPreferencesRepository,

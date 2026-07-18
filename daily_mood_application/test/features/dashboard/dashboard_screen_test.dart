@@ -1,3 +1,4 @@
+import 'package:daily_mood_application/domain/models/daily_reflection.dart';
 import 'package:daily_mood_application/domain/models/mood_activity.dart';
 import 'package:daily_mood_application/domain/models/mood_entry.dart';
 import 'package:daily_mood_application/features/dashboard/dashboard_screen.dart';
@@ -263,6 +264,113 @@ void main() {
     expect(find.text('Reflection streak'), findsOneWidget);
     expect(find.text('2 day rhythm'), findsOneWidget);
     expect(find.text('Private and pressure-free'), findsOneWidget);
+  });
+
+  testWidgets('saves an optional daily reflection after a logged mood', (
+    tester,
+  ) async {
+    DateTime? savedDate;
+    String? savedPrompt;
+    String? savedResponse;
+    final today = DateTime(2026, 7, 18, 10);
+    final entries = [
+      _entry(
+        id: 1,
+        moodScore: 4,
+        note: 'Calm morning.',
+        createdAt: DateTime(2026, 7, 18, 9),
+        activityIds: const [1],
+        activityNames: const ['Work'],
+        subEmotionIds: const [10],
+        subEmotionNames: const ['Calm'],
+      ),
+    ];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DashboardScreen(
+          entries: Stream.value(entries),
+          today: today,
+          dailyReflectionForDate: (_) => Stream.value(null),
+          onSaveReflection:
+              ({
+                required DateTime date,
+                required String prompt,
+                required String response,
+              }) async {
+                savedDate = date;
+                savedPrompt = prompt;
+                savedResponse = response;
+              },
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.text('Daily reflection'), findsOneWidget);
+    expect(find.text('Today: Good'), findsOneWidget);
+    expect(find.text('Emotion: Calm'), findsOneWidget);
+    expect(find.text('Reason: Work'), findsOneWidget);
+
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('daily_reflection_field')),
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('daily_reflection_field')),
+      '  A focused block helped.  ',
+    );
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('daily_reflection_save_button')),
+    );
+    await tester.tap(find.byKey(const ValueKey('daily_reflection_save_button')));
+    await tester.pump();
+
+    expect(savedDate, DateTime(2026, 7, 18));
+    expect(savedPrompt, 'What made today better?');
+    expect(savedResponse, 'A focused block helped.');
+  });
+
+  testWidgets('shows an existing daily reflection for editing', (tester) async {
+    final today = DateTime(2026, 7, 18, 10);
+    final entries = [
+      _entry(
+        id: 1,
+        moodScore: 5,
+        note: 'Good day.',
+        createdAt: today,
+      ),
+    ];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DashboardScreen(
+          entries: Stream.value(entries),
+          today: today,
+          dailyReflectionForDate: (_) => Stream.value(
+            DailyReflectionModel(
+              id: 1,
+              uuid: 'reflection-1',
+              date: DateTime(2026, 7, 18),
+              prompt: 'What made today better?',
+              response: 'Dinner with friends.',
+              createdAt: DateTime(2026, 7, 18, 20),
+              updatedAt: DateTime(2026, 7, 18, 20),
+            ),
+          ),
+          onSaveReflection:
+              ({
+                required DateTime date,
+                required String prompt,
+                required String response,
+              }) async {},
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.text('Update reflection'), findsOneWidget);
+    expect(find.text('Dinner with friends.'), findsOneWidget);
   });
 
   testWidgets('opens entry detail sheet and saves edits', (tester) async {

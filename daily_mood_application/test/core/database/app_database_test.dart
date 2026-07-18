@@ -41,12 +41,20 @@ void main() {
       final tableRows = await db
           .customSelect(
             "SELECT name FROM sqlite_master WHERE type = 'table' "
-            "AND name IN ('sub_emotions', 'mood_entry_sub_emotions')",
+            "AND name IN ("
+            "'sub_emotions', "
+            "'mood_entry_sub_emotions', "
+            "'daily_reflections'"
+            ")",
           )
           .get();
       expect(
         tableRows.map((row) => row.data['name']),
-        containsAll(['sub_emotions', 'mood_entry_sub_emotions']),
+        containsAll([
+          'sub_emotions',
+          'mood_entry_sub_emotions',
+          'daily_reflections',
+        ]),
       );
 
       final subEmotions = await db.select(db.subEmotions).get();
@@ -60,7 +68,7 @@ void main() {
     }
   });
 
-  test('migrates schema version 1 data to schema version 2', () async {
+  test('migrates schema version 1 data to schema version 3', () async {
     final tempDir = await Directory.systemTemp.createTemp(
       'daily_mood_migration_test_',
     );
@@ -74,7 +82,7 @@ void main() {
       final versionRow = await db
           .customSelect('PRAGMA user_version')
           .getSingle();
-      expect(versionRow.data['user_version'], 2);
+      expect(versionRow.data['user_version'], 3);
 
       final entries = await db.select(db.moodEntries).get();
       expect(entries, hasLength(1));
@@ -115,12 +123,20 @@ void main() {
       final tableRows = await db
           .customSelect(
             "SELECT name FROM sqlite_master WHERE type = 'table' "
-            "AND name IN ('sub_emotions', 'mood_entry_sub_emotions')",
+            "AND name IN ("
+            "'sub_emotions', "
+            "'mood_entry_sub_emotions', "
+            "'daily_reflections'"
+            ")",
           )
           .get();
       expect(
         tableRows.map((row) => row.data['name']),
-        containsAll(['sub_emotions', 'mood_entry_sub_emotions']),
+        containsAll([
+          'sub_emotions',
+          'mood_entry_sub_emotions',
+          'daily_reflections',
+        ]),
       );
 
       final calmSubEmotion = await (db.select(

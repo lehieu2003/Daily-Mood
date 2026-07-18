@@ -21,6 +21,7 @@ final class ParsedBackup {
     required this.activities,
     required this.subEmotions,
     required this.entries,
+    this.dailyReflections = const [],
   });
 
   final int exportVersion;
@@ -31,6 +32,7 @@ final class ParsedBackup {
   final List<ParsedBackupActivity> activities;
   final List<ParsedBackupSubEmotion> subEmotions;
   final List<ParsedBackupMoodEntry> entries;
+  final List<ParsedBackupDailyReflection> dailyReflections;
 }
 
 final class ParsedBackupMediaFile {
@@ -101,6 +103,24 @@ final class ParsedBackupMoodEntry {
   final bool isDeleted;
 }
 
+final class ParsedBackupDailyReflection {
+  const ParsedBackupDailyReflection({
+    required this.uuid,
+    required this.dateKey,
+    required this.prompt,
+    required this.response,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  final String uuid;
+  final String dateKey;
+  final String prompt;
+  final String response;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+}
+
 final class BackupImportParser {
   const BackupImportParser();
 
@@ -136,8 +156,17 @@ final class BackupImportParser {
           return _parseMoodEntryJson(_asMap(entry.value, path), path);
         })
         .toList(growable: false);
+    final dailyReflections = _optionalList(root, 'dailyReflections', 'backup')
+        .asMap()
+        .entries
+        .map((entry) {
+          final path = 'dailyReflections[${entry.key}]';
+          return _parseDailyReflectionJson(_asMap(entry.value, path), path);
+        })
+        .toList(growable: false);
 
     _rejectDuplicateEntryUuids(entries);
+    _rejectDuplicateDailyReflections(dailyReflections);
 
     return ParsedBackup(
       exportVersion: exportVersion,
@@ -169,6 +198,7 @@ final class BackupImportParser {
           })
           .toList(growable: false),
       entries: entries,
+      dailyReflections: dailyReflections,
     );
   }
 
@@ -221,6 +251,7 @@ final class BackupImportParser {
       activities: const [],
       subEmotions: const [],
       entries: entries,
+      dailyReflections: const [],
     );
   }
 
@@ -281,6 +312,20 @@ final class BackupImportParser {
       name: _requiredNonEmptyString(value, 'name', path),
       emoji: _requiredNonEmptyString(value, 'emoji', path),
       parentMoodScore: _requiredMoodScore(value, 'parentMoodScore', path),
+    );
+  }
+
+  ParsedBackupDailyReflection _parseDailyReflectionJson(
+    Map<String, Object?> value,
+    String path,
+  ) {
+    return ParsedBackupDailyReflection(
+      uuid: _requiredNonEmptyString(value, 'uuid', path),
+      dateKey: _requiredDateKey(value, 'dateKey', path),
+      prompt: _requiredNonEmptyString(value, 'prompt', path),
+      response: _requiredMaxLengthText(value, 'response', path, 280),
+      createdAt: _requiredDateTime(value, 'createdAt', path),
+      updatedAt: _requiredDateTime(value, 'updatedAt', path),
     );
   }
 
@@ -351,6 +396,39 @@ final class BackupImportParser {
     final value = source[key];
     if (value is String) return _nonEmptyText(value, '$path.$key');
     throw BackupImportParseException('$path.$key must be text.');
+  }
+
+  String _requiredMaxLengthText(
+    Map<String, Object?> source,
+    String key,
+    String path,
+    int maxLength,
+  ) {
+    final text = _requiredNonEmptyString(source, key, path);
+    if (text.length > maxLength) {
+      throw BackupImportParseException(
+        '$path.$key must be $maxLength characters or fewer.',
+      );
+    }
+    return text;
+  }
+
+  String _requiredDateKey(
+    Map<String, Object?> source,
+    String key,
+    String path,
+  ) {
+    final value = _requiredNonEmptyString(source, key, path);
+    final match = RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(value);
+    final parsed = DateTime.tryParse(value);
+    if (!match ||
+        parsed == null ||
+        parsed.toIso8601String().substring(0, 10) != value) {
+      throw BackupImportParseException(
+        '$path.$key must use yyyy-MM-dd format.',
+      );
+    }
+    return value;
   }
 
   String _requiredMediaRelativePath(
@@ -531,6 +609,27 @@ final class BackupImportParser {
       if (!seen.add(entry.uuid)) {
         throw BackupImportParseException(
           'Backup contains duplicate mood entry uuid: ${entry.uuid}.',
+        );
+      }
+    }
+  }
+
+  void _rejectDuplicateDailyReflections(
+    List<ParsedBackupDailyReflection> reflections,
+  ) {
+    final seenUuids = <String>{};
+    final seenDateKeys = <String>{};
+    for (final reflection in reflections) {
+      if (!seenUuids.add(reflection.uuid)) {
+        throw BackupImportParseException(
+          'Backup contains duplicate daily reflection uuid: '
+          '${reflection.uuid}.',
+        );
+      }
+      if (!seenDateKeys.add(reflection.dateKey)) {
+        throw BackupImportParseException(
+          'Backup contains duplicate daily reflection date: '
+          '${reflection.dateKey}.',
         );
       }
     }

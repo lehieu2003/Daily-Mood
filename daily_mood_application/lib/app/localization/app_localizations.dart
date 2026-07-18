@@ -88,6 +88,13 @@ class AppLocalizations {
   String get weeklyTrendReady => _text('weeklyTrendReady');
   String get reflectionStreak => _text('reflectionStreak');
   String get streakNoPressure => _text('streakNoPressure');
+  String get dailyReflection => _text('dailyReflection');
+  String get dailyReflectionSubtitle => _text('dailyReflectionSubtitle');
+  String get dailyReflectionPrompt => _text('dailyReflectionPrompt');
+  String get reflectionHint => _text('reflectionHint');
+  String get saveReflection => _text('saveReflection');
+  String get editReflection => _text('editReflection');
+  String get noneYet => _text('noneYet');
   String get dashboardEmptyBody => _text('dashboardEmptyBody');
   String get noCheckInsToday => _text('noCheckInsToday');
   String get tip => _text('tip');
@@ -234,6 +241,18 @@ class AppLocalizations {
     return isVietnamese
         ? 'Bạn đã ghi đều gần đây. Không cần hoàn hảo.'
         : 'You have checked in recently. No perfect streak required.';
+  }
+
+  String todayFelt(String mood) {
+    return isVietnamese ? 'Hôm nay: $mood' : 'Today: $mood';
+  }
+
+  String commonEmotion(String emotion) {
+    return isVietnamese ? 'Cảm xúc: $emotion' : 'Emotion: $emotion';
+  }
+
+  String commonReason(String reason) {
+    return isVietnamese ? 'Lý do: $reason' : 'Reason: $reason';
   }
 
   String dailyReminderOn(String time) {
@@ -547,6 +566,13 @@ const _en = {
   'weeklyTrendReady': 'Weekly trend is ready for the next analytics slice.',
   'reflectionStreak': 'Reflection streak',
   'streakNoPressure': 'Private and pressure-free',
+  'dailyReflection': 'Daily reflection',
+  'dailyReflectionSubtitle': 'One sentence to remember the day.',
+  'dailyReflectionPrompt': 'What made today better?',
+  'reflectionHint': 'Write one private sentence...',
+  'saveReflection': 'Save reflection',
+  'editReflection': 'Update reflection',
+  'noneYet': 'None yet',
   'dashboardEmptyBody':
       'Start with one quick check-in. Your first entry will appear here.',
   'noCheckInsToday': 'No check-ins today',
@@ -735,6 +761,13 @@ const _vi = {
   'weeklyTrendReady': 'Xu hướng tuần đã sẵn sàng cho phần phân tích tiếp theo.',
   'reflectionStreak': 'Nhịp ghi chép',
   'streakNoPressure': 'Riêng tư và không áp lực',
+  'dailyReflection': 'Phản chiếu hôm nay',
+  'dailyReflectionSubtitle': 'Một câu ngắn để nhớ về ngày này.',
+  'dailyReflectionPrompt': 'Điều gì làm hôm nay tốt hơn?',
+  'reflectionHint': 'Viết một câu riêng tư...',
+  'saveReflection': 'Lưu phản chiếu',
+  'editReflection': 'Cập nhật phản chiếu',
+  'noneYet': 'Chưa có',
   'dashboardEmptyBody':
       'Bắt đầu bằng một lần check-in nhanh. Mục đầu tiên của bạn sẽ xuất hiện ở đây.',
   'noCheckInsToday': 'Hôm nay chưa có check-in',

@@ -4,14 +4,18 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/localization/app_localizations.dart';
 import '../../app/routes/app_router.dart';
+import '../../data/repositories/daily_reflection_repository.dart';
 import '../../data/repositories/activity_repository.dart';
 import '../../data/repositories/mood_entry_repository.dart';
+import '../../domain/models/daily_reflection.dart';
 import '../../domain/models/mood_entry.dart';
+import 'daily_reflection_actions.dart';
 import 'dashboard_formatters.dart';
 import 'dashboard_palette.dart';
 import 'entry_detail_actions.dart';
 import 'widgets/dashboard_empty_state.dart';
 import 'widgets/dashboard_header.dart';
+import 'widgets/daily_reflection_card.dart';
 import 'widgets/entry_detail_sheet.dart';
 import 'widgets/mood_entry_card.dart';
 import 'widgets/nature_tip_card.dart';
@@ -28,6 +32,8 @@ class DashboardScreen extends StatefulWidget {
     this.onOpenTrend,
     this.onUpdateEntry,
     this.onDeleteEntry,
+    this.dailyReflectionForDate,
+    this.onSaveReflection,
   });
 
   final Stream<List<MoodEntryModel>>? entries;
@@ -35,6 +41,8 @@ class DashboardScreen extends StatefulWidget {
   final VoidCallback? onOpenTrend;
   final EntryUpdateAction? onUpdateEntry;
   final EntryDeleteAction? onDeleteEntry;
+  final DailyReflectionStreamFactory? dailyReflectionForDate;
+  final DailyReflectionSaveAction? onSaveReflection;
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -123,6 +131,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   onOpenTrend: widget.onOpenTrend,
                                   onUpdateEntry: widget.onUpdateEntry,
                                   onDeleteEntry: widget.onDeleteEntry,
+                                  dailyReflectionForDate:
+                                      widget.dailyReflectionForDate,
+                                  onSaveReflection: widget.onSaveReflection,
                                 ),
                             ]),
                           ),
@@ -169,6 +180,8 @@ class _DashboardContent extends StatelessWidget {
     this.onOpenTrend,
     this.onUpdateEntry,
     this.onDeleteEntry,
+    this.dailyReflectionForDate,
+    this.onSaveReflection,
   });
 
   final List<MoodEntryModel> entries;
@@ -177,6 +190,8 @@ class _DashboardContent extends StatelessWidget {
   final VoidCallback? onOpenTrend;
   final EntryUpdateAction? onUpdateEntry;
   final EntryDeleteAction? onDeleteEntry;
+  final DailyReflectionStreamFactory? dailyReflectionForDate;
+  final DailyReflectionSaveAction? onSaveReflection;
 
   @override
   Widget build(BuildContext context) {
@@ -195,6 +210,15 @@ class _DashboardContent extends StatelessWidget {
           onLogMood: () => context.push(AppRoutes.quickLog),
         ),
         const SizedBox(height: 18),
+        if (selectedEntries.isNotEmpty) ...[
+          _DailyReflectionSection(
+            entries: selectedEntries,
+            selectedDate: selectedDate,
+            dailyReflectionForDate: dailyReflectionForDate,
+            onSaveReflection: onSaveReflection,
+          ),
+          const SizedBox(height: 14),
+        ],
         ReflectionStreakCard(entries: entries, today: today),
         const SizedBox(height: 14),
         if (entries.length >= 3) ...[
@@ -236,6 +260,60 @@ class _DashboardContent extends StatelessWidget {
       onDeleteEntry: deleteEntry ?? repository!.softDeleteEntry,
       activityOptions: activityOptions,
     );
+  }
+}
+
+class _DailyReflectionSection extends StatelessWidget {
+  const _DailyReflectionSection({
+    required this.entries,
+    required this.selectedDate,
+    this.dailyReflectionForDate,
+    this.onSaveReflection,
+  });
+
+  final List<MoodEntryModel> entries;
+  final DateTime selectedDate;
+  final DailyReflectionStreamFactory? dailyReflectionForDate;
+  final DailyReflectionSaveAction? onSaveReflection;
+
+  @override
+  Widget build(BuildContext context) {
+    final streamFactory = dailyReflectionForDate ?? _streamFactoryFrom(context);
+    final saveReflection = onSaveReflection ?? _saveActionFrom(context);
+
+    if (streamFactory == null || saveReflection == null) {
+      return const SizedBox.shrink();
+    }
+
+    return StreamBuilder<DailyReflectionModel?>(
+      stream: streamFactory(selectedDate),
+      builder: (context, snapshot) {
+        return DailyReflectionCard(
+          entries: entries,
+          selectedDate: selectedDate,
+          reflection: snapshot.data,
+          onSave: saveReflection,
+        );
+      },
+    );
+  }
+
+  DailyReflectionStreamFactory? _streamFactoryFrom(BuildContext context) {
+    try {
+      final repository = context.read<DailyReflectionRepository>();
+      return repository.watchReflectionForDate;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  DailyReflectionSaveAction? _saveActionFrom(BuildContext context) {
+    try {
+      final repository = context.read<DailyReflectionRepository>();
+      return repository.saveReflection;
+    } catch (_) {
+      return null;
+    }
   }
 }
 

@@ -26,6 +26,9 @@ class AppLocalizations {
   String get addMood => _text('addMood');
   String get logMood => _text('logMood');
   String get greetingLead => _text('greetingLead');
+  String get goodMorning => _text('goodMorning');
+  String get goodAfternoon => _text('goodAfternoon');
+  String get goodNight => _text('goodNight');
   String get history => _text('history');
   String get setting => _text('setting');
   String get settings => _text('settings');
@@ -579,6 +582,9 @@ const _en = {
   'addMood': 'Add mood',
   'logMood': 'Log mood',
   'greetingLead': 'Hey, ',
+  'goodMorning': 'Good morning',
+  'goodAfternoon': 'Good afternoon',
+  'goodNight': 'Good night',
   'history': 'History',
   'setting': 'Setting',
   'settings': 'Settings',
@@ -795,6 +801,9 @@ const _vi = {
   'addMood': 'Thêm tâm trạng',
   'logMood': 'Ghi tâm trạng',
   'greetingLead': 'Chào, ',
+  'goodMorning': 'Chào buổi sáng',
+  'goodAfternoon': 'Chào buổi chiều',
+  'goodNight': 'Chúc ngủ ngon',
   'history': 'Lịch sử',
   'setting': 'Cài đặt',
   'settings': 'Cài đặt',

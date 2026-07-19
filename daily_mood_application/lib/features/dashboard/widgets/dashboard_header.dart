@@ -5,36 +5,44 @@ import '../dashboard_formatters.dart';
 import '../dashboard_palette.dart';
 
 class DashboardHeader extends StatelessWidget {
-  const DashboardHeader({required this.onLogMood, super.key});
+  const DashboardHeader({required this.onLogMood, this.now, super.key});
 
   final VoidCallback onLogMood;
+  final DateTime? now;
 
   @override
   Widget build(BuildContext context) {
-    final today = DateTime.now();
+    final today = now ?? DateTime.now();
     final l10n = context.l10n;
+    final timeOfDayIcon = dashboardHeaderTimeOfDayIcon(today);
+    final timeOfDayGreeting = dashboardHeaderTimeOfDayGreeting(today, l10n);
 
     return Row(
       children: [
         Expanded(
-          child: RichText(
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            text: TextSpan(
-              style: TextStyle(
-                color: DashboardPalette.deepText,
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
+          child: Row(
+            children: [
+              Icon(
+                timeOfDayIcon,
+                key: const ValueKey('dashboard_time_of_day_icon'),
+                color: DashboardPalette.purple,
+                size: 30,
               ),
-              children: [
-                TextSpan(text: l10n.greetingLead),
-                const TextSpan(
-                  text: 'Alex!',
-                  style: TextStyle(fontWeight: FontWeight.w900),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  timeOfDayGreeting,
+                  key: const ValueKey('dashboard_time_of_day_greeting'),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: DashboardPalette.deepText,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
-                const TextSpan(text: '👋'),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
         _HeaderPill(
@@ -47,6 +55,23 @@ class DashboardHeader extends StatelessWidget {
       ],
     );
   }
+}
+
+IconData dashboardHeaderTimeOfDayIcon(DateTime dateTime) {
+  final hour = dateTime.hour;
+  if (hour < 12) return Icons.wb_sunny_outlined;
+  if (hour < 18) return Icons.light_mode_outlined;
+  return Icons.nights_stay_outlined;
+}
+
+String dashboardHeaderTimeOfDayGreeting(
+  DateTime dateTime,
+  AppLocalizations l10n,
+) {
+  final hour = dateTime.hour;
+  if (hour < 12) return l10n.goodMorning;
+  if (hour < 18) return l10n.goodAfternoon;
+  return l10n.goodNight;
 }
 
 class _HeaderPill extends StatelessWidget {

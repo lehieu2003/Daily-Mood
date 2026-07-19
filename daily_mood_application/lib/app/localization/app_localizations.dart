@@ -98,6 +98,17 @@ class AppLocalizations {
   String get moodGarden => _text('moodGarden');
   String get moodGardenSubtitle => _text('moodGardenSubtitle');
   String get gardenNoReset => _text('gardenNoReset');
+  String get weeklyReflectionReport => _text('weeklyReflectionReport');
+  String get weeklyReflectionReportSubtitle =>
+      _text('weeklyReflectionReportSubtitle');
+  String get weeklyReportEmpty => _text('weeklyReportEmpty');
+  String get weeklyReportSparse => _text('weeklyReportSparse');
+  String get weeklyReportSteady => _text('weeklyReportSteady');
+  String get weeklyReportReflected => _text('weeklyReportReflected');
+  String get weeklyReportAverageMoodLabel =>
+      _text('weeklyReportAverageMoodLabel');
+  String get topEmotion => _text('topEmotion');
+  String get topReason => _text('topReason');
   String get dashboardEmptyBody => _text('dashboardEmptyBody');
   String get noCheckInsToday => _text('noCheckInsToday');
   String get tip => _text('tip');
@@ -283,6 +294,30 @@ class AppLocalizations {
     return isVietnamese
         ? '$count ngày chăm sóc gần đây'
         : '$count recent care days';
+  }
+
+  String weeklyReportRange(DateTime start, DateTime end) {
+    final startText = isVietnamese
+        ? '${start.day} ${shortMonth(start.month)}'
+        : '${shortMonth(start.month)} ${start.day}';
+    final endText = isVietnamese
+        ? '${end.day} ${shortMonth(end.month)}'
+        : '${shortMonth(end.month)} ${end.day}';
+    return '$startText - $endText';
+  }
+
+  String weeklyReportCheckIns(int count, int days) {
+    return isVietnamese
+        ? '$count check-in trong $days ngày'
+        : '$count check-ins across $days days';
+  }
+
+  String weeklyReportReflections(int count) {
+    return isVietnamese ? '$count phản chiếu' : '$count reflections';
+  }
+
+  String weeklyReportAverage(double average) {
+    return average.toStringAsFixed(1);
   }
 
   String dailyReminderOn(String time) {
@@ -606,6 +641,19 @@ const _en = {
   'moodGarden': 'Mood garden',
   'moodGardenSubtitle': 'Gentle growth from check-ins and reflections.',
   'gardenNoReset': 'Missed days never reset it',
+  'weeklyReflectionReport': 'Weekly report',
+  'weeklyReflectionReportSubtitle':
+      'A private recap from this week of check-ins.',
+  'weeklyReportEmpty': 'No report yet. Check in when you have a moment.',
+  'weeklyReportSparse':
+      'A quiet start. Add one more check-in to see a clearer pattern.',
+  'weeklyReportSteady':
+      'You checked in enough to notice a gentle weekly pattern.',
+  'weeklyReportReflected':
+      'You paired check-ins with reflections this week.',
+  'weeklyReportAverageMoodLabel': 'Average mood',
+  'topEmotion': 'Top emotion',
+  'topReason': 'Top reason',
   'dashboardEmptyBody':
       'Start with one quick check-in. Your first entry will appear here.',
   'noCheckInsToday': 'No check-ins today',
@@ -804,6 +852,19 @@ const _vi = {
   'moodGarden': 'Vườn tâm trạng',
   'moodGardenSubtitle': 'Lớn nhẹ nhàng từ check-in và phản chiếu.',
   'gardenNoReset': 'Ngày bỏ lỡ không đặt lại vườn',
+  'weeklyReflectionReport': 'Báo cáo tuần',
+  'weeklyReflectionReportSubtitle':
+      'Tóm tắt riêng tư từ các check-in trong tuần.',
+  'weeklyReportEmpty': 'Chưa có báo cáo. Hãy check-in khi bạn có thời gian.',
+  'weeklyReportSparse':
+      'Một khởi đầu nhẹ. Thêm một check-in để thấy mẫu rõ hơn.',
+  'weeklyReportSteady':
+      'Bạn đã check-in đủ để nhìn thấy nhịp tuần nhẹ nhàng.',
+  'weeklyReportReflected':
+      'Tuần này bạn đã kết hợp check-in với phản chiếu.',
+  'weeklyReportAverageMoodLabel': 'Mood trung bình',
+  'topEmotion': 'Cảm xúc nổi bật',
+  'topReason': 'Lý do nổi bật',
   'dashboardEmptyBody':
       'Bắt đầu bằng một lần check-in nhanh. Mục đầu tiên của bạn sẽ xuất hiện ở đây.',
   'noCheckInsToday': 'Hôm nay chưa có check-in',

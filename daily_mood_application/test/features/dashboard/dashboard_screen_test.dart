@@ -279,12 +279,20 @@ void main() {
         moodScore: 4,
         note: 'Today.',
         createdAt: DateTime(2026, 7, 18, 9),
+        activityIds: const [1],
+        activityNames: const ['Work'],
+        subEmotionIds: const [10],
+        subEmotionNames: const ['Calm'],
       ),
       _entry(
         id: 2,
         moodScore: 3,
         note: 'Yesterday.',
         createdAt: DateTime(2026, 7, 17, 9),
+        activityIds: const [1],
+        activityNames: const ['Work'],
+        subEmotionIds: const [7],
+        subEmotionNames: const ['Neutral'],
       ),
     ];
     final reflections = [
@@ -310,6 +318,15 @@ void main() {
     expect(find.text('2 mood days - 2 reflections'), findsOneWidget);
     expect(find.text('3 recent care days'), findsOneWidget);
     expect(find.text('Missed days never reset it'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('weekly_reflection_report_card')),
+      findsOneWidget,
+    );
+    expect(find.text('Weekly report'), findsOneWidget);
+    expect(find.text('Jul 13 - Jul 19'), findsOneWidget);
+    expect(find.text('You paired check-ins with reflections this week.'), findsOneWidget);
+    expect(find.text('Average mood: 3.5'), findsOneWidget);
+    expect(find.text('Top reason: Work'), findsOneWidget);
   });
 
   testWidgets('saves an optional daily reflection after a logged mood', (

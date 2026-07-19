@@ -14,6 +14,7 @@ import 'dashboard_formatters.dart';
 import 'mood_garden.dart';
 import 'dashboard_palette.dart';
 import 'entry_detail_actions.dart';
+import 'weekly_reflection_report.dart';
 import 'widgets/dashboard_empty_state.dart';
 import 'widgets/dashboard_header.dart';
 import 'widgets/daily_reflection_card.dart';
@@ -23,6 +24,7 @@ import 'widgets/mood_garden_card.dart';
 import 'widgets/nature_tip_card.dart';
 import 'widgets/reflection_streak_card.dart';
 import 'widgets/today_check_in_section.dart';
+import 'widgets/weekly_reflection_report_card.dart';
 import 'widgets/weekly_trend_entry_card.dart';
 import 'widgets/week_mood_selector.dart';
 
@@ -228,8 +230,9 @@ class _DashboardContent extends StatelessWidget {
         ],
         ReflectionStreakCard(entries: entries, today: today),
         const SizedBox(height: 14),
-        _MoodGardenSection(
+        _RetentionSummarySections(
           entries: entries,
+          selectedDate: selectedDate,
           today: today,
           dailyReflections: dailyReflections,
         ),
@@ -276,14 +279,16 @@ class _DashboardContent extends StatelessWidget {
   }
 }
 
-class _MoodGardenSection extends StatelessWidget {
-  const _MoodGardenSection({
+class _RetentionSummarySections extends StatelessWidget {
+  const _RetentionSummarySections({
     required this.entries,
+    required this.selectedDate,
     required this.today,
     this.dailyReflections,
   });
 
   final List<MoodEntryModel> entries;
+  final DateTime selectedDate;
   final DateTime today;
   final Stream<List<DailyReflectionModel>>? dailyReflections;
 
@@ -291,24 +296,22 @@ class _MoodGardenSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final stream = dailyReflections ?? _streamFrom(context);
     if (stream == null) {
-      return MoodGardenCard(
-        summary: buildMoodGardenSummary(
-          entries: entries,
-          reflections: const [],
-          today: today,
-        ),
+      return _RetentionSummaryCards(
+        entries: entries,
+        reflections: const [],
+        selectedDate: selectedDate,
+        today: today,
       );
     }
 
     return StreamBuilder<List<DailyReflectionModel>>(
       stream: stream,
       builder: (context, snapshot) {
-        return MoodGardenCard(
-          summary: buildMoodGardenSummary(
-            entries: entries,
-            reflections: snapshot.data ?? const [],
-            today: today,
-          ),
+        return _RetentionSummaryCards(
+          entries: entries,
+          reflections: snapshot.data ?? const [],
+          selectedDate: selectedDate,
+          today: today,
         );
       },
     );
@@ -320,6 +323,44 @@ class _MoodGardenSection extends StatelessWidget {
     } catch (_) {
       return null;
     }
+  }
+}
+
+class _RetentionSummaryCards extends StatelessWidget {
+  const _RetentionSummaryCards({
+    required this.entries,
+    required this.reflections,
+    required this.selectedDate,
+    required this.today,
+  });
+
+  final List<MoodEntryModel> entries;
+  final List<DailyReflectionModel> reflections;
+  final DateTime selectedDate;
+  final DateTime today;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        MoodGardenCard(
+          summary: buildMoodGardenSummary(
+            entries: entries,
+            reflections: reflections,
+            today: today,
+          ),
+        ),
+        const SizedBox(height: 14),
+        WeeklyReflectionReportCard(
+          report: buildWeeklyReflectionReport(
+            entries: entries,
+            reflections: reflections,
+            selectedDate: selectedDate,
+          ),
+        ),
+      ],
+    );
   }
 }
 

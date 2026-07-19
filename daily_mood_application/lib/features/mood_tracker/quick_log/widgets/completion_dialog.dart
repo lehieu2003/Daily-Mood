@@ -21,8 +21,10 @@ class QuickLogCompletionDialog extends StatelessWidget {
     final option = moodOptions.where((mood) => mood.score == moodScore).first;
     final l10n = context.l10n;
     final copy = _copyForMood(l10n, moodScore);
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Dialog(
+      backgroundColor: colorScheme.surface,
       insetPadding: const EdgeInsets.all(26),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
       child: Padding(
@@ -53,7 +55,9 @@ class QuickLogCompletionDialog extends StatelessWidget {
             Text(
               copy.title,
               textAlign: TextAlign.center,
-              style: AppTypography.heading1,
+              style: AppTypography.heading1.copyWith(
+                color: colorScheme.onSurface,
+              ),
             ),
             const SizedBox(height: 4),
             Text(
@@ -67,7 +71,9 @@ class QuickLogCompletionDialog extends StatelessWidget {
             Text(
               copy.body,
               textAlign: TextAlign.center,
-              style: AppTypography.subText2Regular,
+              style: AppTypography.subText2Regular.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: 28),
             FilledButton(

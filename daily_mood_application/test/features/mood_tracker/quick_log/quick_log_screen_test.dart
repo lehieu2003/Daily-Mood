@@ -174,6 +174,42 @@ void main() {
     expect(find.text('Your day is going\namazing'), findsNothing);
   });
 
+  testWidgets('uses dark surfaces when app is in dark mode', (tester) async {
+    final cubit = MoodFormCubit();
+    addTearDown(cubit.close);
+
+    final darkTheme = ThemeData(
+      brightness: Brightness.dark,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: Colors.deepPurple,
+        brightness: Brightness.dark,
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: ThemeData.light(),
+        darkTheme: darkTheme,
+        themeMode: ThemeMode.dark,
+        home: BlocProvider.value(
+          value: cubit,
+          child: QuickLogScreen(
+            activities: const Stream<List<MoodActivity>>.empty(),
+            onCreateReason: (_) async => 1,
+            onPickPhoto: () async => null,
+            onStartVoiceRecording: () async => false,
+            onStopVoiceRecording: () async => null,
+            onCancelVoiceRecording: () async {},
+            onSave: (_) async {},
+          ),
+        ),
+      ),
+    );
+
+    final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
+    expect(scaffold.backgroundColor, darkTheme.colorScheme.surface);
+  });
+
   testWidgets('shows a warning when picked photo is too large', (tester) async {
     final cubit = MoodFormCubit();
     addTearDown(cubit.close);

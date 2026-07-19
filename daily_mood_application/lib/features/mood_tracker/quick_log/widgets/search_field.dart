@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/localization/app_localizations.dart';
-import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_typography.dart';
+import 'quick_log_theme.dart';
 
 class QuickLogSearchField extends StatelessWidget {
   const QuickLogSearchField({
@@ -28,16 +28,17 @@ class QuickLogSearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final quickLogTheme = QuickLogTheme.of(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: quickLogTheme.cardColor,
         borderRadius: BorderRadius.circular(24),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         child: Row(
           children: [
-            Icon(Icons.search, size: 18, color: AppColors.textTertiary),
+            Icon(Icons.search, size: 18, color: quickLogTheme.tertiaryText),
             const SizedBox(width: 8),
             Expanded(
               child: TextField(
@@ -52,11 +53,11 @@ class QuickLogSearchField extends StatelessWidget {
                 decoration: InputDecoration.collapsed(
                   hintText: hintText,
                   hintStyle: AppTypography.subText3Regular.copyWith(
-                    color: AppColors.textTertiary,
+                    color: quickLogTheme.tertiaryText,
                   ),
                 ).copyWith(counterText: ''),
                 style: AppTypography.subText3Regular.copyWith(
-                  color: AppColors.textPrimary,
+                  color: quickLogTheme.primaryText,
                 ),
               ),
             ),
@@ -66,7 +67,7 @@ class QuickLogSearchField extends StatelessWidget {
                 onPressed: enabled ? onConfirmPressed : null,
                 tooltip: context.l10n.addAReason,
                 icon: const Icon(Icons.check, size: 18),
-                color: AppColors.textPrimary,
+                color: quickLogTheme.primaryText,
                 visualDensity: VisualDensity.compact,
                 constraints: const BoxConstraints.tightFor(
                   width: 32,

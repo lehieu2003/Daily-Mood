@@ -8,6 +8,7 @@ import '../../../../app/theme/app_typography.dart';
 import '../../cubit/mood_form_cubit.dart';
 import '../quick_log_options.dart';
 import 'emotion_asset.dart';
+import 'quick_log_theme.dart';
 
 class MoodStep extends StatelessWidget {
   const MoodStep({required this.selectedMoodScore, super.key});
@@ -17,6 +18,7 @@ class MoodStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final quickLogTheme = QuickLogTheme.of(context);
     final selectedOption = selectedMoodScore == null
         ? null
         : moodOptions
@@ -36,7 +38,7 @@ class MoodStep extends StatelessWidget {
                   painter: _MoodCloudPainter(
                     color:
                         selectedOption?.background.withValues(alpha: 0.32) ??
-                        Colors.white.withValues(alpha: 0.48),
+                        quickLogTheme.cardColor.withValues(alpha: 0.48),
                   ),
                 ),
               ),
@@ -75,7 +77,7 @@ class MoodStep extends StatelessWidget {
               ? l10n.selectMood
               : l10n.moodLabel(selectedOption.score),
           style: AppTypography.subText1Bold.copyWith(
-            color: AppColors.textPrimary,
+            color: quickLogTheme.primaryText,
           ),
         ),
       ],
@@ -97,6 +99,7 @@ class _MoodBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = selected ? 72.0 : 44.0;
+    final quickLogTheme = QuickLogTheme.of(context);
 
     return GestureDetector(
       key: ValueKey('mood_option_${option.score}'),
@@ -113,7 +116,7 @@ class _MoodBubble extends StatelessWidget {
           shape: BoxShape.circle,
           color: selected
               ? option.background
-              : Colors.white.withValues(alpha: 0.58),
+              : quickLogTheme.cardColor.withValues(alpha: 0.78),
           boxShadow: selected
               ? [
                   BoxShadow(

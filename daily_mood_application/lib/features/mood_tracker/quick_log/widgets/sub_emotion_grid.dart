@@ -8,6 +8,7 @@ import '../../../../app/theme/app_typography.dart';
 import '../../cubit/mood_form_cubit.dart';
 import '../quick_log_options.dart';
 import 'emotion_asset.dart';
+import 'quick_log_theme.dart';
 
 class SubEmotionGrid extends StatelessWidget {
   const SubEmotionGrid({
@@ -28,6 +29,7 @@ class SubEmotionGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final quickLogTheme = QuickLogTheme.of(context);
     final sourceOptions =
         optionsOverride ??
         subEmotionOptions
@@ -41,7 +43,7 @@ class SubEmotionGrid extends StatelessWidget {
       return Text(
         l10n.pickMoodFirst,
         style: AppTypography.subText2Regular.copyWith(
-          color: AppColors.textTertiary,
+          color: quickLogTheme.tertiaryText,
         ),
       );
     }
@@ -61,18 +63,22 @@ class SubEmotionGrid extends StatelessWidget {
             context.read<MoodFormCubit>().toggleSubEmotion(emotion.id);
             if (!selected) HapticFeedback.lightImpact();
           },
-          selectedColor: compact ? AppColors.lavender : Colors.white,
+          selectedColor: compact
+              ? AppColors.lavender
+              : quickLogTheme.cardColor,
           backgroundColor: compact
-              ? Colors.white
-              : Colors.white.withValues(alpha: 0.34),
+              ? quickLogTheme.cardColor
+              : quickLogTheme.cardColor.withValues(alpha: 0.5),
           checkmarkColor: AppColors.primaryPurple,
           labelStyle: AppTypography.subText2Medium.copyWith(
-            color: selected ? AppColors.primaryPurple : AppColors.textPrimary,
+            color: selected
+                ? AppColors.primaryPurple
+                : quickLogTheme.primaryText,
           ),
           side: BorderSide(
             color: selected
                 ? AppColors.primaryPurple
-                : AppColors.textTertiary.withValues(alpha: 0.18),
+                : quickLogTheme.outline,
           ),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         );

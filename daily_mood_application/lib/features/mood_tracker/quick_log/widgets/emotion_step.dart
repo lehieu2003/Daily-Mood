@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../app/localization/app_localizations.dart';
-import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../../cubit/mood_form_cubit.dart';
 import '../quick_log_options.dart';
 import 'search_field.dart';
 import 'sub_emotion_grid.dart';
+import 'quick_log_theme.dart';
 
 class EmotionStep extends StatelessWidget {
   const EmotionStep({
@@ -82,13 +82,14 @@ class _SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final quickLogTheme = QuickLogTheme.of(context);
     return Row(
       children: [
         Expanded(
           child: Text(
             label,
             style: AppTypography.subText2Medium.copyWith(
-              color: AppColors.textPrimary,
+              color: quickLogTheme.primaryText,
             ),
           ),
         ),

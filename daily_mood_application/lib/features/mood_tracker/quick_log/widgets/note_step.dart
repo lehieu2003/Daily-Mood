@@ -6,6 +6,7 @@ import '../../../../app/theme/app_typography.dart';
 import '../../cubit/mood_form_cubit.dart';
 import '../../cubit/mood_form_state.dart';
 import '../quick_log_media_service.dart';
+import 'quick_log_theme.dart';
 
 class NoteStep extends StatelessWidget {
   const NoteStep({
@@ -148,6 +149,7 @@ class _NoteStepBodyState extends State<_NoteStepBody> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final quickLogTheme = QuickLogTheme.of(context);
     return Column(
       children: [
         TextFormField(
@@ -158,8 +160,14 @@ class _NoteStepBodyState extends State<_NoteStepBody> {
           onChanged: context.read<MoodFormCubit>().setNote,
           decoration: InputDecoration(
             hintText: l10n.noteHint,
-            hintStyle: AppTypography.subText2Regular,
-            fillColor: Colors.white,
+            hintStyle: AppTypography.subText2Regular.copyWith(
+              color: quickLogTheme.tertiaryText,
+            ),
+            filled: true,
+            fillColor: quickLogTheme.cardColor,
+          ),
+          style: AppTypography.subText2Regular.copyWith(
+            color: quickLogTheme.primaryText,
           ),
         ),
         const SizedBox(height: 18),
@@ -171,7 +179,7 @@ class _NoteStepBodyState extends State<_NoteStepBody> {
                 onPressed: () => widget.onAttachPhoto(context),
                 icon: const Icon(Icons.image_outlined, size: 18),
                 label: Text(l10n.addPhoto),
-                style: _mediaButtonStyle(),
+                style: _mediaButtonStyle(context),
               ),
             ),
             const SizedBox(width: 10),
@@ -184,7 +192,7 @@ class _NoteStepBodyState extends State<_NoteStepBody> {
                   size: 18,
                 ),
                 label: Text(_isRecording ? l10n.stopVoice : l10n.addVoice),
-                style: _mediaButtonStyle(),
+                style: _mediaButtonStyle(context),
               ),
             ),
           ],
@@ -209,11 +217,12 @@ class _NoteStepBodyState extends State<_NoteStepBody> {
     );
   }
 
-  ButtonStyle _mediaButtonStyle() {
+  ButtonStyle _mediaButtonStyle(BuildContext context) {
+    final quickLogTheme = QuickLogTheme.of(context);
     return OutlinedButton.styleFrom(
-      backgroundColor: Colors.white,
-      foregroundColor: Colors.black,
-      side: BorderSide.none,
+      backgroundColor: quickLogTheme.cardColor,
+      foregroundColor: quickLogTheme.primaryText,
+      side: BorderSide(color: quickLogTheme.outline),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     );
@@ -233,10 +242,12 @@ class _AttachmentTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final quickLogTheme = QuickLogTheme.of(context);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: quickLogTheme.cardColor,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: quickLogTheme.outline),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -249,7 +260,9 @@ class _AttachmentTile extends StatelessWidget {
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: AppTypography.subText3Regular,
+                style: AppTypography.subText3Regular.copyWith(
+                  color: quickLogTheme.primaryText,
+                ),
               ),
             ),
             IconButton(

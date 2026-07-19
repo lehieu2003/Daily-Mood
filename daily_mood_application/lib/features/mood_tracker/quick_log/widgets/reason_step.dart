@@ -5,6 +5,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../../../../domain/models/mood_activity.dart';
 import '../../cubit/mood_form_cubit.dart';
+import 'quick_log_theme.dart';
 import 'search_field.dart';
 
 class ReasonStep extends StatefulWidget {
@@ -206,11 +207,12 @@ class _ReasonChipWrap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final quickLogTheme = QuickLogTheme.of(context);
     if (reasons.isEmpty) {
       return Text(
         l10n.noReasonsYet,
         style: AppTypography.subText2Regular.copyWith(
-          color: AppColors.textTertiary,
+          color: quickLogTheme.tertiaryText,
         ),
       );
     }
@@ -227,14 +229,18 @@ class _ReasonChipWrap extends StatelessWidget {
             selected: selected,
             onSelected: (_) =>
                 context.read<MoodFormCubit>().toggleActivity(reason.id),
-            selectedColor: Colors.white,
-            backgroundColor: Colors.transparent,
+            selectedColor: quickLogTheme.cardColor,
+            backgroundColor: quickLogTheme.subtleCardColor.withValues(
+              alpha: selected ? 1 : 0,
+            ),
             showCheckmark: false,
             labelStyle: AppTypography.subText2Medium.copyWith(
-              color: AppColors.textPrimary,
+              color: selected
+                  ? AppColors.primaryPurple
+                  : quickLogTheme.primaryText,
             ),
             side: BorderSide(
-              color: selected ? AppColors.primaryPurple : AppColors.textPrimary,
+              color: selected ? AppColors.primaryPurple : quickLogTheme.outline,
             ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(22),
@@ -246,6 +252,11 @@ class _ReasonChipWrap extends StatelessWidget {
           avatar: const Icon(Icons.add, size: 16),
           label: Text(l10n.more),
           onPressed: onMorePressed,
+          backgroundColor: quickLogTheme.cardColor,
+          labelStyle: AppTypography.subText2Medium.copyWith(
+            color: quickLogTheme.primaryText,
+          ),
+          side: BorderSide(color: quickLogTheme.outline),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(22),
           ),
@@ -268,13 +279,14 @@ class _ReasonSectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final quickLogTheme = QuickLogTheme.of(context);
     return Row(
       children: [
         Expanded(
           child: Text(
             label,
             style: AppTypography.subText2Medium.copyWith(
-              color: AppColors.textPrimary,
+              color: quickLogTheme.primaryText,
             ),
           ),
         ),

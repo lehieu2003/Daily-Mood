@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../app/localization/app_localizations.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_typography.dart';
+import 'quick_log_theme.dart';
 
 class QuickLogStepShell extends StatelessWidget {
   const QuickLogStepShell({
@@ -32,8 +33,9 @@ class QuickLogStepShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final quickLogTheme = QuickLogTheme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFF3F3F3F),
+      backgroundColor: quickLogTheme.outerBackground,
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -43,12 +45,8 @@ class QuickLogStepShell extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(24),
                 child: DecoratedBox(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [Color(0xFFEAF8FA), Color(0xFFFDF9FF)],
-                    ),
+                  decoration: BoxDecoration(
+                    gradient: quickLogTheme.panelGradient,
                   ),
                   child: Column(
                     children: [
@@ -71,6 +69,7 @@ class QuickLogStepShell extends StatelessWidget {
                                 textAlign: TextAlign.center,
                                 style: AppTypography.heading1.copyWith(
                                   fontSize: 22,
+                                  color: quickLogTheme.primaryText,
                                 ),
                               ),
                               const SizedBox(height: 10),
@@ -78,7 +77,7 @@ class QuickLogStepShell extends StatelessWidget {
                                 subtitle,
                                 textAlign: TextAlign.center,
                                 style: AppTypography.subText3Regular.copyWith(
-                                  color: AppColors.textSecondary,
+                                  color: quickLogTheme.secondaryText,
                                   height: 1.35,
                                 ),
                               ),
@@ -132,6 +131,7 @@ class _StepHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final quickLogTheme = QuickLogTheme.of(context);
     return SizedBox(
       height: 36,
       child: Stack(
@@ -148,7 +148,12 @@ class _StepHeader extends StatelessWidget {
                     tooltip: context.l10n.back,
                   ),
           ),
-          Text(stepLabel, style: AppTypography.subText3Regular),
+          Text(
+            stepLabel,
+            style: AppTypography.subText3Regular.copyWith(
+              color: quickLogTheme.secondaryText,
+            ),
+          ),
           Align(
             alignment: Alignment.centerRight,
             child: IconButton.filledTonal(
@@ -157,8 +162,8 @@ class _StepHeader extends StatelessWidget {
               iconSize: 18,
               tooltip: context.l10n.close,
               style: IconButton.styleFrom(
-                backgroundColor: Colors.white.withValues(alpha: 0.82),
-                foregroundColor: AppColors.textPrimary,
+                backgroundColor: quickLogTheme.subtleCardColor,
+                foregroundColor: quickLogTheme.primaryText,
               ),
             ),
           ),
@@ -175,10 +180,11 @@ class _DatePill extends StatelessWidget {
   Widget build(BuildContext context) {
     final now = DateTime.now();
     final l10n = context.l10n;
+    final quickLogTheme = QuickLogTheme.of(context);
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.9),
+        color: quickLogTheme.subtleCardColor,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Padding(
@@ -189,7 +195,7 @@ class _DatePill extends StatelessWidget {
             Text(
               '${l10n.weekdayShort(now.weekday)}, ${now.day} ${l10n.shortMonth(now.month)}',
               style: AppTypography.subText3Regular.copyWith(
-                color: AppColors.textPrimary,
+                color: quickLogTheme.primaryText,
               ),
             ),
             const SizedBox(width: 6),

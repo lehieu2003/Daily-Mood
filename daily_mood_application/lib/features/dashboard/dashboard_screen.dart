@@ -350,6 +350,14 @@ class _RetentionSummaryCards extends StatelessWidget {
             reflections: reflections,
             today: today,
           ),
+          onViewJourney: () => showMoodGardenProgressionSheet(
+            context: context,
+            summary: buildMoodGardenSummary(
+              entries: entries,
+              reflections: reflections,
+              today: today,
+            ),
+          ),
         ),
         const SizedBox(height: 14),
         WeeklyReflectionReportCard(

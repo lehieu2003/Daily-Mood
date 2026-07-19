@@ -327,6 +327,25 @@ void main() {
     expect(find.text('You paired check-ins with reflections this week.'), findsOneWidget);
     expect(find.text('Average mood: 3.5'), findsOneWidget);
     expect(find.text('Top reason: Work'), findsOneWidget);
+
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('mood_garden_progression_button')),
+    );
+    await tester.tap(find.byKey(const ValueKey('mood_garden_progression_button')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('mood_garden_progression_sheet')),
+      findsOneWidget,
+    );
+    expect(find.text('Garden journey'), findsOneWidget);
+    expect(find.byKey(const ValueKey('mood_garden_stage_leafy')), findsOneWidget);
+    expect(find.text('Current stage'), findsOneWidget);
+    expect(find.byKey(const ValueKey('mood_garden_stage_bloom_lock')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('mood_garden_stage_flourishing_lock')),
+      findsOneWidget,
+    );
   });
 
   testWidgets('saves an optional daily reflection after a logged mood', (

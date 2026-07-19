@@ -25,6 +25,47 @@ void main() {
     expect(summary.recentActiveDays, 3);
   });
 
+  test('builds progression metadata with current and locked stages', () {
+    final summary = buildMoodGardenSummary(
+      entries: [
+        _entry(1, DateTime(2026, 7, 18)),
+        _entry(2, DateTime(2026, 7, 17)),
+      ],
+      reflections: [
+        _reflection(1, DateTime(2026, 7, 18)),
+        _reflection(2, DateTime(2026, 7, 16)),
+      ],
+      today: DateTime(2026, 7, 18),
+    );
+
+    final progression = summary.stageProgression;
+    expect(progression.map((item) => item.stage), moodGardenStages);
+    expect(
+      progression
+          .where((item) => item.isUnlocked)
+          .map((item) => item.stage),
+      [
+        MoodGardenStage.seed,
+        MoodGardenStage.sprout,
+        MoodGardenStage.leafy,
+      ],
+    );
+    expect(
+      progression.singleWhere((item) => item.isCurrent).stage,
+      MoodGardenStage.leafy,
+    );
+    expect(
+      progression.singleWhere((item) => item.stage == MoodGardenStage.bloom)
+          .requiredPoints,
+      9,
+    );
+    expect(
+      progression.singleWhere((item) => item.stage == MoodGardenStage.bloom)
+          .isUnlocked,
+      isFalse,
+    );
+  });
+
   test('missed days do not shrink lifetime garden stage', () {
     final entries = [
       _entry(1, DateTime(2026, 7, 1)),
@@ -49,6 +90,12 @@ void main() {
     expect(afterGap.stage, MoodGardenStage.leafy);
     expect(afterGap.growthPoints, beforeGap.growthPoints);
     expect(afterGap.recentActiveDays, lessThan(beforeGap.recentActiveDays));
+    expect(
+      afterGap.stageProgression
+          .singleWhere((item) => item.stage == MoodGardenStage.leafy)
+          .isUnlocked,
+      isTrue,
+    );
   });
 }
 

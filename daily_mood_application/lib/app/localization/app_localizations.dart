@@ -98,6 +98,12 @@ class AppLocalizations {
   String get moodGarden => _text('moodGarden');
   String get moodGardenSubtitle => _text('moodGardenSubtitle');
   String get gardenNoReset => _text('gardenNoReset');
+  String get viewGardenJourney => _text('viewGardenJourney');
+  String get gardenJourney => _text('gardenJourney');
+  String get gardenJourneySubtitle => _text('gardenJourneySubtitle');
+  String get currentStage => _text('currentStage');
+  String get unlockedStage => _text('unlockedStage');
+  String get lockedStage => _text('lockedStage');
   String get weeklyReflectionReport => _text('weeklyReflectionReport');
   String get weeklyReflectionReportSubtitle =>
       _text('weeklyReflectionReportSubtitle');
@@ -294,6 +300,12 @@ class AppLocalizations {
     return isVietnamese
         ? '$count ngày chăm sóc gần đây'
         : '$count recent care days';
+  }
+
+  String gardenRequiredPoints(int points) {
+    return isVietnamese
+        ? 'Mở ở $points điểm phát triển'
+        : 'Unlocks at $points growth points';
   }
 
   String weeklyReportRange(DateTime start, DateTime end) {
@@ -641,6 +653,12 @@ const _en = {
   'moodGarden': 'Mood garden',
   'moodGardenSubtitle': 'Gentle growth from check-ins and reflections.',
   'gardenNoReset': 'Missed days never reset it',
+  'viewGardenJourney': 'View journey',
+  'gardenJourney': 'Garden journey',
+  'gardenJourneySubtitle': 'See every stage your tree can grow into.',
+  'currentStage': 'Current stage',
+  'unlockedStage': 'Unlocked',
+  'lockedStage': 'Locked',
   'weeklyReflectionReport': 'Weekly report',
   'weeklyReflectionReportSubtitle':
       'A private recap from this week of check-ins.',
@@ -852,6 +870,12 @@ const _vi = {
   'moodGarden': 'Vườn tâm trạng',
   'moodGardenSubtitle': 'Lớn nhẹ nhàng từ check-in và phản chiếu.',
   'gardenNoReset': 'Ngày bỏ lỡ không đặt lại vườn',
+  'viewGardenJourney': 'Xem hành trình',
+  'gardenJourney': 'Hành trình khu vườn',
+  'gardenJourneySubtitle': 'Xem các giai đoạn cây có thể phát triển.',
+  'currentStage': 'Giai đoạn hiện tại',
+  'unlockedStage': 'Đã mở',
+  'lockedStage': 'Đang khóa',
   'weeklyReflectionReport': 'Báo cáo tuần',
   'weeklyReflectionReportSubtitle':
       'Tóm tắt riêng tư từ các check-in trong tuần.',

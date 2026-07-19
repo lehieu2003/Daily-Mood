@@ -3,6 +3,28 @@ import '../../domain/models/mood_entry.dart';
 
 enum MoodGardenStage { seed, sprout, leafy, bloom, flourishing }
 
+const moodGardenStages = [
+  MoodGardenStage.seed,
+  MoodGardenStage.sprout,
+  MoodGardenStage.leafy,
+  MoodGardenStage.bloom,
+  MoodGardenStage.flourishing,
+];
+
+final class MoodGardenStageProgress {
+  const MoodGardenStageProgress({
+    required this.stage,
+    required this.requiredPoints,
+    required this.isUnlocked,
+    required this.isCurrent,
+  });
+
+  final MoodGardenStage stage;
+  final int requiredPoints;
+  final bool isUnlocked;
+  final bool isCurrent;
+}
+
 final class MoodGardenSummary {
   const MoodGardenSummary({
     required this.stage,
@@ -22,10 +44,23 @@ final class MoodGardenSummary {
 
   double get progressToNextStage {
     if (pointsForNextStage <= growthPoints) return 1;
-    final currentThreshold = _thresholdFor(stage);
+    final currentThreshold = moodGardenThresholdFor(stage);
     final span = pointsForNextStage - currentThreshold;
     if (span <= 0) return 1;
     return ((growthPoints - currentThreshold) / span).clamp(0, 1).toDouble();
+  }
+
+  List<MoodGardenStageProgress> get stageProgression {
+    return moodGardenStages
+        .map(
+          (stage) => MoodGardenStageProgress(
+            stage: stage,
+            requiredPoints: moodGardenThresholdFor(stage),
+            isUnlocked: growthPoints >= moodGardenThresholdFor(stage),
+            isCurrent: stage == this.stage,
+          ),
+        )
+        .toList(growable: false);
   }
 }
 
@@ -67,7 +102,17 @@ MoodGardenStage _stageFor(int points) {
   return MoodGardenStage.seed;
 }
 
-int _thresholdFor(MoodGardenStage stage) {
+String moodGardenStageName(MoodGardenStage stage) {
+  return switch (stage) {
+    MoodGardenStage.seed => 'Seed',
+    MoodGardenStage.sprout => 'Sprout',
+    MoodGardenStage.leafy => 'Leafy',
+    MoodGardenStage.bloom => 'Bloom',
+    MoodGardenStage.flourishing => 'Flourishing',
+  };
+}
+
+int moodGardenThresholdFor(MoodGardenStage stage) {
   return switch (stage) {
     MoodGardenStage.seed => 0,
     MoodGardenStage.sprout => 1,

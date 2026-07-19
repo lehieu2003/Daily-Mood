@@ -7,14 +7,15 @@ import '../mood_garden.dart';
 import 'dashboard_card_decoration.dart';
 
 class MoodGardenCard extends StatelessWidget {
-  const MoodGardenCard({required this.summary, super.key});
+  const MoodGardenCard({required this.summary, this.onViewJourney, super.key});
 
   final MoodGardenSummary summary;
+  final VoidCallback? onViewJourney;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final stageName = _stageName(summary.stage);
+    final stageName = moodGardenStageName(summary.stage);
 
     return Container(
       key: const ValueKey('mood_garden_card'),
@@ -48,6 +49,15 @@ class MoodGardenCard extends StatelessWidget {
                   ],
                 ),
               ),
+              if (onViewJourney != null) ...[
+                const SizedBox(width: 8),
+                IconButton(
+                  key: const ValueKey('mood_garden_progression_button'),
+                  tooltip: l10n.viewGardenJourney,
+                  onPressed: onViewJourney,
+                  icon: const Icon(Icons.route_rounded),
+                ),
+              ],
             ],
           ),
           const SizedBox(height: 16),
@@ -81,22 +91,196 @@ class MoodGardenCard extends StatelessWidget {
       ),
     );
   }
+}
 
-  String _stageName(MoodGardenStage stage) {
-    return switch (stage) {
-      MoodGardenStage.seed => 'Seed',
-      MoodGardenStage.sprout => 'Sprout',
-      MoodGardenStage.leafy => 'Leafy',
-      MoodGardenStage.bloom => 'Bloom',
-      MoodGardenStage.flourishing => 'Flourishing',
-    };
+Future<void> showMoodGardenProgressionSheet({
+  required BuildContext context,
+  required MoodGardenSummary summary,
+}) {
+  return showModalBottomSheet<void>(
+    context: context,
+    showDragHandle: true,
+    isScrollControlled: true,
+    builder: (sheetContext) {
+      return MoodGardenProgressionSheet(summary: summary);
+    },
+  );
+}
+
+class MoodGardenProgressionSheet extends StatelessWidget {
+  const MoodGardenProgressionSheet({required this.summary, super.key});
+
+  final MoodGardenSummary summary;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+        child: Column(
+          key: const ValueKey('mood_garden_progression_sheet'),
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l10n.gardenJourney, style: AppTypography.heading2),
+            const SizedBox(height: 6),
+            Text(
+              l10n.gardenJourneySubtitle,
+              style: AppTypography.subText2Regular.copyWith(
+                color: DashboardPalette.mutedText,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.sizeOf(context).height * 0.62,
+              ),
+              child: ListView.separated(
+                shrinkWrap: true,
+                itemCount: summary.stageProgression.length,
+                separatorBuilder: (_, _) => const SizedBox(height: 10),
+                itemBuilder: (context, index) {
+                  final item = summary.stageProgression[index];
+                  return _GardenStageTile(item: item);
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _GardenStageTile extends StatelessWidget {
+  const _GardenStageTile({required this.item});
+
+  final MoodGardenStageProgress item;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final stageName = moodGardenStageName(item.stage);
+    final borderColor = item.isCurrent
+        ? DashboardPalette.purple
+        : DashboardPalette.divider;
+
+    return Container(
+      key: ValueKey('mood_garden_stage_${item.stage.name}'),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: item.isCurrent
+            ? DashboardPalette.lilacPanel.withValues(alpha: 0.55)
+            : DashboardPalette.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: borderColor),
+      ),
+      child: Row(
+        children: [
+          _LockedGardenVisual(stage: item.stage, locked: !item.isUnlocked),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.gardenStageLabel(stageName),
+                  style: AppTypography.subText2Regular.copyWith(
+                    color: DashboardPalette.deepText,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  l10n.gardenRequiredPoints(item.requiredPoints),
+                  style: AppTypography.subText3Regular.copyWith(
+                    color: DashboardPalette.mutedText,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          _StageStatusBadge(item: item),
+        ],
+      ),
+    );
+  }
+}
+
+class _LockedGardenVisual extends StatelessWidget {
+  const _LockedGardenVisual({required this.stage, required this.locked});
+
+  final MoodGardenStage stage;
+  final bool locked;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Opacity(
+          opacity: locked ? 0.42 : 1,
+          child: _GardenVisual(stage: stage, size: 58),
+        ),
+        if (locked)
+          Container(
+            key: ValueKey('mood_garden_stage_${stage.name}_lock'),
+            width: 58,
+            height: 58,
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.22),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(Icons.lock_rounded, color: Colors.white),
+          ),
+      ],
+    );
+  }
+}
+
+class _StageStatusBadge extends StatelessWidget {
+  const _StageStatusBadge({required this.item});
+
+  final MoodGardenStageProgress item;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final label = item.isCurrent
+        ? l10n.currentStage
+        : item.isUnlocked
+        ? l10n.unlockedStage
+        : l10n.lockedStage;
+    final color = item.isCurrent
+        ? DashboardPalette.purple
+        : item.isUnlocked
+        ? DashboardPalette.green
+        : DashboardPalette.mutedText;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+        child: Text(
+          label,
+          style: AppTypography.subText3Regular.copyWith(color: color),
+        ),
+      ),
+    );
   }
 }
 
 class _GardenVisual extends StatelessWidget {
-  const _GardenVisual({required this.stage});
+  const _GardenVisual({required this.stage, this.size = 72});
 
   final MoodGardenStage stage;
+  final double size;
 
   @override
   Widget build(BuildContext context) {
@@ -109,8 +293,8 @@ class _GardenVisual extends StatelessWidget {
     };
 
     return SizedBox(
-      width: 72,
-      height: 72,
+      width: size,
+      height: size,
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.14),
@@ -121,17 +305,20 @@ class _GardenVisual extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             Positioned(
-              bottom: 13,
+              bottom: size * 0.18,
               child: Container(
-                width: 42,
-                height: 10,
+                width: size * 0.58,
+                height: size * 0.14,
                 decoration: BoxDecoration(
                   color: DashboardPalette.orange.withValues(alpha: 0.35),
                   borderRadius: BorderRadius.circular(999),
                 ),
               ),
             ),
-            Positioned(bottom: 20, child: _Stem(height: _stemHeight(stage))),
+            Positioned(
+              bottom: size * 0.28,
+              child: _Stem(height: _stemHeight(stage, size)),
+            ),
             ..._leaves(stage, color),
             if (stage == MoodGardenStage.bloom ||
                 stage == MoodGardenStage.flourishing)
@@ -140,7 +327,9 @@ class _GardenVisual extends StatelessWidget {
                 child: Icon(
                   Icons.local_florist_rounded,
                   color: DashboardPalette.hotPink,
-                  size: stage == MoodGardenStage.flourishing ? 34 : 28,
+                  size: stage == MoodGardenStage.flourishing
+                      ? size * 0.47
+                      : size * 0.39,
                 ),
               ),
           ],
@@ -149,14 +338,15 @@ class _GardenVisual extends StatelessWidget {
     );
   }
 
-  double _stemHeight(MoodGardenStage stage) {
-    return switch (stage) {
+  double _stemHeight(MoodGardenStage stage, double size) {
+    final height = switch (stage) {
       MoodGardenStage.seed => 8,
       MoodGardenStage.sprout => 22,
       MoodGardenStage.leafy => 32,
       MoodGardenStage.bloom => 38,
       MoodGardenStage.flourishing => 42,
     };
+    return height * (size / 72);
   }
 
   List<Widget> _leaves(MoodGardenStage stage, Color color) {
@@ -167,15 +357,16 @@ class _GardenVisual extends StatelessWidget {
       MoodGardenStage.bloom => 4,
       MoodGardenStage.flourishing => 5,
     };
+    final scale = size / 72;
     final leaves = <Widget>[];
     for (var index = 0; index < count; index++) {
       leaves.add(
         Positioned(
-          top: 38 - (index * 5),
-          left: index.isEven ? 24 : 36,
+          top: (38 - (index * 5)) * scale,
+          left: (index.isEven ? 24 : 36) * scale,
           child: Transform.rotate(
             angle: index.isEven ? -0.65 : 0.65,
-            child: Icon(Icons.eco_rounded, color: color, size: 18),
+            child: Icon(Icons.eco_rounded, color: color, size: 18 * scale),
           ),
         ),
       );

@@ -22,6 +22,12 @@ import 'widgets/settings_divider.dart';
 import 'widgets/settings_section.dart';
 import 'widgets/settings_tile.dart';
 
+typedef DailyReminderTimePicker =
+    Future<DailyReminderTime?> Function(
+      BuildContext context,
+      SettingsPreferencesState state,
+    );
+
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({
     super.key,
@@ -34,7 +40,8 @@ class SettingsScreen extends StatelessWidget {
     this.backupExportService,
     this.backupImportService,
     this.onDataDeleted,
-    this.reminderScheduler = const NoopLocalReminderScheduler(),
+    this.reminderScheduler,
+    this.reminderTimePicker,
   }) : _preferencesRepository = preferencesRepository;
 
   final SettingsPreferencesRepository? _preferencesRepository;
@@ -46,7 +53,8 @@ class SettingsScreen extends StatelessWidget {
   final BackupExportService? backupExportService;
   final BackupImportFileService? backupImportService;
   final VoidCallback? onDataDeleted;
-  final LocalReminderScheduler reminderScheduler;
+  final LocalReminderScheduler? reminderScheduler;
+  final DailyReminderTimePicker? reminderTimePicker;
 
   @override
   Widget build(BuildContext context) {
@@ -54,11 +62,15 @@ class SettingsScreen extends StatelessWidget {
         _preferencesRepository ??
         _repositoryFromContext(context) ??
         SettingsPreferencesRepository();
+    final scheduler =
+        reminderScheduler ??
+        _reminderSchedulerFromContext(context) ??
+        const NoopLocalReminderScheduler();
 
     return BlocProvider(
       create: (_) => SettingsPreferencesCubit(
         repository: repository,
-        reminderScheduler: reminderScheduler,
+        reminderScheduler: scheduler,
       ),
       child: _SettingsView(
         onLockNow: onLockNow,
@@ -69,6 +81,7 @@ class SettingsScreen extends StatelessWidget {
         backupExportService: backupExportService,
         backupImportService: backupImportService,
         onDataDeleted: onDataDeleted,
+        reminderTimePicker: reminderTimePicker,
       ),
     );
   }
@@ -76,6 +89,14 @@ class SettingsScreen extends StatelessWidget {
   SettingsPreferencesRepository? _repositoryFromContext(BuildContext context) {
     try {
       return context.read<SettingsPreferencesRepository>();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  LocalReminderScheduler? _reminderSchedulerFromContext(BuildContext context) {
+    try {
+      return context.read<LocalReminderScheduler>();
     } catch (_) {
       return null;
     }
@@ -92,6 +113,7 @@ class _SettingsView extends StatelessWidget {
     this.backupExportService,
     this.backupImportService,
     this.onDataDeleted,
+    this.reminderTimePicker,
   });
 
   final VoidCallback? onLockNow;
@@ -102,6 +124,7 @@ class _SettingsView extends StatelessWidget {
   final BackupExportService? backupExportService;
   final BackupImportFileService? backupImportService;
   final VoidCallback? onDataDeleted;
+  final DailyReminderTimePicker? reminderTimePicker;
 
   @override
   Widget build(BuildContext context) {
@@ -187,14 +210,14 @@ class _SettingsView extends StatelessWidget {
               const SizedBox(height: 20),
               SettingsSection(
                 title: l10n.experience,
-                children: const [
-                  _AppearanceTile(),
-                  SettingsDivider(),
-                  _LanguageTile(),
-                  SettingsDivider(),
-                  _DailyReminderTile(),
-                  SettingsDivider(),
-                  _HapticsTile(),
+                children: [
+                  const _AppearanceTile(),
+                  const SettingsDivider(),
+                  const _LanguageTile(),
+                  const SettingsDivider(),
+                  _DailyReminderTile(reminderTimePicker: reminderTimePicker),
+                  const SettingsDivider(),
+                  const _HapticsTile(),
                 ],
               ),
             ],
@@ -628,7 +651,9 @@ class _HapticsTile extends StatelessWidget {
 }
 
 class _DailyReminderTile extends StatelessWidget {
-  const _DailyReminderTile();
+  const _DailyReminderTile({this.reminderTimePicker});
+
+  final DailyReminderTimePicker? reminderTimePicker;
 
   @override
   Widget build(BuildContext context) {
@@ -657,9 +682,11 @@ class _DailyReminderTile extends StatelessWidget {
                 value: state.dailyReminderEnabled,
                 onChanged: state.isLoading
                     ? null
-                    : context
-                          .read<SettingsPreferencesCubit>()
-                          .setDailyReminderEnabled,
+                    : (enabled) => _setReminderEnabled(
+                        context,
+                        state,
+                        enabled,
+                      ),
               ),
             ],
           ),
@@ -668,10 +695,46 @@ class _DailyReminderTile extends StatelessWidget {
     );
   }
 
+  Future<void> _setReminderEnabled(
+    BuildContext context,
+    SettingsPreferencesState state,
+    bool enabled,
+  ) async {
+    final cubit = context.read<SettingsPreferencesCubit>();
+    if (!enabled) {
+      await cubit.setDailyReminderEnabled(false);
+      return;
+    }
+
+    final selected = await _selectReminderTime(context, state);
+    if (selected == null || !context.mounted) return;
+
+    await cubit.setDailyReminderTime(selected);
+    if (!context.mounted) return;
+    await cubit.setDailyReminderEnabled(true);
+  }
+
   Future<void> _pickReminderTime(
     BuildContext context,
     SettingsPreferencesState state,
   ) async {
+    final selected = await _selectReminderTime(context, state);
+    if (selected == null || !context.mounted) return;
+
+    await context.read<SettingsPreferencesCubit>().setDailyReminderTime(
+      selected,
+    );
+  }
+
+  Future<DailyReminderTime?> _selectReminderTime(
+    BuildContext context,
+    SettingsPreferencesState state,
+  ) async {
+    final customPicker = reminderTimePicker;
+    if (customPicker != null) {
+      return customPicker(context, state);
+    }
+
     final selected = await showTimePicker(
       context: context,
       initialTime: TimeOfDay(
@@ -679,10 +742,7 @@ class _DailyReminderTile extends StatelessWidget {
         minute: state.dailyReminderMinute,
       ),
     );
-    if (selected == null || !context.mounted) return;
-
-    await context.read<SettingsPreferencesCubit>().setDailyReminderTime(
-      DailyReminderTime(hour: selected.hour, minute: selected.minute),
-    );
+    if (selected == null) return null;
+    return DailyReminderTime(hour: selected.hour, minute: selected.minute);
   }
 }

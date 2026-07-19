@@ -19,10 +19,10 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | -------------------- | ---------------------------------------------------------------------------------------------------------- |
 | Overall MVP status   | Feature-gap backlog implementation is complete                                                             |
 | Current active phase | Phase 9 - Retention Loop Features implementation; Phase 7 store readiness remains open                     |
-| Last updated         | 2026-07-18                                                                                                 |
-| Latest verification  | P9.2a user-reported all tests passed                                                                       |
+| Last updated         | 2026-07-19                                                                                                 |
+| Latest verification  | P9.7 user-reported all tests passed                                                                        |
 | Main next task       | P9.4 On This Day                                                                                           |
-| Known blockers       | Real privacy-policy effective date/contact; final chart green; Gradient 1 confirmation; WCAG contrast pass; real local notification permission/scheduler for reminders |
+| Known blockers       | Real privacy-policy effective date/contact; final chart green; Gradient 1 confirmation; WCAG contrast pass |
 
 ## Update Rules
 
@@ -150,7 +150,7 @@ This phase turns Daily Mood from a passive mood logger into a private daily habi
 | P9.4 | On This Day                               | Not Started | Dashboard/history/media         | Home can resurface entries from the same month/day in previous years with safe, neutral wording          | Query same-day memories by month/day across prior years. Show mood, original date, note excerpt, and photo/voice indicators when present. Avoid celebratory wording for difficult memories; use neutral copy like "A memory from this day." Do not surface deleted entries.                                                                |
 | P9.5 | Daily Challenge                           | Not Started | Dashboard/settings/retention    | User receives one optional tiny local challenge per day and can mark it complete                         | Start with a static local challenge pool: go outside for 10 minutes, write one gratitude sentence, stretch, drink water, breathe for one minute, or take a short walk. Selection may adapt from local mood/reason patterns, but must not require health data. Completion is optional and must not block mood logging.                     |
 | P9.6 | Retention tests, localization, and privacy review | Not Started | Tests/localization/privacy docs | P9 features have focused tests, English/Vietnamese strings, dark/light checks, and privacy-safe wording | Cover database creation/migration, daily summaries, garden non-reset behavior, weekly sparse data, memory eligibility, challenge stability, widget states, small phone layout, and offline operation. Update user-facing copy in both languages. Confirm no new network, account, health, analytics, or remote-AI permissions are introduced. |
-| P9.7 | Real daily reminder notifications         | Not Started | Settings/notifications          | User can enable daily reminders, change reminder time, and receive an OS notification at that time       | Replace the current no-op scheduler with real local notifications, likely via `flutter_local_notifications`. Request notification permission only when the user opts in, schedule/cancel locally, reschedule when time changes, add Android notification channel and iOS permission setup, keep offline-only behavior, and test with a fake scheduler. |
+| P9.7 | Real daily reminder notifications         | Done | Settings/notifications          | User can enable daily reminders, change reminder time, and receive an OS notification at that time       | Added a `flutter_local_notifications` scheduler, local timezone handling, Android notification permission/boot receiver/desugaring setup, app-start reminder reconciliation, permission-denied rollback, and focused tests. Turning reminders on now asks the user to choose a time first instead of silently using the default. User-reported verification passed. |
 
 ## Phase 10 - Post-MVP Expansion
 
@@ -267,6 +267,7 @@ This phase turns Daily Mood from a passive mood logger into a private daily habi
 | 2026-07-18 | P9.2 mood garden verification                                                                                                                                                              | Passed | Reported by user after all tests passed.                                                    |
 | 2026-07-19 | P9.3 weekly report verification                                                                                                                                                            | Passed | Reported by user after all tests passed.                                                    |
 | 2026-07-19 | P9.2a mood garden progression viewer verification                                                                                                                                          | Passed | Reported by user after all tests passed.                                                    |
+| 2026-07-19 | P9.7 real daily reminder notifications verification                                                                                                                                        | Passed | Reported by user after all tests passed.                                                    |
 
 ## Reference Docs
 

@@ -135,6 +135,9 @@ void main() {
         SettingsScreen(
           preferencesRepository: repository,
           reminderScheduler: scheduler,
+          reminderTimePicker: (_, _) async {
+            return const DailyReminderTime(hour: 7, minute: 30);
+          },
         ),
       ),
     );
@@ -163,10 +166,10 @@ void main() {
     expect(await repository.readDailyReminderEnabled(), isTrue);
     expect(
       await repository.readDailyReminderTime(),
-      const DailyReminderTime(hour: 20, minute: 0),
+      const DailyReminderTime(hour: 7, minute: 30),
     );
     expect(scheduler.scheduledTimes, const [
-      DailyReminderTime(hour: 20, minute: 0),
+      DailyReminderTime(hour: 7, minute: 30),
     ]);
 
     await tester.tap(
@@ -177,6 +180,80 @@ void main() {
     expect(reminderSwitch().value, isFalse);
     expect(await repository.readDailyReminderEnabled(), isFalse);
     expect(scheduler.cancelCount, 1);
+  });
+
+  testWidgets('keeps daily reminder off when notification permission is denied', (
+    tester,
+  ) async {
+    final store = InMemorySettingsPreferencesStore();
+    final repository = SettingsPreferencesRepository(store: store);
+    final scheduler = _FakeLocalReminderScheduler(scheduleResult: false);
+
+    await tester.pumpWidget(
+      _app(
+        SettingsScreen(
+          preferencesRepository: repository,
+          reminderScheduler: scheduler,
+          reminderTimePicker: (_, _) async {
+            return const DailyReminderTime(hour: 7, minute: 30);
+          },
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('settings_daily_reminder_switch')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('settings_daily_reminder_switch')),
+    );
+    await tester.pump();
+
+    final reminderSwitch = tester.widget<Switch>(
+      find.byKey(const ValueKey('settings_daily_reminder_switch')),
+    );
+    expect(reminderSwitch.value, isFalse);
+    expect(await repository.readDailyReminderEnabled(), isFalse);
+    expect(scheduler.scheduledTimes, const [
+      DailyReminderTime(hour: 7, minute: 30),
+    ]);
+  });
+
+  testWidgets('leaves daily reminder off when time selection is canceled', (
+    tester,
+  ) async {
+    final store = InMemorySettingsPreferencesStore();
+    final repository = SettingsPreferencesRepository(store: store);
+    final scheduler = _FakeLocalReminderScheduler();
+
+    await tester.pumpWidget(
+      _app(
+        SettingsScreen(
+          preferencesRepository: repository,
+          reminderScheduler: scheduler,
+          reminderTimePicker: (_, _) async => null,
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('settings_daily_reminder_switch')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('settings_daily_reminder_switch')),
+    );
+    await tester.pump();
+
+    final reminderSwitch = tester.widget<Switch>(
+      find.byKey(const ValueKey('settings_daily_reminder_switch')),
+    );
+    expect(reminderSwitch.value, isFalse);
+    expect(await repository.readDailyReminderEnabled(), isFalse);
+    expect(scheduler.scheduledTimes, isEmpty);
   });
 
   testWidgets('lock now tile calls lock action', (tester) async {
@@ -447,6 +524,9 @@ class _FakeBackupImportFileService implements BackupImportFileService {
 }
 
 class _FakeLocalReminderScheduler implements LocalReminderScheduler {
+  _FakeLocalReminderScheduler({this.scheduleResult = true});
+
+  final bool scheduleResult;
   final scheduledTimes = <DailyReminderTime>[];
   int cancelCount = 0;
 
@@ -456,7 +536,11 @@ class _FakeLocalReminderScheduler implements LocalReminderScheduler {
   }
 
   @override
-  Future<void> scheduleDaily(DailyReminderTime time) async {
+  Future<bool> scheduleDaily(
+    DailyReminderTime time, {
+    String languageCode = 'en',
+  }) async {
     scheduledTimes.add(time);
+    return scheduleResult;
   }
 }

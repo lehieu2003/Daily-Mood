@@ -95,7 +95,23 @@ class SettingsPreferencesCubit extends Cubit<SettingsPreferencesState> {
     );
     await _repository.setDailyReminderEnabled(enabled);
     if (enabled) {
-      await _reminderScheduler.scheduleDaily(reminderTime);
+      final scheduled = await _reminderScheduler.scheduleDaily(
+        reminderTime,
+        languageCode: state.languageCode,
+      );
+      if (!scheduled) {
+        await _repository.setDailyReminderEnabled(false);
+        emit(
+          SettingsPreferencesState.ready(
+            hapticsEnabled: state.hapticsEnabled,
+            languageCode: state.languageCode,
+            themeModeName: state.themeModeName,
+            dailyReminderEnabled: false,
+            dailyReminderHour: reminderTime.hour,
+            dailyReminderMinute: reminderTime.minute,
+          ),
+        );
+      }
     } else {
       await _reminderScheduler.cancelDaily();
     }
@@ -114,7 +130,23 @@ class SettingsPreferencesCubit extends Cubit<SettingsPreferencesState> {
     );
     await _repository.setDailyReminderTime(time);
     if (state.dailyReminderEnabled) {
-      await _reminderScheduler.scheduleDaily(time);
+      final scheduled = await _reminderScheduler.scheduleDaily(
+        time,
+        languageCode: state.languageCode,
+      );
+      if (!scheduled) {
+        await _repository.setDailyReminderEnabled(false);
+        emit(
+          SettingsPreferencesState.ready(
+            hapticsEnabled: state.hapticsEnabled,
+            languageCode: state.languageCode,
+            themeModeName: state.themeModeName,
+            dailyReminderEnabled: false,
+            dailyReminderHour: time.hour,
+            dailyReminderMinute: time.minute,
+          ),
+        );
+      }
     }
   }
 }

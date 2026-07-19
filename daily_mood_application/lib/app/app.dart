@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -18,6 +20,7 @@ import '../data/services/daily_reflection_local_service.dart';
 import '../data/services/mood_analytics_local_service.dart';
 import '../data/services/mood_entry_local_service.dart';
 import '../features/settings/data/settings_preferences_repository.dart';
+import '../features/settings/data/local_reminder_scheduler.dart';
 import '../features/dashboard/dashboard_palette.dart';
 import 'localization/app_locale_cubit.dart';
 import 'localization/app_localizations.dart';
@@ -50,6 +53,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   late final ActivityRepository _activityRepository;
   late final DailyReflectionRepository _dailyReflectionRepository;
   late final SettingsPreferencesRepository _settingsPreferencesRepository;
+  late final LocalReminderScheduler _localReminderScheduler;
   late final AppLocaleCubit _localeCubit;
   late final AppThemeModeCubit _themeModeCubit;
   late final PinRepository _pinRepository;
@@ -78,6 +82,8 @@ class _AppState extends State<App> with WidgetsBindingObserver {
       localService: DailyReflectionLocalService(dao: _dailyReflectionDao),
     );
     _settingsPreferencesRepository = SettingsPreferencesRepository();
+    _localReminderScheduler = FlutterLocalReminderScheduler();
+    unawaited(_reconcileDailyReminder());
     _localeCubit = AppLocaleCubit(repository: _settingsPreferencesRepository);
     _themeModeCubit = AppThemeModeCubit(
       repository: _settingsPreferencesRepository,
@@ -132,6 +138,9 @@ class _AppState extends State<App> with WidgetsBindingObserver {
         RepositoryProvider<SettingsPreferencesRepository>.value(
           value: _settingsPreferencesRepository,
         ),
+        RepositoryProvider<LocalReminderScheduler>.value(
+          value: _localReminderScheduler,
+        ),
         RepositoryProvider<PinRepository>.value(value: _pinRepository),
       ],
       child: MultiBlocProvider(
@@ -174,5 +183,22 @@ class _AppState extends State<App> with WidgetsBindingObserver {
         ),
       ),
     );
+  }
+
+  Future<void> _reconcileDailyReminder() async {
+    final enabled = await _settingsPreferencesRepository
+        .readDailyReminderEnabled();
+    if (!enabled) return;
+
+    final time = await _settingsPreferencesRepository.readDailyReminderTime();
+    final languageCode =
+        await _settingsPreferencesRepository.readLanguageCode() ?? 'en';
+    final scheduled = await _localReminderScheduler.scheduleDaily(
+      time,
+      languageCode: languageCode,
+    );
+    if (!scheduled) {
+      await _settingsPreferencesRepository.setDailyReminderEnabled(false);
+    }
   }
 }

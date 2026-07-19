@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../app/localization/app_locale_cubit.dart';
 import '../../app/localization/app_localizations.dart';
-import '../../app/theme/app_theme_mode_cubit.dart';
 import '../../core/database/app_database.dart';
 import '../../core/security/app_lock_cubit.dart';
 import '../../data/repositories/activity_repository.dart';
-import '../../domain/models/mood_activity.dart';
 import 'data/backup_export_service.dart';
 import 'data/backup_import_file_service.dart';
 import 'data/backup_import_parser.dart';
@@ -16,17 +13,12 @@ import 'data/local_reminder_scheduler.dart';
 import 'data/settings_preferences_repository.dart';
 import 'state/delete_all_data_cubit.dart';
 import 'state/settings_preferences_cubit.dart';
-import 'state/settings_preferences_state.dart';
+import 'widgets/custom_tags_sheet.dart';
 import 'widgets/delete_all_data_dialog.dart';
 import 'widgets/settings_divider.dart';
+import 'widgets/settings_experience_section.dart';
 import 'widgets/settings_section.dart';
 import 'widgets/settings_tile.dart';
-
-typedef DailyReminderTimePicker =
-    Future<DailyReminderTime?> Function(
-      BuildContext context,
-      SettingsPreferencesState state,
-    );
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({
@@ -208,17 +200,8 @@ class _SettingsView extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 20),
-              SettingsSection(
-                title: l10n.experience,
-                children: [
-                  const _AppearanceTile(),
-                  const SettingsDivider(),
-                  const _LanguageTile(),
-                  const SettingsDivider(),
-                  _DailyReminderTile(reminderTimePicker: reminderTimePicker),
-                  const SettingsDivider(),
-                  const _HapticsTile(),
-                ],
+              SettingsExperienceSection(
+                reminderTimePicker: reminderTimePicker,
               ),
             ],
           ),
@@ -321,7 +304,7 @@ class _SettingsView extends StatelessWidget {
       showDragHandle: true,
       isScrollControlled: true,
       builder: (sheetContext) {
-        return _CustomTagsSheet(repository: repository);
+        return CustomTagsSheet(repository: repository);
       },
     );
   }
@@ -366,383 +349,5 @@ class _SettingsView extends StatelessWidget {
         );
       },
     );
-  }
-}
-
-class _CustomTagsSheet extends StatelessWidget {
-  const _CustomTagsSheet({required this.repository});
-
-  final ActivityRepository repository;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final theme = Theme.of(context);
-
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l10n.manageCustomTags, style: theme.textTheme.titleLarge),
-            const SizedBox(height: 6),
-            Text(
-              l10n.manageCustomTagsBody,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-                height: 1.35,
-              ),
-            ),
-            const SizedBox(height: 16),
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery.sizeOf(context).height * 0.55,
-              ),
-              child: StreamBuilder<List<MoodActivity>>(
-                stream: repository.watchCustomActivities(),
-                builder: (context, snapshot) {
-                  final tags = snapshot.data ?? const <MoodActivity>[];
-                  if (tags.isEmpty) {
-                    return _CustomTagsEmptyState(message: l10n.noCustomTags);
-                  }
-
-                  return ListView.separated(
-                    key: const ValueKey('custom_tags_list'),
-                    shrinkWrap: true,
-                    itemCount: tags.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 8),
-                    itemBuilder: (context, index) {
-                      final tag = tags[index];
-                      return _CustomTagTile(tag: tag, repository: repository);
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CustomTagsEmptyState extends StatelessWidget {
-  const _CustomTagsEmptyState({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Text(
-        message,
-        textAlign: TextAlign.center,
-        style: theme.textTheme.bodyMedium?.copyWith(
-          color: theme.colorScheme.onSurfaceVariant,
-        ),
-      ),
-    );
-  }
-}
-
-class _CustomTagTile extends StatelessWidget {
-  const _CustomTagTile({required this.tag, required this.repository});
-
-  final MoodActivity tag;
-  final ActivityRepository repository;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final theme = Theme.of(context);
-    final status = tag.isArchived ? l10n.archivedTag : l10n.activeTag;
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.55),
-        ),
-      ),
-      child: ListTile(
-        key: ValueKey('custom_tag_${tag.id}'),
-        minVerticalPadding: 12,
-        leading: Icon(
-          tag.isArchived ? Icons.inventory_2_outlined : Icons.label_outline,
-          color: tag.isArchived
-              ? theme.colorScheme.onSurfaceVariant
-              : theme.colorScheme.primary,
-        ),
-        title: Text(
-          l10n.activityLabel(tag.name),
-          style: theme.textTheme.bodyLarge?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        subtitle: Text('${l10n.categoryLabel(tag.category)} • $status'),
-        trailing: TextButton(
-          key: ValueKey(
-            tag.isArchived
-                ? 'restore_custom_tag_${tag.id}'
-                : 'archive_custom_tag_${tag.id}',
-          ),
-          onPressed: () => _toggleArchive(context),
-          child: Text(tag.isArchived ? l10n.restore : l10n.archive),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _toggleArchive(BuildContext context) async {
-    final messenger = ScaffoldMessenger.of(context);
-    final l10n = context.l10n;
-    try {
-      if (tag.isArchived) {
-        await repository.restoreCustomActivity(tag.id);
-        messenger.hideCurrentSnackBar();
-        messenger.showSnackBar(
-          SnackBar(content: Text(l10n.customTagRestored(tag.name))),
-        );
-      } else {
-        await repository.archiveCustomActivity(tag.id);
-        messenger.hideCurrentSnackBar();
-        messenger.showSnackBar(
-          SnackBar(content: Text(l10n.customTagArchived(tag.name))),
-        );
-      }
-    } catch (_) {
-      messenger.hideCurrentSnackBar();
-      messenger.showSnackBar(
-        SnackBar(content: Text(l10n.customTagUpdateFailed)),
-      );
-    }
-  }
-}
-
-class _AppearanceTile extends StatelessWidget {
-  const _AppearanceTile();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<SettingsPreferencesCubit, SettingsPreferencesState>(
-      builder: (context, state) {
-        return SettingsTile(
-          key: const ValueKey('settings_appearance_tile'),
-          icon: Icons.contrast_rounded,
-          title: context.l10n.appearance,
-          subtitle: context.l10n.appearanceSubtitle,
-          trailing: SegmentedButton<String>(
-            key: const ValueKey('settings_appearance_segmented_button'),
-            segments: [
-              ButtonSegment(
-                value: 'system',
-                label: Text(context.l10n.systemMode),
-              ),
-              ButtonSegment(
-                value: 'light',
-                label: Text(context.l10n.lightMode),
-              ),
-              ButtonSegment(value: 'dark', label: Text(context.l10n.darkMode)),
-            ],
-            selected: {state.themeModeName},
-            showSelectedIcon: false,
-            onSelectionChanged: state.isLoading
-                ? null
-                : (selection) => _setThemeMode(context, selection.single),
-          ),
-        );
-      },
-    );
-  }
-
-  Future<void> _setThemeMode(BuildContext context, String themeModeName) async {
-    final settingsCubit = context.read<SettingsPreferencesCubit>();
-    AppThemeModeCubit? appThemeModeCubit;
-    try {
-      appThemeModeCubit = context.read<AppThemeModeCubit>();
-    } catch (_) {
-      // Feature-level widget tests pump Settings without the app root Cubit.
-    }
-
-    await settingsCubit.setThemeModeName(themeModeName);
-    await appThemeModeCubit?.setThemeModeName(themeModeName);
-  }
-}
-
-class _LanguageTile extends StatelessWidget {
-  const _LanguageTile();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<SettingsPreferencesCubit, SettingsPreferencesState>(
-      builder: (context, state) {
-        return SettingsTile(
-          key: const ValueKey('settings_language_tile'),
-          icon: Icons.language_rounded,
-          title: context.l10n.language,
-          subtitle: context.l10n.languageSubtitle,
-          trailing: SegmentedButton<String>(
-            key: const ValueKey('settings_language_segmented_button'),
-            segments: [
-              ButtonSegment(value: 'en', label: Text(context.l10n.english)),
-              ButtonSegment(value: 'vi', label: Text(context.l10n.vietnamese)),
-            ],
-            selected: {state.languageCode},
-            showSelectedIcon: false,
-            onSelectionChanged: state.isLoading
-                ? null
-                : (selection) => _setLanguage(context, selection.single),
-          ),
-        );
-      },
-    );
-  }
-
-  Future<void> _setLanguage(BuildContext context, String languageCode) async {
-    final settingsCubit = context.read<SettingsPreferencesCubit>();
-    AppLocaleCubit? appLocaleCubit;
-    try {
-      appLocaleCubit = context.read<AppLocaleCubit>();
-    } catch (_) {
-      // Feature-level widget tests pump Settings without the app root Cubit.
-    }
-
-    await settingsCubit.setLanguageCode(languageCode);
-    await appLocaleCubit?.setLanguageCode(languageCode);
-  }
-}
-
-class _HapticsTile extends StatelessWidget {
-  const _HapticsTile();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<SettingsPreferencesCubit, SettingsPreferencesState>(
-      builder: (context, state) {
-        return SettingsTile(
-          key: const ValueKey('settings_haptics_tile'),
-          icon: Icons.vibration,
-          title: context.l10n.hapticFeedback,
-          subtitle: state.hapticsEnabled
-              ? context.l10n.hapticsOn
-              : context.l10n.hapticsOff,
-          trailing: Switch.adaptive(
-            key: const ValueKey('settings_haptics_switch'),
-            value: state.hapticsEnabled,
-            onChanged: state.isLoading
-                ? null
-                : context.read<SettingsPreferencesCubit>().setHapticsEnabled,
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _DailyReminderTile extends StatelessWidget {
-  const _DailyReminderTile({this.reminderTimePicker});
-
-  final DailyReminderTimePicker? reminderTimePicker;
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<SettingsPreferencesCubit, SettingsPreferencesState>(
-      builder: (context, state) {
-        final l10n = context.l10n;
-        return SettingsTile(
-          key: const ValueKey('settings_daily_reminder_tile'),
-          icon: Icons.notifications_none_rounded,
-          title: l10n.dailyReminder,
-          subtitle: state.dailyReminderEnabled
-              ? l10n.dailyReminderOn(state.dailyReminderTimeLabel)
-              : l10n.dailyReminderOff,
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextButton(
-                key: const ValueKey('settings_daily_reminder_time_button'),
-                onPressed: state.isLoading
-                    ? null
-                    : () => _pickReminderTime(context, state),
-                child: Text(state.dailyReminderTimeLabel),
-              ),
-              Switch.adaptive(
-                key: const ValueKey('settings_daily_reminder_switch'),
-                value: state.dailyReminderEnabled,
-                onChanged: state.isLoading
-                    ? null
-                    : (enabled) => _setReminderEnabled(
-                        context,
-                        state,
-                        enabled,
-                      ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Future<void> _setReminderEnabled(
-    BuildContext context,
-    SettingsPreferencesState state,
-    bool enabled,
-  ) async {
-    final cubit = context.read<SettingsPreferencesCubit>();
-    if (!enabled) {
-      await cubit.setDailyReminderEnabled(false);
-      return;
-    }
-
-    final selected = await _selectReminderTime(context, state);
-    if (selected == null || !context.mounted) return;
-
-    await cubit.setDailyReminderTime(selected);
-    if (!context.mounted) return;
-    await cubit.setDailyReminderEnabled(true);
-  }
-
-  Future<void> _pickReminderTime(
-    BuildContext context,
-    SettingsPreferencesState state,
-  ) async {
-    final selected = await _selectReminderTime(context, state);
-    if (selected == null || !context.mounted) return;
-
-    await context.read<SettingsPreferencesCubit>().setDailyReminderTime(
-      selected,
-    );
-  }
-
-  Future<DailyReminderTime?> _selectReminderTime(
-    BuildContext context,
-    SettingsPreferencesState state,
-  ) async {
-    final customPicker = reminderTimePicker;
-    if (customPicker != null) {
-      return customPicker(context, state);
-    }
-
-    final selected = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay(
-        hour: state.dailyReminderHour,
-        minute: state.dailyReminderMinute,
-      ),
-    );
-    if (selected == null) return null;
-    return DailyReminderTime(hour: selected.hour, minute: selected.minute);
   }
 }

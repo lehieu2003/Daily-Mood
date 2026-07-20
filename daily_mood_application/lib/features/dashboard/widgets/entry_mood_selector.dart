@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/localization/app_localizations.dart';
+import '../../../app/theme/app_motion.dart';
 import '../dashboard_formatters.dart';
 import '../dashboard_palette.dart';
 
@@ -57,7 +58,8 @@ class _MoodScoreButton extends StatelessWidget {
         onTap: () => onSelected(score),
         borderRadius: BorderRadius.circular(14),
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 160),
+          duration: AppMotion.duration(context, AppMotion.fastFeedback),
+          curve: AppMotion.curve(context, AppMotion.standardCurve),
           height: 56,
           alignment: Alignment.center,
           decoration: BoxDecoration(

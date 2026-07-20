@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/localization/app_localizations.dart';
+import '../../../app/theme/app_motion.dart';
 import '../../../domain/models/mood_entry.dart';
 import '../dashboard_palette.dart';
 
@@ -82,7 +83,11 @@ class _DayMood extends StatelessWidget {
           child: Column(
             children: [
               AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
+                duration: AppMotion.duration(
+                  context,
+                  AppMotion.standardFeedback,
+                ),
+                curve: AppMotion.curve(context, AppMotion.standardCurve),
                 width: 44,
                 height: 64,
                 decoration: BoxDecoration(

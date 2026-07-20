@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../app/localization/app_localizations.dart';
 import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_motion.dart';
 import '../../../domain/models/activity_mood_correlation.dart';
 import 'activity_correlation_empty_state.dart';
 
@@ -134,8 +135,11 @@ class _ActivityCorrelationBar extends StatelessWidget {
                       FractionallySizedBox(
                         widthFactor: fraction,
                         child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 220),
-                          curve: Curves.easeOut,
+                          duration: AppMotion.duration(
+                            context,
+                            AppMotion.chartReveal,
+                          ),
+                          curve: AppMotion.curve(context, AppMotion.calmCurve),
                           height: 12,
                           decoration: BoxDecoration(color: color),
                         ),

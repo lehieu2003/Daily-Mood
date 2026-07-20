@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../app/localization/app_localizations.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_motion.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../../cubit/mood_form_cubit.dart';
 import '../quick_log_options.dart';
@@ -108,7 +109,8 @@ class _MoodBubble extends StatelessWidget {
         HapticFeedback.selectionClick();
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
+        duration: AppMotion.duration(context, AppMotion.standardFeedback),
+        curve: AppMotion.curve(context, AppMotion.standardCurve),
         width: size,
         height: size,
         padding: EdgeInsets.all(selected ? 10 : 7),

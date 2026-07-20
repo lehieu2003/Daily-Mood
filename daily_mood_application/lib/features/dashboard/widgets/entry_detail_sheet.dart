@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/localization/app_localizations.dart';
+import '../../../app/theme/app_motion.dart';
 import '../../../domain/models/mood_activity.dart';
 import '../../../domain/models/mood_entry.dart';
 import '../../mood_tracker/quick_log/quick_log_media_service.dart';
@@ -89,8 +90,8 @@ class _EntryDetailSheetState extends State<EntryDetailSheet> {
     final l10n = context.l10n;
 
     return AnimatedPadding(
-      duration: const Duration(milliseconds: 180),
-      curve: Curves.easeOut,
+      duration: AppMotion.duration(context, AppMotion.standardFeedback),
+      curve: AppMotion.curve(context, AppMotion.calmCurve),
       padding: EdgeInsets.only(bottom: bottomInset),
       child: Container(
         key: const ValueKey('entry_detail_sheet'),

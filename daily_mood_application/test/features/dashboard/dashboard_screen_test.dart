@@ -2,7 +2,9 @@ import 'package:daily_mood_application/domain/models/daily_reflection.dart';
 import 'package:daily_mood_application/domain/models/mood_activity.dart';
 import 'package:daily_mood_application/domain/models/mood_entry.dart';
 import 'package:daily_mood_application/features/dashboard/daily_challenge.dart';
+import 'package:daily_mood_application/features/dashboard/dashboard_palette.dart';
 import 'package:daily_mood_application/features/dashboard/dashboard_screen.dart';
+import 'package:daily_mood_application/features/dashboard/widgets/daily_challenge_card.dart';
 import 'package:daily_mood_application/features/dashboard/widgets/entry_detail_sheet.dart';
 import 'package:daily_mood_application/features/settings/data/settings_preferences_repository.dart';
 import 'package:flutter/material.dart';
@@ -327,6 +329,119 @@ void main() {
     expect(find.text('Done today'), findsOneWidget);
     expect(find.text('Marked complete for today.'), findsOneWidget);
     expect(await challengeRepository.isCompleted(today), isTrue);
+  });
+
+  testWidgets('daily challenge card renders in light and dark themes', (
+    tester,
+  ) async {
+    addTearDown(
+      () => DashboardPalette.resolve(
+        themeMode: ThemeMode.light,
+        platformBrightness: Brightness.light,
+      ),
+    );
+
+    for (final mode in [ThemeMode.light, ThemeMode.dark]) {
+      DashboardPalette.resolve(
+        themeMode: mode,
+        platformBrightness: mode == ThemeMode.dark
+            ? Brightness.dark
+            : Brightness.light,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData.light(),
+          darkTheme: ThemeData.dark(),
+          themeMode: mode,
+          home: Scaffold(
+            body: DailyChallengeCard(
+              challenge: const DailyChallenge(id: DailyChallengeId.shortWalk),
+              completed: mode == ThemeMode.dark,
+              onComplete: () {},
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
+      expect(find.byKey(const ValueKey('daily_challenge_card')), findsOneWidget);
+      expect(find.text('Daily challenge'), findsOneWidget);
+    }
+  });
+
+  testWidgets('retention cards fit a small phone viewport', (tester) async {
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final challengeRepository = DailyChallengeRepository(
+      repository: SettingsPreferencesRepository(
+        store: InMemorySettingsPreferencesStore(),
+      ),
+    );
+    final today = DateTime(2026, 7, 20, 10);
+    final entries = [
+      _entry(
+        id: 1,
+        moodScore: 4,
+        note: 'Today entry.',
+        createdAt: today,
+        activityIds: const [1],
+        activityNames: const ['Work'],
+        subEmotionIds: const [10],
+        subEmotionNames: const ['Calm'],
+      ),
+      _entry(
+        id: 2,
+        moodScore: 3,
+        note: 'Yesterday entry.',
+        createdAt: DateTime(2026, 7, 19, 9),
+      ),
+      _entry(
+        id: 3,
+        moodScore: 5,
+        note: 'Earlier entry.',
+        createdAt: DateTime(2026, 7, 18, 9),
+      ),
+    ];
+    final memories = [
+      _entry(
+        id: 10,
+        moodScore: 2,
+        note: 'A prior-year memory.',
+        createdAt: DateTime(2025, 7, 20, 8),
+      ),
+    ];
+    final reflections = [
+      _reflection(id: 1, date: today),
+      _reflection(id: 2, date: DateTime(2026, 7, 19)),
+    ];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DashboardScreen(
+          entries: Stream.value(entries),
+          today: today,
+          dailyReflections: Stream.value(reflections),
+          onThisDayEntries: Stream.value(memories),
+          dailyChallengeRepository: challengeRepository,
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+
+    expect(tester.takeException(), isNull);
+    expect(find.byKey(const ValueKey('daily_challenge_card')), findsOneWidget);
+    expect(find.byKey(const ValueKey('mood_garden_card')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('weekly_reflection_report_card')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('on_this_day_card')), findsOneWidget);
   });
 
   testWidgets('shows non-punitive reflection streak from local entries', (

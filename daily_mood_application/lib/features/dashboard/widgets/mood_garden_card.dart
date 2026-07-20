@@ -24,41 +24,51 @@ class MoodGardenCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _GardenVisual(stage: summary.stage),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(l10n.moodGarden, style: AppTypography.subText3Regular),
-                    const SizedBox(height: 6),
-                    Text(
-                      l10n.gardenStageLabel(stageName),
-                      style: AppTypography.heading2,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      l10n.moodGardenSubtitle,
-                      style: AppTypography.subText2Regular.copyWith(
-                        color: DashboardPalette.mutedText,
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 280;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _GardenVisual(stage: summary.stage),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: _GardenHeading(
+                          stageName: l10n.gardenStageLabel(stageName),
+                          subtitle: l10n.moodGardenSubtitle,
+                        ),
+                      ),
+                      if (onViewJourney != null && !compact) ...[
+                        const SizedBox(width: 8),
+                        IconButton(
+                          key: const ValueKey(
+                            'mood_garden_progression_button',
+                          ),
+                          tooltip: l10n.viewGardenJourney,
+                          onPressed: onViewJourney,
+                          icon: const Icon(Icons.route_rounded),
+                        ),
+                      ],
+                    ],
+                  ),
+                  if (onViewJourney != null && compact) ...[
+                    const SizedBox(height: 12),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        key: const ValueKey('mood_garden_progression_button'),
+                        onPressed: onViewJourney,
+                        icon: const Icon(Icons.route_rounded, size: 18),
+                        label: Text(l10n.viewGardenJourney),
                       ),
                     ),
                   ],
-                ),
-              ),
-              if (onViewJourney != null) ...[
-                const SizedBox(width: 8),
-                IconButton(
-                  key: const ValueKey('mood_garden_progression_button'),
-                  tooltip: l10n.viewGardenJourney,
-                  onPressed: onViewJourney,
-                  icon: const Icon(Icons.route_rounded),
-                ),
-              ],
-            ],
+                ],
+              );
+            },
           ),
           const SizedBox(height: 16),
           ClipRRect(
@@ -89,6 +99,34 @@ class MoodGardenCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _GardenHeading extends StatelessWidget {
+  const _GardenHeading({required this.stageName, required this.subtitle});
+
+  final String stageName;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(l10n.moodGarden, style: AppTypography.subText3Regular),
+        const SizedBox(height: 6),
+        Text(stageName, style: AppTypography.heading2),
+        const SizedBox(height: 4),
+        Text(
+          subtitle,
+          style: AppTypography.subText2Regular.copyWith(
+            color: DashboardPalette.mutedText,
+          ),
+        ),
+      ],
     );
   }
 }

@@ -44,4 +44,45 @@ void main() {
     expect(l10n.darkMode, 'Dark');
     expect(l10n.moodLabel(1), 'Awful');
   });
+
+  test('retention loop copy is localized and privacy safe', () {
+    final en = AppLocalizations(const Locale('en'));
+    final vi = AppLocalizations(const Locale('vi'));
+
+    final englishCopy = [
+      en.dailyReflection,
+      en.moodGarden,
+      en.weeklyReflectionReport,
+      en.onThisDayTitle,
+      en.dailyChallenge,
+      en.dailyChallengeSubtitle,
+      en.guidedInsightsSubtitle,
+    ];
+    final vietnameseCopy = [
+      vi.dailyReflection,
+      vi.moodGarden,
+      vi.weeklyReflectionReport,
+      vi.onThisDayTitle,
+      vi.dailyChallenge,
+      vi.dailyChallengeSubtitle,
+      vi.guidedInsightsSubtitle,
+    ];
+
+    expect(englishCopy, contains('Daily reflection'));
+    expect(englishCopy, contains('A memory from this day'));
+    expect(englishCopy, contains('Daily challenge'));
+    expect(
+      englishCopy,
+      contains('Optional and local. It never blocks mood logging.'),
+    );
+    expect(vietnameseCopy, contains('Phản chiếu hôm nay'));
+    expect(vietnameseCopy, contains('Một kỷ niệm từ ngày này'));
+    expect(vietnameseCopy, contains('Thử thách hôm nay'));
+
+    final combined = [...englishCopy, ...vietnameseCopy].join(' ').toLowerCase();
+    expect(combined, isNot(contains('diagnose')));
+    expect(combined, isNot(contains('treatment')));
+    expect(combined, isNot(contains('remote ai')));
+    expect(combined, isNot(contains('cloud')));
+  });
 }

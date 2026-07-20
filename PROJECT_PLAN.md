@@ -152,6 +152,160 @@ This phase turns Daily Mood from a passive mood logger into a private daily habi
 | P9.6 | Retention tests, localization, and privacy review | Done | Tests/localization/privacy docs | P9 features have focused tests, English/Vietnamese strings, dark/light checks, and privacy-safe wording | Added retention-loop localization/privacy-safe copy assertions, small-phone dashboard coverage for P9 cards, light/dark daily challenge card coverage, narrow mood-garden/streak-card behavior, and a privacy policy note confirming P9 reflection/report/memory/garden/challenge features remain local-only without remote AI, accounts, health data, analytics SDKs, or server processing. User reported all tests passed. |
 | P9.7 | Real daily reminder notifications         | Done | Settings/notifications          | User can enable daily reminders, change reminder time, and receive an OS notification at that time       | Added a `flutter_local_notifications` scheduler, local timezone handling, Android notification permission/boot receiver/desugaring setup, app-start reminder reconciliation, permission-denied rollback, and focused tests. Turning reminders on now asks the user to choose a time first instead of silently using the default. User-reported verification passed. |
 
+## Phase 9.8 - MVP Polish: Gentle Feedback & Visual Rewards
+
+This phase adds calm, local-only micro-interactions to the completed MVP. The goal is to make mood logging feel acknowledged and satisfying while preserving the app's private, gentle, low-pressure tone.
+
+### Product Principles
+
+- Animations must support reflection, not performance.
+- No streak pressure, leaderboards, social sharing, points economy, ads, analytics, or cloud features.
+- All effects must run fully on-device.
+- Animations should be short, calm, and non-blocking.
+- Respect reduced-motion and accessibility settings where possible.
+- Do not rely on animation or color alone to communicate success.
+- Prefer Flutter-native animation before adding new packages.
+
+| ID     | Task                                  | Status      | Main files/areas                         | Acceptance check                                                                                   | Notes                                                                                         |
+| ------ | ------------------------------------- | ----------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| P9.8a  | Shared reduced-motion behavior         | Not Started | App theme/shared animation utilities      | Widgets can choose full animation or instant/fade-only feedback through a centralized helper        | Start here so every later animation has consistent duration and accessibility behavior.        |
+| P9.8b  | Quick-log save confirmation animation | Not Started | Mood tracker/quick-log/shared widgets     | Saving a mood shows a brief visual confirmation under 400ms and then continues normally             | Highest user-value interaction. Use the selected mood color or emoji without delaying saving.  |
+| P9.8c  | Soft mood selection feedback          | Not Started | Mood tracker/quick-log mood picker        | Selecting a mood gives immediate scale, fade, or color feedback without shifting layout             | Selected state must remain clear without relying only on color.                               |
+| P9.8d  | Gentle Mood Garden growth moment      | Not Started | Dashboard/retention UI                    | After a successful check-in, the garden shows a subtle growth, watering, or bloom animation          | Animate existing garden state only. Do not add unlock economy or streak pressure.             |
+| P9.8e  | Daily Challenge completion feedback   | Not Started | Dashboard/settings/retention              | Completing a challenge shows a calm badge/check animation and accessible success text                | Avoid loud reward language and repeated effect spam when toggled on/off/on.                   |
+| P9.8f  | Haptic feedback pass                  | Not Started | Quick-log/challenge interactions          | Optional light haptics fire only on clear user actions and app still works when haptics unavailable | Consider mood selected, mood saved, and challenge completed only.                             |
+| P9.8g  | Animation QA and cleanup              | Not Started | Affected widgets/tests                    | Animations do not block navigation, overflow, obscure content, or break small-phone layouts          | Check light mode, dark mode, small phones, repeated quick logging, and reduced motion.         |
+
+### Recommended Implementation Order
+
+1. P9.8a - Shared reduced-motion behavior
+2. P9.8b - Quick-log save confirmation animation
+3. P9.8c - Soft mood selection feedback
+4. P9.8d - Gentle Mood Garden growth moment
+5. P9.8e - Daily Challenge completion feedback
+6. P9.8f - Haptic feedback pass
+7. P9.8g - Animation QA and cleanup
+
+### Slice 1: Shared Animation Foundation
+
+Create a small reusable animation helper layer before adding effects across the app.
+
+Acceptance:
+
+- Common durations are centralized.
+- Reduced-motion behavior is easy for widgets to check.
+- Widgets can choose between full animation and minimal fade or instant state.
+- No product behavior changes yet.
+
+Suggested constants:
+
+- Fast feedback: 120-180ms
+- Save confirmation: 250-400ms
+- Garden growth: 600-900ms
+- Reduced motion: 0-120ms fade only
+
+### Slice 2: Quick-log Save Confirmation
+
+When the user saves a mood:
+
+- The selected emoji gently scales up.
+- A mood color ring or glow briefly appears.
+- A success check appears or fades in.
+- Navigation and save completion continue normally.
+
+Acceptance:
+
+- Does not delay database save.
+- Does not block user navigation.
+- Does not cover note text or form controls awkwardly.
+- Works in light and dark mode.
+- Has a reduced-motion fallback.
+
+### Slice 3: Mood Selection Feedback
+
+When selecting mood:
+
+- The selected option becomes visually active.
+- The emoji or option surface uses a small scale, border, or color transition.
+- The previous selection returns to normal smoothly.
+- No layout jump occurs.
+
+Acceptance:
+
+- Mood can still be selected with keyboard and screen reader flows.
+- Selected state is clear without relying only on color.
+- Touch target remains accessible.
+
+### Slice 4: Mood Garden Growth
+
+After logging a mood:
+
+- Garden receives a new check-in state.
+- Plant or garden visuals animate subtly.
+- Animation can reflect the current mood color when it fits the calm tone.
+- No new achievement or unlock logic is added.
+
+Acceptance:
+
+- Garden state remains data-driven.
+- Animation is decorative, not required to understand progress.
+- Dashboard remains readable during animation.
+
+### Slice 5: Daily Challenge Completion
+
+When a challenge is completed:
+
+- Challenge item transitions to completed state.
+- Badge or check animates softly.
+- Optional small particle effect is allowed only if it fits the calm tone.
+- Success text remains available for accessibility.
+
+Acceptance:
+
+- No loud reward language like "Quest Complete."
+- No streak pressure.
+- Repeated toggles do not spam effects.
+
+### Slice 6: Haptics
+
+Use only light haptics for:
+
+- Mood selected.
+- Mood saved.
+- Challenge completed.
+
+Avoid haptics for:
+
+- Passive dashboard animations.
+- Page transitions.
+- Background garden changes.
+
+Acceptance:
+
+- Haptics are subtle.
+- App still feels good with haptics unavailable.
+
+### Slice 7: QA
+
+Manual checks:
+
+- Small phone layout.
+- Dark mode.
+- Light mode.
+- Reduced-motion mode if available.
+- Repeated quick logging.
+- Challenge toggle on/off/on.
+- Dashboard after app restart.
+- No animation overflows.
+- No stuck animation controllers.
+
+Target tests:
+
+- Widget test for quick-log selected state.
+- Widget test for save confirmation trigger.
+- Widget test for challenge completed state.
+- Cubit or state test only if new state is introduced.
+
 ## Phase 10 - Post-MVP Expansion
 
 | ID    | Task                                           | Status   | Main files/areas | Acceptance check                                                         | Notes                                                       |

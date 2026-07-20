@@ -31,6 +31,28 @@ final class MoodEntryRepository {
     });
   }
 
+  Stream<List<MoodEntryModel>> watchOnThisDayEntries({
+    required DateTime day,
+    int limit = 3,
+  }) {
+    return _localService
+        .watchOnThisDayEntries(day: day, limit: limit)
+        .map((entries) {
+          return entries
+              .map(
+                (row) => _toDomain(
+                  row.entry,
+                  photoRelativePath: row.photoRelativePath,
+                  activityIds: row.activityIds,
+                  activityNames: row.activityNames,
+                  subEmotionIds: row.subEmotionIds,
+                  subEmotionNames: row.subEmotionNames,
+                ),
+              )
+              .toList(growable: false);
+        });
+  }
+
   Future<int> createEntry({
     required int moodScore,
     String? note,

@@ -228,6 +228,53 @@ void main() {
     expect(trendOpened, isTrue);
   });
 
+  testWidgets('shows neutral on this day memories with media indicators', (
+    tester,
+  ) async {
+    final today = DateTime(2026, 7, 20, 10);
+    final memories = [
+      _entry(
+        id: 10,
+        moodScore: 2,
+        note: 'A difficult day that should be worded neutrally.',
+        createdAt: DateTime(2025, 7, 20, 8, 30),
+        photoRelativePath: 'mood_photos/memory.jpg',
+        voiceNotePath: 'mood_voices/memory.m4a',
+      ),
+    ];
+    final currentEntries = [
+      _entry(
+        id: 1,
+        moodScore: 4,
+        note: 'Today entry.',
+        createdAt: today,
+      ),
+    ];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DashboardScreen(
+          entries: Stream.value(currentEntries),
+          today: today,
+          onThisDayEntries: Stream.value(memories),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.byKey(const ValueKey('on_this_day_card')), findsOneWidget);
+    expect(find.text('On this day'), findsOneWidget);
+    expect(find.text('A memory from this day'), findsOneWidget);
+    expect(find.text('Jul 20, 2025'), findsOneWidget);
+    expect(
+      find.textContaining('A difficult day that should be worded neutrally.'),
+      findsOneWidget,
+    );
+    expect(find.text('Photo attached'), findsOneWidget);
+    expect(find.text('Voice attached'), findsOneWidget);
+  });
+
   testWidgets('shows non-punitive reflection streak from local entries', (
     tester,
   ) async {
@@ -331,7 +378,10 @@ void main() {
     await tester.ensureVisible(
       find.byKey(const ValueKey('mood_garden_progression_button')),
     );
-    await tester.tap(find.byKey(const ValueKey('mood_garden_progression_button')));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('mood_garden_progression_button')),
+    );
     await tester.pumpAndSettle();
 
     expect(
@@ -342,6 +392,14 @@ void main() {
     expect(find.byKey(const ValueKey('mood_garden_stage_leafy')), findsOneWidget);
     expect(find.text('Current stage'), findsOneWidget);
     expect(find.byKey(const ValueKey('mood_garden_stage_bloom_lock')), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('mood_garden_stage_flourishing_lock')),
+      120,
+      scrollable: find.descendant(
+        of: find.byKey(const ValueKey('mood_garden_progression_sheet')),
+        matching: find.byType(Scrollable),
+      ),
+    );
     expect(
       find.byKey(const ValueKey('mood_garden_stage_flourishing_lock')),
       findsOneWidget,

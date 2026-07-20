@@ -84,6 +84,86 @@ LIMIT ?
     });
   }
 
+  Stream<List<MoodEntryHistoryRow>> watchOnThisDayEntries({
+    required DateTime day,
+    int limit = 3,
+  }) {
+    final localDay = day.toLocal();
+    final ranges = _priorYearDayRanges(localDay);
+    if (ranges.isEmpty) return Stream.value(const []);
+
+    final rangeClauses = ranges
+        .map((_) => '(me.created_at >= ? AND me.created_at < ?)')
+        .join(' OR ');
+    final variables = <Variable>[
+      for (final range in ranges) ...[
+        Variable<DateTime>(range.start),
+        Variable<DateTime>(range.end),
+      ],
+      Variable<int>(limit),
+    ];
+
+    return customSelect(
+      '''
+SELECT
+  me.id,
+  me.uuid,
+  me.mood_score,
+  me.note,
+  me.voice_note_path,
+  me.created_at,
+  me.updated_at,
+  me.is_deleted,
+  mp.relative_path AS photo_relative_path,
+  COALESCE((
+    SELECT GROUP_CONCAT(a.id, char(31))
+    FROM mood_entry_activities mea
+    INNER JOIN activities a ON a.id = mea.activity_id
+    WHERE mea.mood_entry_id = me.id
+    ORDER BY a.name COLLATE NOCASE
+  ), '') AS activity_ids,
+  COALESCE((
+    SELECT GROUP_CONCAT(a.name, char(31))
+    FROM mood_entry_activities mea
+    INNER JOIN activities a ON a.id = mea.activity_id
+    WHERE mea.mood_entry_id = me.id
+    ORDER BY a.name COLLATE NOCASE
+  ), '') AS activity_names,
+  COALESCE((
+    SELECT GROUP_CONCAT(se.id, char(31))
+    FROM mood_entry_sub_emotions mese
+    INNER JOIN sub_emotions se ON se.id = mese.sub_emotion_id
+    WHERE mese.mood_entry_id = me.id
+    ORDER BY se.name COLLATE NOCASE
+  ), '') AS sub_emotion_ids,
+  COALESCE((
+    SELECT GROUP_CONCAT(se.name, char(31))
+    FROM mood_entry_sub_emotions mese
+    INNER JOIN sub_emotions se ON se.id = mese.sub_emotion_id
+    WHERE mese.mood_entry_id = me.id
+    ORDER BY se.name COLLATE NOCASE
+  ), '') AS sub_emotion_names
+FROM mood_entries me
+LEFT JOIN mood_photos mp ON mp.mood_entry_id = me.id
+WHERE me.is_deleted = 0
+  AND ($rangeClauses)
+ORDER BY me.created_at DESC
+LIMIT ?
+''',
+      variables: variables,
+      readsFrom: {
+        moodEntries,
+        activities,
+        moodEntryActivities,
+        attachedDatabase.subEmotions,
+        attachedDatabase.moodEntrySubEmotions,
+        attachedDatabase.moodPhotos,
+      },
+    ).watch().map((rows) {
+      return rows.map(MoodEntryHistoryRow.fromQueryRow).toList(growable: false);
+    });
+  }
+
   Stream<List<MoodEntry>> watchEntriesBetween(DateTime start, DateTime end) {
     final query = select(moodEntries)
       ..where(
@@ -372,4 +452,27 @@ final class MoodEntryHistoryRow {
         .whereType<int>()
         .toList(growable: false);
   }
+}
+
+List<_DateRange> _priorYearDayRanges(DateTime day) {
+  const earliestSupportedYear = 1970;
+  final ranges = <_DateRange>[];
+
+  for (var year = day.year - 1; year >= earliestSupportedYear; year--) {
+    final start = DateTime(year, day.month, day.day);
+    if (start.month != day.month || start.day != day.day) continue;
+
+    ranges.add(
+      _DateRange(start: start, end: start.add(const Duration(days: 1))),
+    );
+  }
+
+  return ranges;
+}
+
+final class _DateRange {
+  const _DateRange({required this.start, required this.end});
+
+  final DateTime start;
+  final DateTime end;
 }

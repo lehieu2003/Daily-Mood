@@ -22,6 +22,7 @@ import 'widgets/entry_detail_sheet.dart';
 import 'widgets/mood_entry_card.dart';
 import 'widgets/mood_garden_card.dart';
 import 'widgets/nature_tip_card.dart';
+import 'widgets/on_this_day_card.dart';
 import 'widgets/reflection_streak_card.dart';
 import 'widgets/today_check_in_section.dart';
 import 'widgets/weekly_reflection_report_card.dart';
@@ -39,6 +40,7 @@ class DashboardScreen extends StatefulWidget {
     this.dailyReflectionForDate,
     this.dailyReflections,
     this.onSaveReflection,
+    this.onThisDayEntries,
   });
 
   final Stream<List<MoodEntryModel>>? entries;
@@ -49,6 +51,7 @@ class DashboardScreen extends StatefulWidget {
   final DailyReflectionStreamFactory? dailyReflectionForDate;
   final Stream<List<DailyReflectionModel>>? dailyReflections;
   final DailyReflectionSaveAction? onSaveReflection;
+  final Stream<List<MoodEntryModel>>? onThisDayEntries;
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -141,6 +144,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       widget.dailyReflectionForDate,
                                   dailyReflections: widget.dailyReflections,
                                   onSaveReflection: widget.onSaveReflection,
+                                  onThisDayEntries: widget.onThisDayEntries,
                                 ),
                             ]),
                           ),
@@ -190,6 +194,7 @@ class _DashboardContent extends StatelessWidget {
     this.dailyReflectionForDate,
     this.dailyReflections,
     this.onSaveReflection,
+    this.onThisDayEntries,
   });
 
   final List<MoodEntryModel> entries;
@@ -201,6 +206,7 @@ class _DashboardContent extends StatelessWidget {
   final DailyReflectionStreamFactory? dailyReflectionForDate;
   final Stream<List<DailyReflectionModel>>? dailyReflections;
   final DailyReflectionSaveAction? onSaveReflection;
+  final Stream<List<MoodEntryModel>>? onThisDayEntries;
 
   @override
   Widget build(BuildContext context) {
@@ -235,6 +241,12 @@ class _DashboardContent extends StatelessWidget {
           selectedDate: selectedDate,
           today: today,
           dailyReflections: dailyReflections,
+        ),
+        const SizedBox(height: 14),
+        _OnThisDaySection(
+          entries: entries,
+          today: today,
+          onThisDayEntries: onThisDayEntries,
         ),
         const SizedBox(height: 14),
         if (entries.length >= 3) ...[
@@ -276,6 +288,43 @@ class _DashboardContent extends StatelessWidget {
       onDeleteEntry: deleteEntry ?? repository!.softDeleteEntry,
       activityOptions: activityOptions,
     );
+  }
+}
+
+class _OnThisDaySection extends StatelessWidget {
+  const _OnThisDaySection({
+    required this.entries,
+    required this.today,
+    this.onThisDayEntries,
+  });
+
+  final List<MoodEntryModel> entries;
+  final DateTime today;
+  final Stream<List<MoodEntryModel>>? onThisDayEntries;
+
+  @override
+  Widget build(BuildContext context) {
+    final stream = onThisDayEntries ?? _streamFrom(context);
+    if (stream == null) {
+      return OnThisDayCard(memories: _filterOnThisDay(entries, today));
+    }
+
+    return StreamBuilder<List<MoodEntryModel>>(
+      stream: stream,
+      builder: (context, snapshot) {
+        return OnThisDayCard(memories: snapshot.data ?? const []);
+      },
+    );
+  }
+
+  Stream<List<MoodEntryModel>>? _streamFrom(BuildContext context) {
+    try {
+      return context.read<MoodEntryRepository>().watchOnThisDayEntries(
+        day: today,
+      );
+    } catch (_) {
+      return null;
+    }
   }
 }
 
@@ -429,4 +478,21 @@ class _DailyReflectionSection extends StatelessWidget {
 DateTime _dateOnly(DateTime date) {
   final local = date.toLocal();
   return DateTime(local.year, local.month, local.day);
+}
+
+List<MoodEntryModel> _filterOnThisDay(
+  List<MoodEntryModel> entries,
+  DateTime day,
+) {
+  final localDay = day.toLocal();
+  final matches =
+      entries.where((entry) {
+        final createdAt = entry.createdAt.toLocal();
+        return createdAt.month == localDay.month &&
+            createdAt.day == localDay.day &&
+            createdAt.year < localDay.year;
+      }).toList()
+        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+  return matches.take(3).toList(growable: false);
 }

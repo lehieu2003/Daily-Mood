@@ -107,6 +107,9 @@ class AppLocalizations {
   String get currentStage => _text('currentStage');
   String get unlockedStage => _text('unlockedStage');
   String get lockedStage => _text('lockedStage');
+  String get onThisDay => _text('onThisDay');
+  String get onThisDayTitle => _text('onThisDayTitle');
+  String get onThisDaySubtitle => _text('onThisDaySubtitle');
   String get weeklyReflectionReport => _text('weeklyReflectionReport');
   String get weeklyReflectionReportSubtitle =>
       _text('weeklyReflectionReportSubtitle');
@@ -319,6 +322,12 @@ class AppLocalizations {
         ? '${end.day} ${shortMonth(end.month)}'
         : '${shortMonth(end.month)} ${end.day}';
     return '$startText - $endText';
+  }
+
+  String onThisDayDate(DateTime date) {
+    return isVietnamese
+        ? '${date.day} ${shortMonth(date.month)} ${date.year}'
+        : '${shortMonth(date.month)} ${date.day}, ${date.year}';
   }
 
   String weeklyReportCheckIns(int count, int days) {
@@ -665,6 +674,9 @@ const _en = {
   'currentStage': 'Current stage',
   'unlockedStage': 'Unlocked',
   'lockedStage': 'Locked',
+  'onThisDay': 'On this day',
+  'onThisDayTitle': 'A memory from this day',
+  'onThisDaySubtitle': 'A past check-in from your private history.',
   'weeklyReflectionReport': 'Weekly report',
   'weeklyReflectionReportSubtitle':
       'A private recap from this week of check-ins.',
@@ -885,6 +897,9 @@ const _vi = {
   'currentStage': 'Giai đoạn hiện tại',
   'unlockedStage': 'Đã mở',
   'lockedStage': 'Đang khóa',
+  'onThisDay': 'Ngày này năm xưa',
+  'onThisDayTitle': 'Một kỷ niệm từ ngày này',
+  'onThisDaySubtitle': 'Một check-in cũ từ lịch sử riêng tư của bạn.',
   'weeklyReflectionReport': 'Báo cáo tuần',
   'weeklyReflectionReportSubtitle':
       'Tóm tắt riêng tư từ các check-in trong tuần.',

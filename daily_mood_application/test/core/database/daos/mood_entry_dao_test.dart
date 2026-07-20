@@ -1,5 +1,6 @@
 import 'package:daily_mood_application/core/database/app_database.dart';
 import 'package:daily_mood_application/core/database/daos/mood_entry_dao.dart';
+import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -91,6 +92,54 @@ void main() {
     }
   });
 
+  test('watches on this day rows from prior years only', () async {
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    final dao = MoodEntryDao(db);
+
+    try {
+      final priorEntryId = await dao.createEntry(
+        moodScore: 4,
+        note: 'Same date last year.',
+        photoRelativePath: 'mood_photos/memory.jpg',
+        activityIds: const [],
+      );
+      await _moveEntryTo(db, priorEntryId, DateTime(2025, 7, 20, 8, 30));
+
+      final currentYearEntryId = await dao.createEntry(
+        moodScore: 5,
+        note: 'Same date this year.',
+        activityIds: const [],
+      );
+      await _moveEntryTo(db, currentYearEntryId, DateTime(2026, 7, 20, 9));
+
+      final differentDayEntryId = await dao.createEntry(
+        moodScore: 2,
+        note: 'Different day last year.',
+        activityIds: const [],
+      );
+      await _moveEntryTo(db, differentDayEntryId, DateTime(2025, 7, 21, 9));
+
+      final deletedEntryId = await dao.createEntry(
+        moodScore: 1,
+        note: 'Deleted same date.',
+        activityIds: const [],
+      );
+      await _moveEntryTo(db, deletedEntryId, DateTime(2024, 7, 20, 9));
+      await dao.softDeleteEntry(deletedEntryId);
+
+      final rows = await dao
+          .watchOnThisDayEntries(day: DateTime(2026, 7, 20))
+          .first;
+
+      expect(rows, hasLength(1));
+      expect(rows.single.entry.id, priorEntryId);
+      expect(rows.single.entry.note, 'Same date last year.');
+      expect(rows.single.photoRelativePath, 'mood_photos/memory.jpg');
+    } finally {
+      await db.close();
+    }
+  });
+
   test('updates entry details and replaces links transactionally', () async {
     final db = AppDatabase.forTesting(NativeDatabase.memory());
     final dao = MoodEntryDao(db);
@@ -142,4 +191,19 @@ void main() {
       await db.close();
     }
   });
+}
+
+Future<void> _moveEntryTo(
+  AppDatabase db,
+  int entryId,
+  DateTime createdAt,
+) async {
+  await (db.update(
+    db.moodEntries,
+  )..where((entry) => entry.id.equals(entryId))).write(
+    MoodEntriesCompanion(
+      createdAt: Value(createdAt),
+      updatedAt: Value(createdAt),
+    ),
+  );
 }

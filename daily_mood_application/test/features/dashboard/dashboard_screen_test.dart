@@ -1,8 +1,10 @@
 import 'package:daily_mood_application/domain/models/daily_reflection.dart';
 import 'package:daily_mood_application/domain/models/mood_activity.dart';
 import 'package:daily_mood_application/domain/models/mood_entry.dart';
+import 'package:daily_mood_application/features/dashboard/daily_challenge.dart';
 import 'package:daily_mood_application/features/dashboard/dashboard_screen.dart';
 import 'package:daily_mood_application/features/dashboard/widgets/entry_detail_sheet.dart';
+import 'package:daily_mood_application/features/settings/data/settings_preferences_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -273,6 +275,58 @@ void main() {
     );
     expect(find.text('Photo attached'), findsOneWidget);
     expect(find.text('Voice attached'), findsOneWidget);
+  });
+
+  testWidgets('shows optional daily challenge and marks it complete', (
+    tester,
+  ) async {
+    final store = InMemorySettingsPreferencesStore();
+    final preferencesRepository = SettingsPreferencesRepository(store: store);
+    final challengeRepository = DailyChallengeRepository(
+      repository: preferencesRepository,
+    );
+    final today = DateTime(2026, 7, 20, 10);
+    final entries = [
+      _entry(
+        id: 1,
+        moodScore: 4,
+        note: 'Today entry.',
+        createdAt: today,
+      ),
+    ];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: DashboardScreen(
+          entries: Stream.value(entries),
+          today: today,
+          dailyChallengeRepository: challengeRepository,
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.byKey(const ValueKey('daily_challenge_card')), findsOneWidget);
+    expect(find.text('Daily challenge'), findsOneWidget);
+    expect(find.text('Breathe slowly for one minute'), findsOneWidget);
+    expect(
+      find.text('Optional and local. It never blocks mood logging.'),
+      findsOneWidget,
+    );
+
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('daily_challenge_complete_button')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('daily_challenge_complete_button')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Done today'), findsOneWidget);
+    expect(find.text('Marked complete for today.'), findsOneWidget);
+    expect(await challengeRepository.isCompleted(today), isTrue);
   });
 
   testWidgets('shows non-punitive reflection streak from local entries', (

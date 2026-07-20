@@ -10,13 +10,16 @@ import '../../data/repositories/mood_entry_repository.dart';
 import '../../domain/models/daily_reflection.dart';
 import '../../domain/models/mood_entry.dart';
 import 'daily_reflection_actions.dart';
+import 'daily_challenge.dart';
 import 'dashboard_formatters.dart';
 import 'mood_garden.dart';
 import 'dashboard_palette.dart';
 import 'entry_detail_actions.dart';
+import '../settings/data/settings_preferences_repository.dart';
 import 'weekly_reflection_report.dart';
 import 'widgets/dashboard_empty_state.dart';
 import 'widgets/dashboard_header.dart';
+import 'widgets/daily_challenge_card.dart';
 import 'widgets/daily_reflection_card.dart';
 import 'widgets/entry_detail_sheet.dart';
 import 'widgets/mood_entry_card.dart';
@@ -41,6 +44,7 @@ class DashboardScreen extends StatefulWidget {
     this.dailyReflections,
     this.onSaveReflection,
     this.onThisDayEntries,
+    this.dailyChallengeRepository,
   });
 
   final Stream<List<MoodEntryModel>>? entries;
@@ -52,6 +56,7 @@ class DashboardScreen extends StatefulWidget {
   final Stream<List<DailyReflectionModel>>? dailyReflections;
   final DailyReflectionSaveAction? onSaveReflection;
   final Stream<List<MoodEntryModel>>? onThisDayEntries;
+  final DailyChallengeRepository? dailyChallengeRepository;
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -145,6 +150,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   dailyReflections: widget.dailyReflections,
                                   onSaveReflection: widget.onSaveReflection,
                                   onThisDayEntries: widget.onThisDayEntries,
+                                  dailyChallengeRepository:
+                                      widget.dailyChallengeRepository,
                                 ),
                             ]),
                           ),
@@ -195,6 +202,7 @@ class _DashboardContent extends StatelessWidget {
     this.dailyReflections,
     this.onSaveReflection,
     this.onThisDayEntries,
+    this.dailyChallengeRepository,
   });
 
   final List<MoodEntryModel> entries;
@@ -207,6 +215,7 @@ class _DashboardContent extends StatelessWidget {
   final Stream<List<DailyReflectionModel>>? dailyReflections;
   final DailyReflectionSaveAction? onSaveReflection;
   final Stream<List<MoodEntryModel>>? onThisDayEntries;
+  final DailyChallengeRepository? dailyChallengeRepository;
 
   @override
   Widget build(BuildContext context) {
@@ -235,6 +244,11 @@ class _DashboardContent extends StatelessWidget {
           const SizedBox(height: 14),
         ],
         ReflectionStreakCard(entries: entries, today: today),
+        const SizedBox(height: 14),
+        _DailyChallengeSection(
+          today: today,
+          repository: dailyChallengeRepository,
+        ),
         const SizedBox(height: 14),
         _RetentionSummarySections(
           entries: entries,
@@ -288,6 +302,95 @@ class _DashboardContent extends StatelessWidget {
       onDeleteEntry: deleteEntry ?? repository!.softDeleteEntry,
       activityOptions: activityOptions,
     );
+  }
+}
+
+class _DailyChallengeSection extends StatefulWidget {
+  const _DailyChallengeSection({required this.today, this.repository});
+
+  final DateTime today;
+  final DailyChallengeRepository? repository;
+
+  @override
+  State<_DailyChallengeSection> createState() => _DailyChallengeSectionState();
+}
+
+class _DailyChallengeSectionState extends State<_DailyChallengeSection> {
+  DailyChallengeRepository? _repository;
+  DateTime? _date;
+  Future<bool>? _completedFuture;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _configure();
+  }
+
+  @override
+  void didUpdateWidget(covariant _DailyChallengeSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _configure();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final repository = _repository;
+    final date = _date;
+    final completedFuture = _completedFuture;
+    if (repository == null || date == null || completedFuture == null) {
+      return const SizedBox.shrink();
+    }
+
+    final challenge = repository.challengeForDate(date);
+
+    return FutureBuilder<bool>(
+      future: completedFuture,
+      builder: (context, snapshot) {
+        return DailyChallengeCard(
+          challenge: challenge,
+          completed: snapshot.data ?? false,
+          onComplete: () => _markCompleted(repository, date),
+        );
+      },
+    );
+  }
+
+  void _configure() {
+    final repository = widget.repository ?? _repositoryFromContext(context);
+    final date = _dateOnly(widget.today);
+    if (repository == null) {
+      _repository = null;
+      _date = null;
+      _completedFuture = null;
+      return;
+    }
+
+    if (!identical(repository, _repository) || date != _date) {
+      _repository = repository;
+      _date = date;
+      _completedFuture = repository.isCompleted(date);
+    }
+  }
+
+  DailyChallengeRepository? _repositoryFromContext(BuildContext context) {
+    try {
+      return DailyChallengeRepository(
+        repository: context.read<SettingsPreferencesRepository>(),
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _markCompleted(
+    DailyChallengeRepository repository,
+    DateTime date,
+  ) async {
+    await repository.markCompleted(date);
+    if (!mounted) return;
+    setState(() {
+      _completedFuture = Future.value(true);
+    });
   }
 }
 

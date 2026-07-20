@@ -97,6 +97,11 @@ class AppLocalizations {
   String get reflectionHint => _text('reflectionHint');
   String get saveReflection => _text('saveReflection');
   String get editReflection => _text('editReflection');
+  String get dailyChallenge => _text('dailyChallenge');
+  String get dailyChallengeSubtitle => _text('dailyChallengeSubtitle');
+  String get dailyChallengeCompleted => _text('dailyChallengeCompleted');
+  String get markChallengeDone => _text('markChallengeDone');
+  String get dailyChallengeDone => _text('dailyChallengeDone');
   String get noneYet => _text('noneYet');
   String get moodGarden => _text('moodGarden');
   String get moodGardenSubtitle => _text('moodGardenSubtitle');
@@ -348,6 +353,18 @@ class AppLocalizations {
     return isVietnamese
         ? 'Nhắc cục bộ mỗi ngày lúc $time.'
         : 'Local daily nudge at $time.';
+  }
+
+  String dailyChallengeTitle(String id) {
+    return switch (id) {
+      'goOutside' => _text('dailyChallengeGoOutside'),
+      'gratitude' => _text('dailyChallengeGratitude'),
+      'stretch' => _text('dailyChallengeStretch'),
+      'drinkWater' => _text('dailyChallengeDrinkWater'),
+      'breathe' => _text('dailyChallengeBreathe'),
+      'shortWalk' => _text('dailyChallengeShortWalk'),
+      _ => _text('dailyChallengeBreathe'),
+    };
   }
 
   String entryCount(int count) {
@@ -664,6 +681,18 @@ const _en = {
   'reflectionHint': 'Write one private sentence...',
   'saveReflection': 'Save reflection',
   'editReflection': 'Update reflection',
+  'dailyChallenge': 'Daily challenge',
+  'dailyChallengeSubtitle':
+      'Optional and local. It never blocks mood logging.',
+  'dailyChallengeCompleted': 'Marked complete for today.',
+  'markChallengeDone': 'Mark done',
+  'dailyChallengeDone': 'Done today',
+  'dailyChallengeGoOutside': 'Go outside for 10 minutes',
+  'dailyChallengeGratitude': 'Write one gratitude sentence',
+  'dailyChallengeStretch': 'Stretch for one minute',
+  'dailyChallengeDrinkWater': 'Drink a glass of water',
+  'dailyChallengeBreathe': 'Breathe slowly for one minute',
+  'dailyChallengeShortWalk': 'Take a short walk',
   'noneYet': 'None yet',
   'moodGarden': 'Mood garden',
   'moodGardenSubtitle': 'Gentle growth from check-ins and reflections.',
@@ -887,6 +916,18 @@ const _vi = {
   'reflectionHint': 'Viết một câu riêng tư...',
   'saveReflection': 'Lưu phản chiếu',
   'editReflection': 'Cập nhật phản chiếu',
+  'dailyChallenge': 'Thử thách hôm nay',
+  'dailyChallengeSubtitle':
+      'Tùy chọn và cục bộ. Không bao giờ chặn việc ghi tâm trạng.',
+  'dailyChallengeCompleted': 'Đã đánh dấu hoàn thành cho hôm nay.',
+  'markChallengeDone': 'Đánh dấu xong',
+  'dailyChallengeDone': 'Hôm nay đã xong',
+  'dailyChallengeGoOutside': 'Ra ngoài trong 10 phút',
+  'dailyChallengeGratitude': 'Viết một câu biết ơn',
+  'dailyChallengeStretch': 'Duỗi người trong một phút',
+  'dailyChallengeDrinkWater': 'Uống một ly nước',
+  'dailyChallengeBreathe': 'Thở chậm trong một phút',
+  'dailyChallengeShortWalk': 'Đi bộ ngắn',
   'noneYet': 'Chưa có',
   'moodGarden': 'Vườn tâm trạng',
   'moodGardenSubtitle': 'Lớn nhẹ nhàng từ check-in và phản chiếu.',

@@ -44,6 +44,8 @@ class SettingsPreferencesRepository {
   static const _dailyReminderEnabledKey = 'daily_reminder_enabled_v1';
   static const _dailyReminderHourKey = 'daily_reminder_hour_v1';
   static const _dailyReminderMinuteKey = 'daily_reminder_minute_v1';
+  static const _dailyChallengeCompletedPrefix =
+      'daily_challenge_completed_v1';
   static const supportedLanguageCodes = {'en', 'vi'};
   static const supportedThemeModeNames = {'system', 'light', 'dark'};
 
@@ -108,6 +110,29 @@ class SettingsPreferencesRepository {
   Future<void> setDailyReminderTime(DailyReminderTime time) async {
     await _store.write(key: _dailyReminderHourKey, value: '${time.hour}');
     await _store.write(key: _dailyReminderMinuteKey, value: '${time.minute}');
+  }
+
+  Future<bool> readDailyChallengeCompleted(DateTime date) async {
+    final value = await _store.read(key: _dailyChallengeCompletedKey(date));
+    return value == 'true';
+  }
+
+  Future<void> setDailyChallengeCompleted({
+    required DateTime date,
+    required bool completed,
+  }) {
+    return _store.write(
+      key: _dailyChallengeCompletedKey(date),
+      value: completed.toString(),
+    );
+  }
+
+  String _dailyChallengeCompletedKey(DateTime date) {
+    final local = date.toLocal();
+    final year = local.year.toString().padLeft(4, '0');
+    final month = local.month.toString().padLeft(2, '0');
+    final day = local.day.toString().padLeft(2, '0');
+    return '${_dailyChallengeCompletedPrefix}_$year$month$day';
   }
 }
 

@@ -47,17 +47,27 @@ class MoodStep extends StatelessWidget {
                 bottom: 72,
                 left: 0,
                 right: 0,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: moodOptions.map((option) {
-                    final selected = option.score == selectedMoodScore;
-                    return _MoodBubble(
-                      option: option,
-                      selected: selected,
-                      semanticLabel: l10n.moodLabel(option.score),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final slotSize =
+                        (constraints.maxWidth / moodOptions.length)
+                            .clamp(52.0, 72.0)
+                            .toDouble();
+
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: moodOptions.map((option) {
+                        final selected = option.score == selectedMoodScore;
+                        return _MoodBubble(
+                          option: option,
+                          selected: selected,
+                          semanticLabel: l10n.moodLabel(option.score),
+                          slotSize: slotSize,
+                        );
+                      }).toList(),
                     );
-                  }).toList(),
+                  },
                 ),
               ),
               Positioned(
@@ -91,48 +101,139 @@ class _MoodBubble extends StatelessWidget {
     required this.option,
     required this.selected,
     required this.semanticLabel,
+    required this.slotSize,
   });
 
   final MoodOption option;
   final bool selected;
   final String semanticLabel;
+  final double slotSize;
 
   @override
   Widget build(BuildContext context) {
-    final size = selected ? 72.0 : 44.0;
     final quickLogTheme = QuickLogTheme.of(context);
+    final duration = AppMotion.duration(context, AppMotion.fastFeedback);
+    final curve = AppMotion.curve(context, AppMotion.standardCurve);
+    final ringSize = slotSize - 4;
+    final bubbleSize = slotSize - 8;
+    final iconSize = bubbleSize - 20;
 
-    return GestureDetector(
+    return Semantics(
       key: ValueKey('mood_option_${option.score}'),
-      onTap: () {
-        context.read<MoodFormCubit>().setMoodScore(option.score);
-        HapticFeedback.selectionClick();
-      },
-      child: AnimatedContainer(
-        duration: AppMotion.duration(context, AppMotion.standardFeedback),
-        curve: AppMotion.curve(context, AppMotion.standardCurve),
-        width: size,
-        height: size,
-        padding: EdgeInsets.all(selected ? 10 : 7),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: selected
-              ? option.background
-              : quickLogTheme.cardColor.withValues(alpha: 0.78),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: option.background.withValues(alpha: 0.72),
-                    blurRadius: 28,
-                    spreadRadius: 8,
+      button: true,
+      selected: selected,
+      label: semanticLabel,
+      child: SizedBox.square(
+        dimension: slotSize,
+        child: Material(
+          color: Colors.transparent,
+          child: InkResponse(
+            onTap: () {
+              context.read<MoodFormCubit>().setMoodScore(option.score);
+              HapticFeedback.selectionClick();
+            },
+            customBorder: const CircleBorder(),
+            radius: slotSize / 2,
+            child: ExcludeSemantics(
+              child: Stack(
+                alignment: Alignment.center,
+                clipBehavior: Clip.none,
+                children: [
+                  AnimatedScale(
+                    key: ValueKey('mood_option_${option.score}_selection_ring'),
+                    duration: duration,
+                    curve: curve,
+                    scale: selected ? 1 : 0.86,
+                    child: AnimatedOpacity(
+                      duration: duration,
+                      curve: curve,
+                      opacity: selected ? 1 : 0,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: option.foreground.withValues(alpha: 0.68),
+                            width: 2,
+                          ),
+                        ),
+                        child: SizedBox.square(dimension: ringSize),
+                      ),
+                    ),
                   ),
-                ]
-              : null,
-        ),
-        child: EmotionAsset(
-          path: option.assetPath,
-          semanticLabel: semanticLabel,
-          size: selected ? 52 : 30,
+                  AnimatedScale(
+                    duration: duration,
+                    curve: curve,
+                    scale: selected ? 1 : 0.70,
+                    child: AnimatedContainer(
+                      duration: duration,
+                      curve: curve,
+                      width: bubbleSize,
+                      height: bubbleSize,
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: selected
+                            ? option.background
+                            : quickLogTheme.cardColor.withValues(alpha: 0.78),
+                        border: Border.all(
+                          color: selected
+                              ? option.foreground.withValues(alpha: 0.18)
+                              : quickLogTheme.outline,
+                        ),
+                        boxShadow: selected
+                            ? [
+                                BoxShadow(
+                                  color: option.background.withValues(
+                                    alpha: 0.56,
+                                  ),
+                                  blurRadius: 22,
+                                  spreadRadius: 4,
+                                ),
+                              ]
+                            : null,
+                      ),
+                      child: EmotionAsset(
+                        path: option.assetPath,
+                        semanticLabel: semanticLabel,
+                        size: iconSize,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    right: 2,
+                    top: 4,
+                    child: AnimatedScale(
+                      duration: duration,
+                      curve: curve,
+                      scale: selected ? 1 : 0.25,
+                      child: AnimatedOpacity(
+                        duration: duration,
+                        curve: curve,
+                        opacity: selected ? 1 : 0,
+                        child: DecoratedBox(
+                          key: ValueKey(
+                            'mood_option_${option.score}_selected_badge',
+                          ),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: option.foreground,
+                          ),
+                          child: const Padding(
+                            padding: EdgeInsets.all(3),
+                            child: Icon(
+                              Icons.check,
+                              color: Colors.white,
+                              size: 13,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );

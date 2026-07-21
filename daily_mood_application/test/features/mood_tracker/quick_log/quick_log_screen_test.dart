@@ -4,6 +4,7 @@ import 'package:daily_mood_application/features/mood_tracker/cubit/mood_form_sta
 import 'package:daily_mood_application/features/mood_tracker/quick_log/quick_log_media_service.dart';
 import 'package:daily_mood_application/features/mood_tracker/quick_log/quick_log_screen.dart';
 import 'package:daily_mood_application/features/mood_tracker/quick_log/widgets/completion_dialog.dart';
+import 'package:daily_mood_application/features/mood_tracker/quick_log/widgets/mood_step.dart';
 import 'package:daily_mood_application/features/mood_tracker/quick_log/widgets/note_step.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -172,6 +173,120 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(donePressed, isTrue);
+  });
+
+  testWidgets('mood selection feedback keeps option slots stable', (
+    tester,
+  ) async {
+    final cubit = MoodFormCubit();
+    addTearDown(cubit.close);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: 390,
+              child: BlocProvider.value(
+                value: cubit,
+                child: BlocBuilder<MoodFormCubit, MoodFormState>(
+                  builder: (context, state) {
+                    return MoodStep(selectedMoodScore: state.moodScore);
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final optionFinders = [
+      for (var score = 1; score <= 5; score++)
+        find.byKey(ValueKey('mood_option_$score')),
+    ];
+    for (final finder in optionFinders) {
+      expect(tester.getSize(finder), const Size.square(72));
+    }
+
+    await tester.tap(find.byKey(const ValueKey('mood_option_4')));
+    await tester.pumpAndSettle();
+
+    for (final finder in optionFinders) {
+      expect(tester.getSize(finder), const Size.square(72));
+    }
+    expect(cubit.state.moodScore, 4);
+    expect(
+      tester
+          .widget<Semantics>(find.byKey(const ValueKey('mood_option_4')))
+          .properties
+          .selected,
+      isTrue,
+    );
+
+    await tester.tap(find.byKey(const ValueKey('mood_option_2')));
+    await tester.pumpAndSettle();
+
+    expect(cubit.state.moodScore, 2);
+    expect(
+      tester
+          .widget<Semantics>(find.byKey(const ValueKey('mood_option_4')))
+          .properties
+          .selected,
+      isFalse,
+    );
+    expect(
+      tester
+          .widget<Semantics>(find.byKey(const ValueKey('mood_option_2')))
+          .properties
+          .selected,
+      isTrue,
+    );
+  });
+
+  testWidgets('mood selection feedback adapts to narrow widths', (
+    tester,
+  ) async {
+    final cubit = MoodFormCubit();
+    addTearDown(cubit.close);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: 260,
+              child: BlocProvider.value(
+                value: cubit,
+                child: BlocBuilder<MoodFormCubit, MoodFormState>(
+                  builder: (context, state) {
+                    return MoodStep(selectedMoodScore: state.moodScore);
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    for (var score = 1; score <= 5; score++) {
+      expect(
+        tester.getSize(find.byKey(ValueKey('mood_option_$score'))),
+        const Size.square(52),
+      );
+    }
+
+    await tester.tap(find.byKey(const ValueKey('mood_option_5')));
+    await tester.pumpAndSettle();
+
+    for (var score = 1; score <= 5; score++) {
+      expect(
+        tester.getSize(find.byKey(ValueKey('mood_option_$score'))),
+        const Size.square(52),
+      );
+    }
+    expect(cubit.state.moodScore, 5);
   });
 
   testWidgets('completion dialog copy changes with low mood', (tester) async {

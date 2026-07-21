@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/security/app_lock_cubit.dart';
 import '../../core/security/pin_repository.dart';
+import '../../core/utils/app_haptics.dart';
 import '../../data/repositories/activity_repository.dart';
 import '../../data/repositories/mood_entry_repository.dart';
 import '../../features/mood_tracker/cubit/mood_form_cubit.dart';
@@ -81,6 +82,7 @@ GoRouter buildAppRouter(AppLockCubit lockCubit, PinRepository pinRepository) {
         builder: (context, state) {
           final mediaService = QuickLogMediaService();
           final voiceNoteService = QuickLogVoiceNoteService();
+          final haptics = context.read<AppHaptics>();
 
           return BlocProvider(
             create: (_) => MoodFormCubit(),
@@ -98,6 +100,8 @@ GoRouter buildAppRouter(AppLockCubit lockCubit, PinRepository pinRepository) {
               onStopVoiceRecording: voiceNoteService.stopRecording,
               onCancelVoiceRecording: voiceNoteService.cancelRecording,
               onDisposeVoiceRecording: voiceNoteService.dispose,
+              onMoodSelectedHaptic: haptics.moodSelected,
+              onMoodSavedHaptic: haptics.moodSaved,
               onSave: (formState) async {
                 await context.read<MoodEntryRepository>().createEntry(
                   moodScore: formState.moodScore!,

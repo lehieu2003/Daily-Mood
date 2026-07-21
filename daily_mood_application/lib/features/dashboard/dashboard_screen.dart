@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/localization/app_localizations.dart';
 import '../../app/routes/app_router.dart';
 import '../../data/repositories/daily_reflection_repository.dart';
+import '../../core/utils/app_haptics.dart';
 import '../../data/repositories/activity_repository.dart';
 import '../../data/repositories/mood_entry_repository.dart';
 import '../../domain/models/daily_reflection.dart';
@@ -342,6 +343,7 @@ class _DailyChallengeSectionState extends State<_DailyChallengeSection> {
     }
 
     final challenge = repository.challengeForDate(date);
+    final haptics = _hapticsFromContext(context);
 
     return FutureBuilder<bool>(
       future: completedFuture,
@@ -350,6 +352,7 @@ class _DailyChallengeSectionState extends State<_DailyChallengeSection> {
           challenge: challenge,
           completed: snapshot.data ?? false,
           onComplete: () => _markCompleted(repository, date),
+          onCompletedHaptic: haptics?.challengeCompleted,
         );
       },
     );
@@ -377,6 +380,14 @@ class _DailyChallengeSectionState extends State<_DailyChallengeSection> {
       return DailyChallengeRepository(
         repository: context.read<SettingsPreferencesRepository>(),
       );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  AppHaptics? _hapticsFromContext(BuildContext context) {
+    try {
+      return context.read<AppHaptics>();
     } catch (_) {
       return null;
     }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../app/localization/app_localizations.dart';
@@ -61,7 +60,6 @@ class SubEmotionGrid extends StatelessWidget {
           selected: selected,
           onSelected: (_) {
             context.read<MoodFormCubit>().toggleSubEmotion(emotion.id);
-            if (!selected) HapticFeedback.lightImpact();
           },
           selectedColor: compact ? AppColors.lavender : quickLogTheme.cardColor,
           backgroundColor: compact

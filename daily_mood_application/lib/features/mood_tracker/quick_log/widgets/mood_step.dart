@@ -1,5 +1,6 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../app/localization/app_localizations.dart';
@@ -12,9 +13,14 @@ import 'emotion_asset.dart';
 import 'quick_log_theme.dart';
 
 class MoodStep extends StatelessWidget {
-  const MoodStep({required this.selectedMoodScore, super.key});
+  const MoodStep({
+    required this.selectedMoodScore,
+    this.onMoodSelectedHaptic,
+    super.key,
+  });
 
   final int? selectedMoodScore;
+  final Future<void> Function()? onMoodSelectedHaptic;
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +69,7 @@ class MoodStep extends StatelessWidget {
                           selected: selected,
                           semanticLabel: l10n.moodLabel(option.score),
                           slotSize: slotSize,
+                          onMoodSelectedHaptic: onMoodSelectedHaptic,
                         );
                       }).toList(),
                     );
@@ -101,12 +108,14 @@ class _MoodBubble extends StatelessWidget {
     required this.selected,
     required this.semanticLabel,
     required this.slotSize,
+    this.onMoodSelectedHaptic,
   });
 
   final MoodOption option;
   final bool selected;
   final String semanticLabel;
   final double slotSize;
+  final Future<void> Function()? onMoodSelectedHaptic;
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +138,9 @@ class _MoodBubble extends StatelessWidget {
           child: InkResponse(
             onTap: () {
               context.read<MoodFormCubit>().setMoodScore(option.score);
-              HapticFeedback.selectionClick();
+              if (!selected) {
+                unawaited(onMoodSelectedHaptic?.call());
+              }
             },
             customBorder: const CircleBorder(),
             radius: slotSize / 2,

@@ -19,6 +19,8 @@ void main() {
     var nextReasonId = 2;
     var donePressed = false;
     var isRecording = false;
+    var moodHapticCount = 0;
+    var saveHapticCount = 0;
     addTearDown(cubit.close);
 
     await tester.pumpWidget(
@@ -49,6 +51,8 @@ void main() {
             },
             onSave: (state) async => savedState = state,
             onDone: () => donePressed = true,
+            onMoodSelectedHaptic: () async => moodHapticCount++,
+            onMoodSavedHaptic: () async => saveHapticCount++,
           ),
         ),
       ),
@@ -62,6 +66,7 @@ void main() {
     await tester.pump();
 
     expect(cubit.state.moodScore, 4);
+    expect(moodHapticCount, 1);
     await tester.tap(find.text('Continue'));
     await tester.pump();
 
@@ -74,6 +79,7 @@ void main() {
     );
     await tester.tap(find.byKey(const ValueKey('sub_emotion_10')).first);
     await tester.pump();
+    expect(moodHapticCount, 1);
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
 
@@ -155,6 +161,7 @@ void main() {
     expect(savedState!.photoRelativePath, 'mood_photos/test.jpg');
     expect(savedState!.voiceNoteRelativePath, 'mood_voices/test.m4a');
     expect(savedState!.normalizedNote, 'Had a steady day.');
+    expect(saveHapticCount, 1);
     expect(
       find.byKey(const ValueKey('quick_log_save_confirmation')),
       findsOneWidget,
@@ -179,6 +186,7 @@ void main() {
     tester,
   ) async {
     final cubit = MoodFormCubit();
+    var moodHapticCount = 0;
     addTearDown(cubit.close);
 
     await tester.pumpWidget(
@@ -191,7 +199,10 @@ void main() {
                 value: cubit,
                 child: BlocBuilder<MoodFormCubit, MoodFormState>(
                   builder: (context, state) {
-                    return MoodStep(selectedMoodScore: state.moodScore);
+                    return MoodStep(
+                      selectedMoodScore: state.moodScore,
+                      onMoodSelectedHaptic: () async => moodHapticCount++,
+                    );
                   },
                 ),
               ),
@@ -216,6 +227,7 @@ void main() {
       expect(tester.getSize(finder), const Size.square(72));
     }
     expect(cubit.state.moodScore, 4);
+    expect(moodHapticCount, 1);
     expect(
       tester
           .widget<Semantics>(find.byKey(const ValueKey('mood_option_4')))
@@ -228,6 +240,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(cubit.state.moodScore, 2);
+    expect(moodHapticCount, 2);
     expect(
       tester
           .widget<Semantics>(find.byKey(const ValueKey('mood_option_4')))

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../domain/models/mood_activity.dart';
@@ -23,6 +25,8 @@ class QuickLogScreen extends StatefulWidget {
     this.onCancel,
     this.onDone,
     this.onDisposeVoiceRecording,
+    this.onMoodSelectedHaptic,
+    this.onMoodSavedHaptic,
     super.key,
   });
 
@@ -36,6 +40,8 @@ class QuickLogScreen extends StatefulWidget {
   final Future<void> Function(MoodFormState state) onSave;
   final VoidCallback? onCancel;
   final VoidCallback? onDone;
+  final Future<void> Function()? onMoodSelectedHaptic;
+  final Future<void> Function()? onMoodSavedHaptic;
 
   @override
   State<QuickLogScreen> createState() => _QuickLogScreenState();
@@ -95,6 +101,7 @@ class _QuickLogScreenState extends State<QuickLogScreen> {
     setState(() => _isSaving = true);
     try {
       await widget.onSave(state);
+      unawaited(widget.onMoodSavedHaptic?.call());
       if (!mounted) return;
       await _showCompletionDialog(moodScore);
     } catch (error, stackTrace) {
@@ -178,7 +185,10 @@ class _QuickLogScreenState extends State<QuickLogScreen> {
 
   Widget _childForStep(MoodFormState state) {
     return switch (_stepIndex) {
-      0 => MoodStep(selectedMoodScore: state.moodScore),
+      0 => MoodStep(
+        selectedMoodScore: state.moodScore,
+        onMoodSelectedHaptic: widget.onMoodSelectedHaptic,
+      ),
       1 => EmotionStep(
         selectedMoodScore: state.moodScore,
         selectedIds: state.selectedSubEmotionIds,
@@ -195,7 +205,10 @@ class _QuickLogScreenState extends State<QuickLogScreen> {
         onStopVoiceRecording: widget.onStopVoiceRecording,
         onCancelVoiceRecording: widget.onCancelVoiceRecording,
       ),
-      _ => MoodStep(selectedMoodScore: state.moodScore),
+      _ => MoodStep(
+        selectedMoodScore: state.moodScore,
+        onMoodSelectedHaptic: widget.onMoodSelectedHaptic,
+      ),
     };
   }
 }

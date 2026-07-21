@@ -368,6 +368,7 @@ void main() {
 
   testWidgets('daily challenge completion feedback plays once', (tester) async {
     var completed = false;
+    var hapticCount = 0;
 
     Widget buildCard() {
       return MaterialApp(
@@ -378,6 +379,7 @@ void main() {
             onComplete: () {
               completed = true;
             },
+            onCompletedHaptic: () async => hapticCount++,
           ),
         ),
       );
@@ -403,6 +405,7 @@ void main() {
 
     expect(find.text('Done today'), findsOneWidget);
     expect(find.text('Marked complete for today.'), findsOneWidget);
+    expect(hapticCount, 1);
     expect(
       tester
           .widget<Opacity>(
@@ -420,6 +423,7 @@ void main() {
     await tester.pumpWidget(buildCard());
     await tester.pump(const Duration(milliseconds: 120));
 
+    expect(hapticCount, 1);
     expect(
       tester
           .widget<Opacity>(

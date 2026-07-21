@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../app/localization/app_localizations.dart';
@@ -12,12 +14,14 @@ class DailyChallengeCard extends StatefulWidget {
     required this.challenge,
     required this.completed,
     required this.onComplete,
+    this.onCompletedHaptic,
     super.key,
   });
 
   final DailyChallenge challenge;
   final bool completed;
   final VoidCallback onComplete;
+  final Future<void> Function()? onCompletedHaptic;
 
   @override
   State<DailyChallengeCard> createState() => _DailyChallengeCardState();
@@ -56,6 +60,7 @@ class _DailyChallengeCardState extends State<DailyChallengeCard>
 
     if (widget.completed && !oldWidget.completed && !_hasPlayedCompletion) {
       _hasPlayedCompletion = true;
+      unawaited(widget.onCompletedHaptic?.call());
       _completionController.forward(from: 0);
     }
   }

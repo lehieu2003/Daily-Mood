@@ -12,6 +12,7 @@ import '../core/database/daos/mood_entry_dao.dart';
 import '../data/repositories/daily_reflection_repository.dart';
 import '../core/security/app_lock_cubit.dart';
 import '../core/security/pin_repository.dart';
+import '../core/utils/app_haptics.dart';
 import '../data/repositories/activity_repository.dart';
 import '../data/repositories/mood_analytics_repository.dart';
 import '../data/repositories/mood_entry_repository.dart';
@@ -53,6 +54,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   late final ActivityRepository _activityRepository;
   late final DailyReflectionRepository _dailyReflectionRepository;
   late final SettingsPreferencesRepository _settingsPreferencesRepository;
+  late final AppHaptics _appHaptics;
   late final LocalReminderScheduler _localReminderScheduler;
   late final AppLocaleCubit _localeCubit;
   late final AppThemeModeCubit _themeModeCubit;
@@ -82,6 +84,9 @@ class _AppState extends State<App> with WidgetsBindingObserver {
       localService: DailyReflectionLocalService(dao: _dailyReflectionDao),
     );
     _settingsPreferencesRepository = SettingsPreferencesRepository();
+    _appHaptics = AppHaptics(
+      settingsRepository: _settingsPreferencesRepository,
+    );
     _localReminderScheduler = FlutterLocalReminderScheduler();
     unawaited(_reconcileDailyReminder());
     _localeCubit = AppLocaleCubit(repository: _settingsPreferencesRepository);
@@ -138,6 +143,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
         RepositoryProvider<SettingsPreferencesRepository>.value(
           value: _settingsPreferencesRepository,
         ),
+        RepositoryProvider<AppHaptics>.value(value: _appHaptics),
         RepositoryProvider<LocalReminderScheduler>.value(
           value: _localReminderScheduler,
         ),

@@ -20,8 +20,8 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | Overall MVP status   | Feature-gap backlog implementation is complete                                                             |
 | Current active phase | Phase 9.8 - MVP Polish: Gentle Feedback & Visual Rewards; Phase 7 store readiness remains open             |
 | Last updated         | 2026-07-21                                                                                                 |
-| Latest verification  | P9.8e user-reported format, targeted test, and analyze passed                                              |
-| Main next task       | P9.8f haptic feedback pass or Phase 7 store readiness items                                                |
+| Latest verification  | P9.8f user-reported format, targeted tests, and analyze passed                                             |
+| Main next task       | P9.8g animation QA and cleanup or Phase 7 store readiness items                                            |
 | Known blockers       | Real privacy-policy effective date/contact; final chart green; Gradient 1 confirmation; WCAG contrast pass |
 
 ## Update Rules
@@ -173,7 +173,7 @@ This phase adds calm, local-only micro-interactions to the completed MVP. The go
 | P9.8c  | Soft mood selection feedback          | Done | Mood tracker/quick-log mood picker        | Selecting a mood gives immediate scale, fade, or color feedback without shifting layout             | Reworked mood options into stable responsive slots with animated scale, ring, border, and check-badge feedback plus selected semantics. User-reported format, targeted test, and analyze passed. |
 | P9.8d  | Gentle Mood Garden growth moment      | Done | Dashboard/retention UI                    | After a successful check-in, the garden shows a subtle growth, watering, or bloom animation          | Added a data-driven garden growth pulse that triggers when growth points increase, with decorative watering/sparkle overlay and reduced-motion support. User-reported format, targeted test, and analyze passed. |
 | P9.8e  | Daily Challenge completion feedback   | Done | Dashboard/settings/retention              | Completing a challenge shows a calm badge/check animation and accessible success text                | Added a one-shot completion ring/check animation, kept accessible success text visible, and prevented replay spam on repeated off/on toggles. User-reported format, targeted test, and analyze passed. |
-| P9.8f  | Haptic feedback pass                  | Not Started | Quick-log/challenge interactions          | Optional light haptics fire only on clear user actions and app still works when haptics unavailable | Consider mood selected, mood saved, and challenge completed only.                             |
+| P9.8f  | Haptic feedback pass                  | Done | Quick-log/challenge interactions          | Optional light haptics fire only on clear user actions and app still works when haptics unavailable | Added a settings-aware haptics service for mood selected, mood saved, and challenge completed; removed sub-emotion haptics; added focused coverage for enabled, disabled, unavailable, and widget trigger behavior. User-reported format, targeted tests, and analyze passed. |
 | P9.8g  | Animation QA and cleanup              | Not Started | Affected widgets/tests                    | Animations do not block navigation, overflow, obscure content, or break small-phone layouts          | Check light mode, dark mode, small phones, repeated quick logging, and reduced motion.         |
 
 ### Recommended Implementation Order
@@ -429,6 +429,7 @@ Target tests:
 | 2026-07-21 | P9.8c soft mood selection feedback verification                                                                                                                                             | Passed | Reported by user after format, targeted test, and analyze passed.                           |
 | 2026-07-21 | P9.8d gentle Mood Garden growth moment verification                                                                                                                                         | Passed | Reported by user after format, targeted test, and analyze passed.                           |
 | 2026-07-21 | P9.8e daily challenge completion feedback verification                                                                                                                                      | Passed | Reported by user after format, targeted test, and analyze passed.                           |
+| 2026-07-21 | P9.8f haptic feedback pass verification                                                                                                                                                     | Passed | Reported by user after format, targeted tests, and analyze passed.                          |
 
 ## Reference Docs
 

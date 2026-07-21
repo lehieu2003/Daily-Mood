@@ -20,8 +20,8 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | Overall MVP status   | Feature-gap backlog implementation is complete                                                             |
 | Current active phase | Phase 9.8 - MVP Polish: Gentle Feedback & Visual Rewards; Phase 7 store readiness remains open             |
 | Last updated         | 2026-07-21                                                                                                 |
-| Latest verification  | P9.8c user-reported format, targeted test, and analyze passed                                              |
-| Main next task       | P9.8d gentle Mood Garden growth moment or Phase 7 store readiness items                                    |
+| Latest verification  | P9.8d user-reported format, targeted test, and analyze passed                                              |
+| Main next task       | P9.8e daily challenge completion feedback or Phase 7 store readiness items                                 |
 | Known blockers       | Real privacy-policy effective date/contact; final chart green; Gradient 1 confirmation; WCAG contrast pass |
 
 ## Update Rules
@@ -171,7 +171,7 @@ This phase adds calm, local-only micro-interactions to the completed MVP. The go
 | P9.8a  | Shared reduced-motion behavior         | Done | App theme/shared animation utilities      | Widgets can choose full animation or instant/fade-only feedback through a centralized helper        | Added `AppMotion` duration/curve tokens with `MediaQuery` reduced-motion detection, then wired existing short UI animations to keep normal timing while using reduced motion when requested. Needs user-run format, analyze, and targeted tests.        |
 | P9.8b  | Quick-log save confirmation animation | Done | Mood tracker/quick-log/shared widgets     | Saving a mood shows a brief visual confirmation under 400ms and then continues normally             | Added an animated completion mark to the existing post-save dialog: selected emoji scale, mood-color ring/glow, check indicator, reduced-motion fallback, and focused widget assertions. User-reported format, targeted test, and analyze passed. |
 | P9.8c  | Soft mood selection feedback          | Done | Mood tracker/quick-log mood picker        | Selecting a mood gives immediate scale, fade, or color feedback without shifting layout             | Reworked mood options into stable responsive slots with animated scale, ring, border, and check-badge feedback plus selected semantics. User-reported format, targeted test, and analyze passed. |
-| P9.8d  | Gentle Mood Garden growth moment      | Not Started | Dashboard/retention UI                    | After a successful check-in, the garden shows a subtle growth, watering, or bloom animation          | Animate existing garden state only. Do not add unlock economy or streak pressure.             |
+| P9.8d  | Gentle Mood Garden growth moment      | Done | Dashboard/retention UI                    | After a successful check-in, the garden shows a subtle growth, watering, or bloom animation          | Added a data-driven garden growth pulse that triggers when growth points increase, with decorative watering/sparkle overlay and reduced-motion support. User-reported format, targeted test, and analyze passed. |
 | P9.8e  | Daily Challenge completion feedback   | Not Started | Dashboard/settings/retention              | Completing a challenge shows a calm badge/check animation and accessible success text                | Avoid loud reward language and repeated effect spam when toggled on/off/on.                   |
 | P9.8f  | Haptic feedback pass                  | Not Started | Quick-log/challenge interactions          | Optional light haptics fire only on clear user actions and app still works when haptics unavailable | Consider mood selected, mood saved, and challenge completed only.                             |
 | P9.8g  | Animation QA and cleanup              | Not Started | Affected widgets/tests                    | Animations do not block navigation, overflow, obscure content, or break small-phone layouts          | Check light mode, dark mode, small phones, repeated quick logging, and reduced motion.         |
@@ -427,6 +427,7 @@ Target tests:
 | 2026-07-20 | P9.6 retention tests, localization, and privacy review verification                                                                                                                         | Passed | Reported by user after all tests passed.                                                    |
 | 2026-07-21 | P9.8b quick-log save confirmation animation verification                                                                                                                                    | Passed | Reported by user after format, targeted test, and analyze passed.                           |
 | 2026-07-21 | P9.8c soft mood selection feedback verification                                                                                                                                             | Passed | Reported by user after format, targeted test, and analyze passed.                           |
+| 2026-07-21 | P9.8d gentle Mood Garden growth moment verification                                                                                                                                         | Passed | Reported by user after format, targeted test, and analyze passed.                           |
 
 ## Reference Docs
 

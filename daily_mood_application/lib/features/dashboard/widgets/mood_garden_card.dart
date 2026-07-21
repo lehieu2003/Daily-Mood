@@ -1,21 +1,64 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/localization/app_localizations.dart';
+import '../../../app/theme/app_motion.dart';
 import '../../../app/theme/app_typography.dart';
 import '../dashboard_palette.dart';
 import '../mood_garden.dart';
 import 'dashboard_card_decoration.dart';
 
-class MoodGardenCard extends StatelessWidget {
+class MoodGardenCard extends StatefulWidget {
   const MoodGardenCard({required this.summary, this.onViewJourney, super.key});
 
   final MoodGardenSummary summary;
   final VoidCallback? onViewJourney;
 
   @override
+  State<MoodGardenCard> createState() => _MoodGardenCardState();
+}
+
+class _MoodGardenCardState extends State<MoodGardenCard>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _growthController;
+  late int _previousGrowthPoints;
+
+  @override
+  void initState() {
+    super.initState();
+    _previousGrowthPoints = widget.summary.growthPoints;
+    _growthController = AnimationController(vsync: this);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _growthController.duration = AppMotion.duration(
+      context,
+      AppMotion.gardenGrowth,
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant MoodGardenCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    final newGrowthPoints = widget.summary.growthPoints;
+    if (newGrowthPoints > _previousGrowthPoints) {
+      _growthController.forward(from: 0);
+    }
+    _previousGrowthPoints = newGrowthPoints;
+  }
+
+  @override
+  void dispose() {
+    _growthController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final stageName = moodGardenStageName(summary.stage);
+    final stageName = moodGardenStageName(widget.summary.stage);
 
     return Container(
       key: const ValueKey('mood_garden_card'),
@@ -33,7 +76,10 @@ class MoodGardenCard extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _GardenVisual(stage: summary.stage),
+                      _AnimatedGardenVisual(
+                        stage: widget.summary.stage,
+                        animation: _growthController,
+                      ),
                       const SizedBox(width: 14),
                       Expanded(
                         child: _GardenHeading(
@@ -41,24 +87,24 @@ class MoodGardenCard extends StatelessWidget {
                           subtitle: l10n.moodGardenSubtitle,
                         ),
                       ),
-                      if (onViewJourney != null && !compact) ...[
+                      if (widget.onViewJourney != null && !compact) ...[
                         const SizedBox(width: 8),
                         IconButton(
                           key: const ValueKey('mood_garden_progression_button'),
                           tooltip: l10n.viewGardenJourney,
-                          onPressed: onViewJourney,
+                          onPressed: widget.onViewJourney,
                           icon: const Icon(Icons.route_rounded),
                         ),
                       ],
                     ],
                   ),
-                  if (onViewJourney != null && compact) ...[
+                  if (widget.onViewJourney != null && compact) ...[
                     const SizedBox(height: 12),
                     Align(
                       alignment: Alignment.centerLeft,
                       child: TextButton.icon(
                         key: const ValueKey('mood_garden_progression_button'),
-                        onPressed: onViewJourney,
+                        onPressed: widget.onViewJourney,
                         icon: const Icon(Icons.route_rounded, size: 18),
                         label: Text(l10n.viewGardenJourney),
                       ),
@@ -73,7 +119,7 @@ class MoodGardenCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(999),
             child: LinearProgressIndicator(
               minHeight: 9,
-              value: summary.progressToNextStage,
+              value: widget.summary.progressToNextStage,
               backgroundColor: DashboardPalette.lilacPanel,
               valueColor: AlwaysStoppedAnimation<Color>(DashboardPalette.green),
             ),
@@ -85,18 +131,132 @@ class MoodGardenCard extends StatelessWidget {
             children: [
               _GardenChip(
                 text: l10n.gardenGrowthSummary(
-                  activeDays: summary.activeDayCount,
-                  reflections: summary.reflectionCount,
+                  activeDays: widget.summary.activeDayCount,
+                  reflections: widget.summary.reflectionCount,
                 ),
               ),
               _GardenChip(
-                text: l10n.gardenRecentSummary(summary.recentActiveDays),
+                text: l10n.gardenRecentSummary(widget.summary.recentActiveDays),
               ),
               _GardenChip(text: l10n.gardenNoReset),
             ],
           ),
         ],
       ),
+    );
+  }
+}
+
+class _AnimatedGardenVisual extends StatelessWidget {
+  const _AnimatedGardenVisual({
+    required this.stage,
+    required this.animation,
+    this.size = 72,
+  });
+
+  final MoodGardenStage stage;
+  final Animation<double> animation;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final reduceMotion = AppMotion.shouldReduceMotion(context);
+
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: animation,
+        builder: (context, child) {
+          final pulse = _pulseValue(animation.value);
+          final scale = reduceMotion ? 1.0 : 1 + (pulse * 0.045);
+          final waterOpacity = reduceMotion ? animation.value : pulse;
+          final dropletOffset = reduceMotion ? 0.0 : 7 * (1 - pulse);
+
+          return SizedBox.square(
+            key: const ValueKey('mood_garden_growth_visual'),
+            dimension: size,
+            child: Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.center,
+              children: [
+                Transform.scale(scale: scale, child: child),
+                IgnorePointer(
+                  child: Opacity(
+                    key: const ValueKey('mood_garden_growth_moment'),
+                    opacity: waterOpacity.clamp(0.0, 1.0).toDouble(),
+                    child: Transform.translate(
+                      offset: Offset(0, dropletOffset),
+                      child: _GardenWateringOverlay(size: size),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+        child: _GardenVisual(stage: stage, size: size),
+      ),
+    );
+  }
+
+  double _pulseValue(double value) {
+    if (value <= 0) return 0;
+    if (value >= 1) return 0;
+    if (value <= 0.5) {
+      return Curves.easeOutCubic.transform(value / 0.5);
+    }
+    return 1 - Curves.easeIn.transform((value - 0.5) / 0.5);
+  }
+}
+
+class _GardenWateringOverlay extends StatelessWidget {
+  const _GardenWateringOverlay({required this.size});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return ExcludeSemantics(
+      child: SizedBox.square(
+        dimension: size,
+        child: Stack(
+          children: [
+            Positioned(
+              top: size * 0.02,
+              right: size * 0.10,
+              child: _WaterDrop(size: size * 0.13),
+            ),
+            Positioned(
+              top: size * 0.22,
+              left: size * 0.12,
+              child: _WaterDrop(size: size * 0.10),
+            ),
+            Positioned(
+              bottom: size * 0.14,
+              right: size * 0.18,
+              child: Icon(
+                Icons.auto_awesome_rounded,
+                color: DashboardPalette.green.withValues(alpha: 0.68),
+                size: size * 0.18,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _WaterDrop extends StatelessWidget {
+  const _WaterDrop({required this.size});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Icon(
+      Icons.water_drop_rounded,
+      color: DashboardPalette.green.withValues(alpha: 0.66),
+      size: size,
     );
   }
 }

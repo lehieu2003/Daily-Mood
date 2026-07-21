@@ -4,8 +4,10 @@ import 'package:daily_mood_application/domain/models/mood_entry.dart';
 import 'package:daily_mood_application/features/dashboard/daily_challenge.dart';
 import 'package:daily_mood_application/features/dashboard/dashboard_palette.dart';
 import 'package:daily_mood_application/features/dashboard/dashboard_screen.dart';
+import 'package:daily_mood_application/features/dashboard/mood_garden.dart';
 import 'package:daily_mood_application/features/dashboard/widgets/daily_challenge_card.dart';
 import 'package:daily_mood_application/features/dashboard/widgets/entry_detail_sheet.dart';
+import 'package:daily_mood_application/features/dashboard/widgets/mood_garden_card.dart';
 import 'package:daily_mood_application/features/settings/data/settings_preferences_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -577,6 +579,51 @@ void main() {
     );
   });
 
+  testWidgets('mood garden shows growth moment after points increase', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: MoodGardenCard(summary: _gardenSummary(growthPoints: 0)),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.byKey(const ValueKey('mood_garden_card')), findsOneWidget);
+    expect(
+      tester
+          .widget<Opacity>(
+            find.byKey(const ValueKey('mood_garden_growth_moment')),
+          )
+          .opacity,
+      0,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: MoodGardenCard(summary: _gardenSummary(growthPoints: 1)),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 120));
+
+    expect(
+      tester
+          .widget<Opacity>(
+            find.byKey(const ValueKey('mood_garden_growth_moment')),
+          )
+          .opacity,
+      greaterThan(0),
+    );
+    expect(
+      find.byKey(const ValueKey('mood_garden_growth_visual')),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('saves an optional daily reflection after a logged mood', (
     tester,
   ) async {
@@ -875,6 +922,20 @@ MoodEntryModel _entry({
     activityNames: activityNames,
     subEmotionIds: subEmotionIds,
     subEmotionNames: subEmotionNames,
+  );
+}
+
+MoodGardenSummary _gardenSummary({required int growthPoints}) {
+  final stage = growthPoints == 0
+      ? MoodGardenStage.seed
+      : MoodGardenStage.sprout;
+  return MoodGardenSummary(
+    stage: stage,
+    growthPoints: growthPoints,
+    pointsForNextStage: growthPoints == 0 ? 1 : 4,
+    activeDayCount: growthPoints,
+    reflectionCount: 0,
+    recentActiveDays: growthPoints,
   );
 }
 

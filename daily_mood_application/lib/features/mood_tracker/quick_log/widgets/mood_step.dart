@@ -49,10 +49,9 @@ class MoodStep extends StatelessWidget {
                 right: 0,
                 child: LayoutBuilder(
                   builder: (context, constraints) {
-                    final slotSize =
-                        (constraints.maxWidth / moodOptions.length)
-                            .clamp(52.0, 72.0)
-                            .toDouble();
+                    final slotSize = (constraints.maxWidth / moodOptions.length)
+                        .clamp(52.0, 72.0)
+                        .toDouble();
 
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,

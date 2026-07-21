@@ -118,6 +118,7 @@ This is the live implementation tracker for Daily Mood: Tracker & Diary. Update 
 | P7.4 | App icon and launch screen branding | Not Started | Platform assets        | App has production icon and launch screen assets                                         | Current iOS launch README is default boilerplate.                                                                                                                    |
 | P7.5 | Store privacy readiness             | Blocked     | Privacy/store metadata | Privacy policy, App Store labels, and Google Play Data Safety are complete               | Requires owner/legal/product input.                                                                                                                                  |
 | P7.6 | Bottom navigation visual polish     | Done        | Shell UI               | Bottom navigation colors match the dashboard reference and keep readable inactive states | Added bottom navigation color tokens to `AppColors` and applied them in `MainShell`. Awaiting user-run format, shell/dashboard smoke check, and analyze before Done. |
+| P7.7 | Shell navigation drawer             | Review      | Shell UI               | Drawer opens from the shell and routes to Home, Stats, Add mood, History, and Settings  | Added a shell-level drawer that opens through the left-edge swipe gesture, with no visible drawer icon, plus a focused drawer widget test. Awaiting user-run format, targeted test, and analyze. |
 
 ## Phase 8 - Feature Gap Backlog
 

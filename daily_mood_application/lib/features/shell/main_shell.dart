@@ -9,6 +9,7 @@ import '../analytics/stats_screen.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../history/history_screen.dart';
 import '../settings/settings_screen.dart';
+import 'shell_drawer.dart';
 
 /// Persistent bottom-nav shell built on `animated_notch_bottom_bar`.
 ///
@@ -30,6 +31,7 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   final _pageController = PageController(initialPage: 0);
   final _notchController = NotchBottomBarController(index: 0);
+  int _selectedTab = 0;
 
   @override
   void dispose() {
@@ -47,12 +49,43 @@ class _MainShellState extends State<MainShell> {
       });
       return;
     }
-    _pageController.jumpToPage(index);
+    _selectTab(index);
   }
 
   void _openStatsTab() {
-    _pageController.jumpToPage(1);
-    _notchController.jumpTo(1);
+    _selectTab(1);
+  }
+
+  void _selectTab(int index) {
+    setState(() => _selectedTab = index);
+    _pageController.jumpToPage(index);
+    _notchController.jumpTo(index);
+  }
+
+  Future<void> _selectDrawerDestination(
+    ShellDrawerDestination destination,
+  ) async {
+    Navigator.of(context).pop();
+    await Future<void>.delayed(const Duration(milliseconds: 160));
+    if (!mounted) return;
+
+    switch (destination) {
+      case ShellDrawerDestination.home:
+        _selectTab(0);
+        break;
+      case ShellDrawerDestination.stats:
+        _selectTab(1);
+        break;
+      case ShellDrawerDestination.addMood:
+        _onTap(2);
+        break;
+      case ShellDrawerDestination.history:
+        _selectTab(3);
+        break;
+      case ShellDrawerDestination.settings:
+        _selectTab(4);
+        break;
+    }
   }
 
   @override
@@ -73,6 +106,11 @@ class _MainShellState extends State<MainShell> {
 
     return Scaffold(
       extendBody: true,
+      drawer: ShellDrawer(
+        selectedDestination: _drawerDestinationForTab(_selectedTab),
+        onDestinationSelected: _selectDrawerDestination,
+      ),
+      drawerEnableOpenDragGesture: true,
       body: PageView(
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
@@ -134,5 +172,14 @@ class _MainShellState extends State<MainShell> {
         onTap: _onTap,
       ),
     );
+  }
+
+  ShellDrawerDestination _drawerDestinationForTab(int tabIndex) {
+    return switch (tabIndex) {
+      1 => ShellDrawerDestination.stats,
+      3 => ShellDrawerDestination.history,
+      4 => ShellDrawerDestination.settings,
+      _ => ShellDrawerDestination.home,
+    };
   }
 }

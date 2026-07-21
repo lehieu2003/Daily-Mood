@@ -366,6 +366,70 @@ void main() {
     }
   });
 
+  testWidgets('daily challenge completion feedback plays once', (tester) async {
+    var completed = false;
+
+    Widget buildCard() {
+      return MaterialApp(
+        home: Scaffold(
+          body: DailyChallengeCard(
+            challenge: const DailyChallenge(id: DailyChallengeId.shortWalk),
+            completed: completed,
+            onComplete: () {
+              completed = true;
+            },
+          ),
+        ),
+      );
+    }
+
+    await tester.pumpWidget(buildCard());
+    await tester.pump();
+
+    expect(
+      tester
+          .widget<Opacity>(
+            find.byKey(const ValueKey('daily_challenge_completion_feedback')),
+          )
+          .opacity,
+      0,
+    );
+
+    await tester.tap(
+      find.byKey(const ValueKey('daily_challenge_complete_button')),
+    );
+    await tester.pumpWidget(buildCard());
+    await tester.pump(const Duration(milliseconds: 120));
+
+    expect(find.text('Done today'), findsOneWidget);
+    expect(find.text('Marked complete for today.'), findsOneWidget);
+    expect(
+      tester
+          .widget<Opacity>(
+            find.byKey(const ValueKey('daily_challenge_completion_feedback')),
+          )
+          .opacity,
+      greaterThan(0),
+    );
+
+    await tester.pumpAndSettle();
+    completed = false;
+    await tester.pumpWidget(buildCard());
+    await tester.pumpAndSettle();
+    completed = true;
+    await tester.pumpWidget(buildCard());
+    await tester.pump(const Duration(milliseconds: 120));
+
+    expect(
+      tester
+          .widget<Opacity>(
+            find.byKey(const ValueKey('daily_challenge_completion_feedback')),
+          )
+          .opacity,
+      0,
+    );
+  });
+
   testWidgets('retention cards fit a small phone viewport', (tester) async {
     tester.view.physicalSize = const Size(320, 640);
     tester.view.devicePixelRatio = 1;

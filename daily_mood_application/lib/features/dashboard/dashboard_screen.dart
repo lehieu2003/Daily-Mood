@@ -588,14 +588,12 @@ List<MoodEntryModel> _filterOnThisDay(
   DateTime day,
 ) {
   final localDay = day.toLocal();
-  final matches =
-      entries.where((entry) {
-        final createdAt = entry.createdAt.toLocal();
-        return createdAt.month == localDay.month &&
-            createdAt.day == localDay.day &&
-            createdAt.year < localDay.year;
-      }).toList()
-        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+  final matches = entries.where((entry) {
+    final createdAt = entry.createdAt.toLocal();
+    return createdAt.month == localDay.month &&
+        createdAt.day == localDay.day &&
+        createdAt.year < localDay.year;
+  }).toList()..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
   return matches.take(3).toList(growable: false);
 }

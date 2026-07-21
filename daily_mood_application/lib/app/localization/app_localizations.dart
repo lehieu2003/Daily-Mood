@@ -66,6 +66,7 @@ class AppLocalizations {
   String get back => _text('back');
   String get close => _text('close');
   String get gotIt => _text('gotIt');
+  String get saved => _text('saved');
   String get all => _text('all');
   String get today => _text('today');
   String get yesterday => _text('yesterday');
@@ -649,6 +650,7 @@ const _en = {
   'back': 'Back',
   'close': 'Close',
   'gotIt': 'Got it',
+  'saved': 'Saved',
   'all': 'All',
   'today': 'Today',
   'yesterday': 'Yesterday',
@@ -682,8 +684,7 @@ const _en = {
   'saveReflection': 'Save reflection',
   'editReflection': 'Update reflection',
   'dailyChallenge': 'Daily challenge',
-  'dailyChallengeSubtitle':
-      'Optional and local. It never blocks mood logging.',
+  'dailyChallengeSubtitle': 'Optional and local. It never blocks mood logging.',
   'dailyChallengeCompleted': 'Marked complete for today.',
   'markChallengeDone': 'Mark done',
   'dailyChallengeDone': 'Done today',
@@ -714,8 +715,7 @@ const _en = {
       'A quiet start. Add one more check-in to see a clearer pattern.',
   'weeklyReportSteady':
       'You checked in enough to notice a gentle weekly pattern.',
-  'weeklyReportReflected':
-      'You paired check-ins with reflections this week.',
+  'weeklyReportReflected': 'You paired check-ins with reflections this week.',
   'weeklyReportAverageMoodLabel': 'Average mood',
   'topEmotion': 'Top emotion',
   'topReason': 'Top reason',
@@ -884,6 +884,7 @@ const _vi = {
   'back': 'Quay lại',
   'close': 'Đóng',
   'gotIt': 'Đã hiểu',
+  'saved': 'Đã lưu',
   'all': 'Tất cả',
   'today': 'Hôm nay',
   'yesterday': 'Hôm qua',
@@ -947,10 +948,8 @@ const _vi = {
   'weeklyReportEmpty': 'Chưa có báo cáo. Hãy check-in khi bạn có thời gian.',
   'weeklyReportSparse':
       'Một khởi đầu nhẹ. Thêm một check-in để thấy mẫu rõ hơn.',
-  'weeklyReportSteady':
-      'Bạn đã check-in đủ để nhìn thấy nhịp tuần nhẹ nhàng.',
-  'weeklyReportReflected':
-      'Tuần này bạn đã kết hợp check-in với phản chiếu.',
+  'weeklyReportSteady': 'Bạn đã check-in đủ để nhìn thấy nhịp tuần nhẹ nhàng.',
+  'weeklyReportReflected': 'Tuần này bạn đã kết hợp check-in với phản chiếu.',
   'weeklyReportAverageMoodLabel': 'Mood trung bình',
   'topEmotion': 'Cảm xúc nổi bật',
   'topReason': 'Lý do nổi bật',

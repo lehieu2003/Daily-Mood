@@ -44,9 +44,7 @@ class MoodGardenCard extends StatelessWidget {
                       if (onViewJourney != null && !compact) ...[
                         const SizedBox(width: 8),
                         IconButton(
-                          key: const ValueKey(
-                            'mood_garden_progression_button',
-                          ),
+                          key: const ValueKey('mood_garden_progression_button'),
                           tooltip: l10n.viewGardenJourney,
                           onPressed: onViewJourney,
                           icon: const Icon(Icons.route_rounded),

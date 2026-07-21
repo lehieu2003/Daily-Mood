@@ -41,26 +41,22 @@ void main() {
     final progression = summary.stageProgression;
     expect(progression.map((item) => item.stage), moodGardenStages);
     expect(
-      progression
-          .where((item) => item.isUnlocked)
-          .map((item) => item.stage),
-      [
-        MoodGardenStage.seed,
-        MoodGardenStage.sprout,
-        MoodGardenStage.leafy,
-      ],
+      progression.where((item) => item.isUnlocked).map((item) => item.stage),
+      [MoodGardenStage.seed, MoodGardenStage.sprout, MoodGardenStage.leafy],
     );
     expect(
       progression.singleWhere((item) => item.isCurrent).stage,
       MoodGardenStage.leafy,
     );
     expect(
-      progression.singleWhere((item) => item.stage == MoodGardenStage.bloom)
+      progression
+          .singleWhere((item) => item.stage == MoodGardenStage.bloom)
           .requiredPoints,
       9,
     );
     expect(
-      progression.singleWhere((item) => item.stage == MoodGardenStage.bloom)
+      progression
+          .singleWhere((item) => item.stage == MoodGardenStage.bloom)
           .isUnlocked,
       isFalse,
     );

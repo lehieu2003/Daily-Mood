@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/localization/app_localizations.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_motion.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../quick_log_options.dart';
 import 'emotion_asset.dart';
 
-class QuickLogCompletionDialog extends StatelessWidget {
+class QuickLogCompletionDialog extends StatefulWidget {
   const QuickLogCompletionDialog({
     required this.moodScore,
     required this.onDismissed,
@@ -17,11 +18,47 @@ class QuickLogCompletionDialog extends StatelessWidget {
   final VoidCallback onDismissed;
 
   @override
+  State<QuickLogCompletionDialog> createState() =>
+      _QuickLogCompletionDialogState();
+}
+
+class _QuickLogCompletionDialogState extends State<QuickLogCompletionDialog>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _controller.duration = AppMotion.duration(
+      context,
+      AppMotion.saveConfirmation,
+    );
+    if (!_controller.isAnimating && _controller.value == 0) {
+      _controller.forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final option = moodOptions.where((mood) => mood.score == moodScore).first;
+    final option = moodOptions
+        .where((mood) => mood.score == widget.moodScore)
+        .first;
     final l10n = context.l10n;
-    final copy = _copyForMood(l10n, moodScore);
+    final copy = _copyForMood(l10n, widget.moodScore);
     final colorScheme = Theme.of(context).colorScheme;
+    final reduceMotion = AppMotion.shouldReduceMotion(context);
 
     return Dialog(
       backgroundColor: colorScheme.surface,
@@ -32,24 +69,13 @@ class QuickLogCompletionDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    option.background.withValues(alpha: 0.92),
-                    option.background.withValues(alpha: 0.16),
-                  ],
-                ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(34),
-                child: EmotionAsset(
-                  path: option.assetPath,
-                  semanticLabel: l10n.moodLabel(option.score),
-                  size: 76,
-                ),
-              ),
+            _SaveConfirmationMark(
+              animation: _controller,
+              assetPath: option.assetPath,
+              moodColor: option.background,
+              foregroundColor: option.foreground,
+              semanticLabel: l10n.moodLabel(option.score),
+              reduceMotion: reduceMotion,
             ),
             const SizedBox(height: 28),
             Text(
@@ -77,7 +103,7 @@ class QuickLogCompletionDialog extends StatelessWidget {
             ),
             const SizedBox(height: 28),
             FilledButton(
-              onPressed: onDismissed,
+              onPressed: widget.onDismissed,
               style: FilledButton.styleFrom(
                 minimumSize: const Size.fromHeight(54),
                 backgroundColor: AppColors.primaryPurple,
@@ -170,6 +196,127 @@ class QuickLogCompletionDialog extends StatelessWidget {
         highlightColor: AppColors.primaryPurple,
       ),
     };
+  }
+}
+
+class _SaveConfirmationMark extends StatelessWidget {
+  const _SaveConfirmationMark({
+    required this.animation,
+    required this.assetPath,
+    required this.moodColor,
+    required this.foregroundColor,
+    required this.semanticLabel,
+    required this.reduceMotion,
+  });
+
+  final Animation<double> animation;
+  final String assetPath;
+  final Color moodColor;
+  final Color foregroundColor;
+  final String semanticLabel;
+  final bool reduceMotion;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.square(
+      key: const ValueKey('quick_log_save_confirmation'),
+      dimension: 156,
+      child: AnimatedBuilder(
+        animation: animation,
+        builder: (context, child) {
+          final eased = Curves.easeOutCubic.transform(animation.value);
+          final checkProgress = Curves.easeOut.transform(
+            ((animation.value - 0.42) / 0.58).clamp(0.0, 1.0).toDouble(),
+          );
+          final scale = reduceMotion ? 1.0 : 0.92 + (0.08 * eased);
+          final ringScale = reduceMotion ? 1.0 : 0.82 + (0.18 * eased);
+          final ringOpacity = reduceMotion ? eased : (1 - eased) * 0.36;
+
+          return Stack(
+            alignment: Alignment.center,
+            clipBehavior: Clip.none,
+            children: [
+              Transform.scale(
+                key: const ValueKey('quick_log_save_confirmation_ring'),
+                scale: ringScale,
+                child: Opacity(
+                  opacity: ringOpacity,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: moodColor, width: 4),
+                    ),
+                    child: const SizedBox.square(dimension: 142),
+                  ),
+                ),
+              ),
+              Transform.scale(
+                scale: scale,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        moodColor.withValues(alpha: 0.92),
+                        moodColor.withValues(alpha: 0.16),
+                      ],
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: moodColor.withValues(alpha: 0.22),
+                        blurRadius: 30,
+                        spreadRadius: 4,
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(34),
+                    child: EmotionAsset(
+                      path: assetPath,
+                      semanticLabel: semanticLabel,
+                      size: 76,
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                right: 15,
+                top: 18,
+                child: Transform.scale(
+                  scale: reduceMotion ? 1.0 : 0.72 + (0.28 * checkProgress),
+                  child: Opacity(
+                    opacity: checkProgress,
+                    child: DecoratedBox(
+                      key: const ValueKey('quick_log_save_confirmation_check'),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Theme.of(context).colorScheme.surface,
+                        boxShadow: [
+                          BoxShadow(
+                            color: foregroundColor.withValues(alpha: 0.20),
+                            blurRadius: 14,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(7),
+                        child: Icon(
+                          Icons.check_circle,
+                          color: foregroundColor,
+                          size: 26,
+                          semanticLabel: context.l10n.saved,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
   }
 }
 

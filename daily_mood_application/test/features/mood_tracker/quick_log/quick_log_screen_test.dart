@@ -154,6 +154,18 @@ void main() {
     expect(savedState!.photoRelativePath, 'mood_photos/test.jpg');
     expect(savedState!.voiceNoteRelativePath, 'mood_voices/test.m4a');
     expect(savedState!.normalizedNote, 'Had a steady day.');
+    expect(
+      find.byKey(const ValueKey('quick_log_save_confirmation')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('quick_log_save_confirmation_ring')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('quick_log_save_confirmation_check')),
+      findsOneWidget,
+    );
     expect(find.text("You're on a good way!"), findsOneWidget);
 
     await tester.tap(find.text('Got it'));
@@ -171,6 +183,10 @@ void main() {
 
     expect(find.text('That sounds really hard.'), findsOneWidget);
     expect(find.text('Thank you for\nchecking in'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('quick_log_save_confirmation')),
+      findsOneWidget,
+    );
     expect(find.text('Your day is going\namazing'), findsNothing);
   });
 

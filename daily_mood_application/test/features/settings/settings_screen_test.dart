@@ -182,44 +182,45 @@ void main() {
     expect(scheduler.cancelCount, 1);
   });
 
-  testWidgets('keeps daily reminder off when notification permission is denied', (
-    tester,
-  ) async {
-    final store = InMemorySettingsPreferencesStore();
-    final repository = SettingsPreferencesRepository(store: store);
-    final scheduler = _FakeLocalReminderScheduler(scheduleResult: false);
+  testWidgets(
+    'keeps daily reminder off when notification permission is denied',
+    (tester) async {
+      final store = InMemorySettingsPreferencesStore();
+      final repository = SettingsPreferencesRepository(store: store);
+      final scheduler = _FakeLocalReminderScheduler(scheduleResult: false);
 
-    await tester.pumpWidget(
-      _app(
-        SettingsScreen(
-          preferencesRepository: repository,
-          reminderScheduler: scheduler,
-          reminderTimePicker: (_, _) async {
-            return const DailyReminderTime(hour: 7, minute: 30);
-          },
+      await tester.pumpWidget(
+        _app(
+          SettingsScreen(
+            preferencesRepository: repository,
+            reminderScheduler: scheduler,
+            reminderTimePicker: (_, _) async {
+              return const DailyReminderTime(hour: 7, minute: 30);
+            },
+          ),
         ),
-      ),
-    );
-    await tester.pump();
+      );
+      await tester.pump();
 
-    await tester.ensureVisible(
-      find.byKey(const ValueKey('settings_daily_reminder_switch')),
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(
-      find.byKey(const ValueKey('settings_daily_reminder_switch')),
-    );
-    await tester.pump();
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('settings_daily_reminder_switch')),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(const ValueKey('settings_daily_reminder_switch')),
+      );
+      await tester.pump();
 
-    final reminderSwitch = tester.widget<Switch>(
-      find.byKey(const ValueKey('settings_daily_reminder_switch')),
-    );
-    expect(reminderSwitch.value, isFalse);
-    expect(await repository.readDailyReminderEnabled(), isFalse);
-    expect(scheduler.scheduledTimes, const [
-      DailyReminderTime(hour: 7, minute: 30),
-    ]);
-  });
+      final reminderSwitch = tester.widget<Switch>(
+        find.byKey(const ValueKey('settings_daily_reminder_switch')),
+      );
+      expect(reminderSwitch.value, isFalse);
+      expect(await repository.readDailyReminderEnabled(), isFalse);
+      expect(scheduler.scheduledTimes, const [
+        DailyReminderTime(hour: 7, minute: 30),
+      ]);
+    },
+  );
 
   testWidgets('leaves daily reminder off when time selection is canceled', (
     tester,

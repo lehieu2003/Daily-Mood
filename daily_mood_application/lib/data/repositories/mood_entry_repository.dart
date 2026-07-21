@@ -35,22 +35,22 @@ final class MoodEntryRepository {
     required DateTime day,
     int limit = 3,
   }) {
-    return _localService
-        .watchOnThisDayEntries(day: day, limit: limit)
-        .map((entries) {
-          return entries
-              .map(
-                (row) => _toDomain(
-                  row.entry,
-                  photoRelativePath: row.photoRelativePath,
-                  activityIds: row.activityIds,
-                  activityNames: row.activityNames,
-                  subEmotionIds: row.subEmotionIds,
-                  subEmotionNames: row.subEmotionNames,
-                ),
-              )
-              .toList(growable: false);
-        });
+    return _localService.watchOnThisDayEntries(day: day, limit: limit).map((
+      entries,
+    ) {
+      return entries
+          .map(
+            (row) => _toDomain(
+              row.entry,
+              photoRelativePath: row.photoRelativePath,
+              activityIds: row.activityIds,
+              activityNames: row.activityNames,
+              subEmotionIds: row.subEmotionIds,
+              subEmotionNames: row.subEmotionNames,
+            ),
+          )
+          .toList(growable: false);
+    });
   }
 
   Future<int> createEntry({

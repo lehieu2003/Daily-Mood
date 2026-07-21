@@ -191,11 +191,7 @@ class _DailyReminderTile extends StatelessWidget {
                 value: state.dailyReminderEnabled,
                 onChanged: state.isLoading
                     ? null
-                    : (enabled) => _setReminderEnabled(
-                        context,
-                        state,
-                        enabled,
-                      ),
+                    : (enabled) => _setReminderEnabled(context, state, enabled),
               ),
             ],
           ),

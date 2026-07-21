@@ -93,10 +93,7 @@ class WeeklyReflectionReportCard extends StatelessWidget {
                 _MetricChip(
                   label:
                       '${l10n.topEmotion}: '
-                      '${l10n.subEmotionLabel(
-                        report.topEmotion!.id,
-                        report.topEmotion!.name,
-                      )}',
+                      '${l10n.subEmotionLabel(report.topEmotion!.id, report.topEmotion!.name)}',
                 ),
               if (report.topActivity != null)
                 _MetricChip(

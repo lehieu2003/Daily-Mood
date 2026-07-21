@@ -31,10 +31,7 @@ class QuickLogTheme {
         panelGradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            colorScheme.surface,
-            colorScheme.surfaceContainerHighest,
-          ],
+          colors: [colorScheme.surface, colorScheme.surfaceContainerHighest],
         ),
         cardColor: colorScheme.surfaceContainerHighest,
         subtleCardColor: colorScheme.surfaceContainerHighest.withValues(

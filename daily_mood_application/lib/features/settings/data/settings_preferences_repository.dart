@@ -44,8 +44,7 @@ class SettingsPreferencesRepository {
   static const _dailyReminderEnabledKey = 'daily_reminder_enabled_v1';
   static const _dailyReminderHourKey = 'daily_reminder_hour_v1';
   static const _dailyReminderMinuteKey = 'daily_reminder_minute_v1';
-  static const _dailyChallengeCompletedPrefix =
-      'daily_challenge_completed_v1';
+  static const _dailyChallengeCompletedPrefix = 'daily_challenge_completed_v1';
   static const supportedLanguageCodes = {'en', 'vi'};
   static const supportedThemeModeNames = {'system', 'light', 'dark'};
 

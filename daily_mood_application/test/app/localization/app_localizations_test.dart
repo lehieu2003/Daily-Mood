@@ -79,7 +79,10 @@ void main() {
     expect(vietnameseCopy, contains('Một kỷ niệm từ ngày này'));
     expect(vietnameseCopy, contains('Thử thách hôm nay'));
 
-    final combined = [...englishCopy, ...vietnameseCopy].join(' ').toLowerCase();
+    final combined = [
+      ...englishCopy,
+      ...vietnameseCopy,
+    ].join(' ').toLowerCase();
     expect(combined, isNot(contains('diagnose')));
     expect(combined, isNot(contains('treatment')));
     expect(combined, isNot(contains('remote ai')));

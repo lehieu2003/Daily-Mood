@@ -63,9 +63,7 @@ class SubEmotionGrid extends StatelessWidget {
             context.read<MoodFormCubit>().toggleSubEmotion(emotion.id);
             if (!selected) HapticFeedback.lightImpact();
           },
-          selectedColor: compact
-              ? AppColors.lavender
-              : quickLogTheme.cardColor,
+          selectedColor: compact ? AppColors.lavender : quickLogTheme.cardColor,
           backgroundColor: compact
               ? quickLogTheme.cardColor
               : quickLogTheme.cardColor.withValues(alpha: 0.5),
@@ -76,9 +74,7 @@ class SubEmotionGrid extends StatelessWidget {
                 : quickLogTheme.primaryText,
           ),
           side: BorderSide(
-            color: selected
-                ? AppColors.primaryPurple
-                : quickLogTheme.outline,
+            color: selected ? AppColors.primaryPurple : quickLogTheme.outline,
           ),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         );

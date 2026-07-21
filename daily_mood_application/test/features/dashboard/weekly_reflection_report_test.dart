@@ -20,13 +20,7 @@ void main() {
 
   test('handles sparse week without diagnostic language', () {
     final report = buildWeeklyReflectionReport(
-      entries: [
-        _entry(
-          id: 1,
-          moodScore: 3,
-          createdAt: DateTime(2026, 7, 16),
-        ),
-      ],
+      entries: [_entry(id: 1, moodScore: 3, createdAt: DateTime(2026, 7, 16))],
       reflections: const [],
       selectedDate: DateTime(2026, 7, 19),
     );

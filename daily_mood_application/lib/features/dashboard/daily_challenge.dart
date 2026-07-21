@@ -45,9 +45,6 @@ final class DailyChallengeRepository {
   }
 
   Future<void> markCompleted(DateTime date) {
-    return _repository.setDailyChallengeCompleted(
-      date: date,
-      completed: true,
-    );
+    return _repository.setDailyChallengeCompleted(date: date, completed: true);
   }
 }

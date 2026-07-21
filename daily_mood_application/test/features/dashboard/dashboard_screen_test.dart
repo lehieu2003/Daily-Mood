@@ -247,12 +247,7 @@ void main() {
       ),
     ];
     final currentEntries = [
-      _entry(
-        id: 1,
-        moodScore: 4,
-        note: 'Today entry.',
-        createdAt: today,
-      ),
+      _entry(id: 1, moodScore: 4, note: 'Today entry.', createdAt: today),
     ];
 
     await tester.pumpWidget(
@@ -289,12 +284,7 @@ void main() {
     );
     final today = DateTime(2026, 7, 20, 10);
     final entries = [
-      _entry(
-        id: 1,
-        moodScore: 4,
-        note: 'Today entry.',
-        createdAt: today,
-      ),
+      _entry(id: 1, moodScore: 4, note: 'Today entry.', createdAt: today),
     ];
 
     await tester.pumpWidget(
@@ -366,7 +356,10 @@ void main() {
       await tester.pump();
 
       expect(tester.takeException(), isNull);
-      expect(find.byKey(const ValueKey('daily_challenge_card')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('daily_challenge_card')),
+        findsOneWidget,
+      );
       expect(find.text('Daily challenge'), findsOneWidget);
     }
   });
@@ -540,7 +533,10 @@ void main() {
     );
     expect(find.text('Weekly report'), findsOneWidget);
     expect(find.text('Jul 13 - Jul 19'), findsOneWidget);
-    expect(find.text('You paired check-ins with reflections this week.'), findsOneWidget);
+    expect(
+      find.text('You paired check-ins with reflections this week.'),
+      findsOneWidget,
+    );
     expect(find.text('Average mood: 3.5'), findsOneWidget);
     expect(find.text('Top reason: Work'), findsOneWidget);
 
@@ -558,9 +554,15 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Garden journey'), findsOneWidget);
-    expect(find.byKey(const ValueKey('mood_garden_stage_leafy')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('mood_garden_stage_leafy')),
+      findsOneWidget,
+    );
     expect(find.text('Current stage'), findsOneWidget);
-    expect(find.byKey(const ValueKey('mood_garden_stage_bloom_lock')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('mood_garden_stage_bloom_lock')),
+      findsOneWidget,
+    );
     await tester.scrollUntilVisible(
       find.byKey(const ValueKey('mood_garden_stage_flourishing_lock')),
       120,

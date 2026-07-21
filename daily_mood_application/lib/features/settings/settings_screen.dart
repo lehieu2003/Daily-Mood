@@ -200,9 +200,7 @@ class _SettingsView extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 20),
-              SettingsExperienceSection(
-                reminderTimePicker: reminderTimePicker,
-              ),
+              SettingsExperienceSection(reminderTimePicker: reminderTimePicker),
             ],
           ),
         ),

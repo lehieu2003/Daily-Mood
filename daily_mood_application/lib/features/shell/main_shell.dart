@@ -89,7 +89,7 @@ class _MainShellState extends State<MainShell> {
         notchBottomBarController: _notchController,
         color: navSurface,
         notchColor: notchColor,
-        showLabel: true,
+        showLabel: false,
         durationInMilliSeconds: 300,
         itemLabelStyle: TextStyle(
           color: theme.colorScheme.onSurface,

@@ -106,7 +106,11 @@ class _MoodGardenCardState extends State<MoodGardenCard>
                         key: const ValueKey('mood_garden_progression_button'),
                         onPressed: widget.onViewJourney,
                         icon: const Icon(Icons.route_rounded, size: 18),
-                        label: Text(l10n.viewGardenJourney),
+                        label: Text(
+                          l10n.viewGardenJourney,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
                   ],
@@ -151,12 +155,12 @@ class _AnimatedGardenVisual extends StatelessWidget {
   const _AnimatedGardenVisual({
     required this.stage,
     required this.animation,
-    this.size = 72,
   });
+
+  static const double _size = 72;
 
   final MoodGardenStage stage;
   final Animation<double> animation;
-  final double size;
 
   @override
   Widget build(BuildContext context) {
@@ -173,7 +177,7 @@ class _AnimatedGardenVisual extends StatelessWidget {
 
           return SizedBox.square(
             key: const ValueKey('mood_garden_growth_visual'),
-            dimension: size,
+            dimension: _size,
             child: Stack(
               clipBehavior: Clip.none,
               alignment: Alignment.center,
@@ -185,7 +189,7 @@ class _AnimatedGardenVisual extends StatelessWidget {
                     opacity: waterOpacity.clamp(0.0, 1.0).toDouble(),
                     child: Transform.translate(
                       offset: Offset(0, dropletOffset),
-                      child: _GardenWateringOverlay(size: size),
+                      child: _GardenWateringOverlay(size: _size),
                     ),
                   ),
                 ),
@@ -193,7 +197,7 @@ class _AnimatedGardenVisual extends StatelessWidget {
             ),
           );
         },
-        child: _GardenVisual(stage: stage, size: size),
+        child: _GardenVisual(stage: stage, size: _size),
       ),
     );
   }

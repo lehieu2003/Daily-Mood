@@ -64,57 +64,64 @@ class _QuickLogCompletionDialogState extends State<QuickLogCompletionDialog>
       backgroundColor: colorScheme.surface,
       insetPadding: const EdgeInsets.all(26),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 36, 24, 22),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _SaveConfirmationMark(
-              animation: _controller,
-              assetPath: option.assetPath,
-              moodColor: option.background,
-              foregroundColor: option.foreground,
-              semanticLabel: l10n.moodLabel(option.score),
-              reduceMotion: reduceMotion,
-            ),
-            const SizedBox(height: 28),
-            Text(
-              copy.title,
-              textAlign: TextAlign.center,
-              style: AppTypography.heading1.copyWith(
-                color: colorScheme.onSurface,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              copy.highlight,
-              textAlign: TextAlign.center,
-              style: AppTypography.heading1.copyWith(
-                color: copy.highlightColor,
-              ),
-            ),
-            const SizedBox(height: 18),
-            Text(
-              copy.body,
-              textAlign: TextAlign.center,
-              style: AppTypography.subText2Regular.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 28),
-            FilledButton(
-              onPressed: widget.onDismissed,
-              style: FilledButton.styleFrom(
-                minimumSize: const Size.fromHeight(54),
-                backgroundColor: AppColors.primaryPurple,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(22),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.sizeOf(context).height - 52,
+        ),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 36, 24, 22),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _SaveConfirmationMark(
+                  animation: _controller,
+                  assetPath: option.assetPath,
+                  moodColor: option.background,
+                  foregroundColor: option.foreground,
+                  semanticLabel: l10n.moodLabel(option.score),
+                  reduceMotion: reduceMotion,
                 ),
-              ),
-              child: Text(l10n.gotIt),
+                const SizedBox(height: 28),
+                Text(
+                  copy.title,
+                  textAlign: TextAlign.center,
+                  style: AppTypography.heading1.copyWith(
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  copy.highlight,
+                  textAlign: TextAlign.center,
+                  style: AppTypography.heading1.copyWith(
+                    color: copy.highlightColor,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Text(
+                  copy.body,
+                  textAlign: TextAlign.center,
+                  style: AppTypography.subText2Regular.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 28),
+                FilledButton(
+                  onPressed: widget.onDismissed,
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(54),
+                    backgroundColor: AppColors.primaryPurple,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                  ),
+                  child: Text(l10n.gotIt),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

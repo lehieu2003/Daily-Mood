@@ -318,6 +318,49 @@ void main() {
     expect(find.text('Your day is going\namazing'), findsNothing);
   });
 
+  testWidgets(
+    'completion dialog remains dismissible on short reduced-motion screens',
+    (tester) async {
+      tester.view.physicalSize = const Size(320, 480);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      var dismissed = false;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          builder: (context, child) {
+            return MediaQuery(
+              data: MediaQuery.of(
+                context,
+              ).copyWith(accessibleNavigation: true, disableAnimations: true),
+              child: child!,
+            );
+          },
+          home: QuickLogCompletionDialog(
+            moodScore: 5,
+            onDismissed: () => dismissed = true,
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
+      expect(
+        find.byKey(const ValueKey('quick_log_save_confirmation')),
+        findsOneWidget,
+      );
+
+      await tester.ensureVisible(find.text('Got it'));
+      await tester.tap(find.text('Got it'));
+      await tester.pump();
+
+      expect(dismissed, isTrue);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   testWidgets('uses dark surfaces when app is in dark mode', (tester) async {
     final cubit = MoodFormCubit();
     addTearDown(cubit.close);

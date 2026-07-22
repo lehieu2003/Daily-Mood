@@ -141,6 +141,8 @@ class _DailyChallengeCardState extends State<DailyChallengeCard>
                         widget.completed
                             ? l10n.dailyChallengeDone
                             : l10n.markChallengeDone,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ),

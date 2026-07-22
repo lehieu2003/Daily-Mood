@@ -692,6 +692,77 @@ void main() {
     );
   });
 
+  testWidgets('reward animations stay bounded with reduced motion', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 560);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    var completed = false;
+    var growthPoints = 0;
+
+    Widget buildPolishSurface() {
+      return MaterialApp(
+        builder: (context, child) {
+          return MediaQuery(
+            data: MediaQuery.of(
+              context,
+            ).copyWith(accessibleNavigation: true, disableAnimations: true),
+            child: child!,
+          );
+        },
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
+                DailyChallengeCard(
+                  challenge: const DailyChallenge(
+                    id: DailyChallengeId.shortWalk,
+                  ),
+                  completed: completed,
+                  onComplete: () => completed = true,
+                ),
+                MoodGardenCard(
+                  summary: _gardenSummary(growthPoints: growthPoints),
+                  onViewJourney: () {},
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    await tester.pumpWidget(buildPolishSurface());
+    await tester.pump();
+
+    expect(tester.takeException(), isNull);
+
+    await tester.tap(
+      find.byKey(const ValueKey('daily_challenge_complete_button')),
+    );
+    await tester.pumpWidget(buildPolishSurface());
+    await tester.pump(const Duration(milliseconds: 40));
+
+    growthPoints = 1;
+    await tester.pumpWidget(buildPolishSurface());
+    await tester.pump(const Duration(milliseconds: 40));
+
+    expect(tester.takeException(), isNull);
+    expect(find.byKey(const ValueKey('daily_challenge_card')), findsOneWidget);
+    expect(find.byKey(const ValueKey('mood_garden_card')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('daily_challenge_completion_feedback')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('mood_garden_growth_moment')),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('saves an optional daily reflection after a logged mood', (
     tester,
   ) async {

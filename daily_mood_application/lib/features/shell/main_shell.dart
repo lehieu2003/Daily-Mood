@@ -1,4 +1,3 @@
-import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -11,13 +10,16 @@ import '../history/history_screen.dart';
 import '../settings/settings_screen.dart';
 import 'shell_drawer.dart';
 
-/// Persistent bottom-nav shell built on `animated_notch_bottom_bar`.
+/// Persistent bottom-nav shell built on plain Material widgets
+/// (`Scaffold` + `BottomAppBar` + `FloatingActionButton`).
 ///
 /// Home / Stats / History / Setting live in a [PageView] driven by a
-/// [PageController]; [NotchBottomBarController] animates the notch to
-/// match. "Add mood" (index 2) is NOT a tab — it's a floating action
-/// item that pushes the existing [AppRoutes.quickLog] route, then snaps
-/// the notch back to whichever tab the PageView is still showing.
+/// [PageController]; the [BottomAppBar] icons animate themselves via
+/// [AnimatedContainer]/[AnimatedSwitcher] to track the selected page.
+/// "Add mood" is NOT a tab — it's the docked [FloatingActionButton]
+/// that pushes the existing [AppRoutes.quickLog] route. Because it's
+/// no longer a slot inside the tab strip, the remaining four tabs are
+/// simply indices 0..3 (home, stats, history, settings).
 ///
 /// Drop-in replacement for the old `_HomePlaceholder` — mount it at
 /// [AppRoutes.home] and nothing else in the router needs to change.
@@ -29,8 +31,9 @@ class MainShell extends StatefulWidget {
 }
 
 class _MainShellState extends State<MainShell> {
+  static const _animDuration = Duration(milliseconds: 300);
+
   final _pageController = PageController(initialPage: 0);
-  final _notchController = NotchBottomBarController(index: 0);
   int _selectedTab = 0;
 
   @override
@@ -39,17 +42,11 @@ class _MainShellState extends State<MainShell> {
     super.dispose();
   }
 
-  void _onTap(int index) {
-    if (index == 2) {
-      // "Add mood" is an action, not a page: push Quick Log and, once
-      // the user comes back, snap the notch to the real tab underneath.
-      final currentTab = _pageController.page?.round() ?? 0;
-      context.push(AppRoutes.quickLog).then((_) {
-        if (mounted) _notchController.jumpTo(currentTab);
-      });
-      return;
-    }
-    _selectTab(index);
+  void _onAddMoodTap() {
+    final currentTab = _pageController.page?.round() ?? _selectedTab;
+    context.push(AppRoutes.quickLog).then((_) {
+      if (mounted) _selectTab(currentTab);
+    });
   }
 
   void _openStatsTab() {
@@ -58,8 +55,11 @@ class _MainShellState extends State<MainShell> {
 
   void _selectTab(int index) {
     setState(() => _selectedTab = index);
-    _pageController.jumpToPage(index);
-    _notchController.jumpTo(index);
+    _pageController.animateToPage(
+      index,
+      duration: _animDuration,
+      curve: Curves.easeInOut,
+    );
   }
 
   Future<void> _selectDrawerDestination(
@@ -77,13 +77,13 @@ class _MainShellState extends State<MainShell> {
         _selectTab(1);
         break;
       case ShellDrawerDestination.addMood:
-        _onTap(2);
+        _onAddMoodTap();
         break;
       case ShellDrawerDestination.history:
-        _selectTab(3);
+        _selectTab(2);
         break;
       case ShellDrawerDestination.settings:
-        _selectTab(4);
+        _selectTab(3);
         break;
     }
   }
@@ -114,62 +114,74 @@ class _MainShellState extends State<MainShell> {
       body: PageView(
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
+        onPageChanged: (index) => setState(() => _selectedTab = index),
         children: [
           DashboardScreen(onOpenTrend: _openStatsTab),
           const StatsScreen(),
-          const SizedBox.shrink(),
           const HistoryScreen(),
           const SettingsScreen(),
         ],
       ),
-      bottomNavigationBar: AnimatedNotchBottomBar(
-        kIconSize: 30,
-        notchBottomBarController: _notchController,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: FloatingActionButton(
+        onPressed: _onAddMoodTap,
+        backgroundColor: notchColor,
+        tooltip: l10n.addMood,
+        child: Icon(Icons.add, color: activeItemColor),
+      ),
+      bottomNavigationBar: BottomAppBar(
         color: navSurface,
-        notchColor: notchColor,
-        showLabel: false,
-        durationInMilliSeconds: 300,
-        itemLabelStyle: TextStyle(
-          color: theme.colorScheme.onSurface,
-          fontSize: 11,
-          fontWeight: FontWeight.w500,
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 8,
+        padding: EdgeInsets.zero,
+        height: 64,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _NavBarItem(
+              inactiveIcon: Icons.home_outlined,
+              activeIcon: Icons.home,
+              label: l10n.home,
+              isSelected: _selectedTab == 0,
+              activeColor: notchColor,
+              inactiveColor: inactiveItemColor,
+              duration: _animDuration,
+              onTap: () => _selectTab(0),
+            ),
+            _NavBarItem(
+              inactiveIcon: Icons.bar_chart_outlined,
+              activeIcon: Icons.bar_chart,
+              label: l10n.stats,
+              isSelected: _selectedTab == 1,
+              activeColor: notchColor,
+              inactiveColor: inactiveItemColor,
+              duration: _animDuration,
+              onTap: () => _selectTab(1),
+            ),
+            // Gap reserved for the docked FAB notch.
+            const SizedBox(width: 48),
+            _NavBarItem(
+              inactiveIcon: Icons.history,
+              activeIcon: Icons.history,
+              label: l10n.history,
+              isSelected: _selectedTab == 2,
+              activeColor: notchColor,
+              inactiveColor: inactiveItemColor,
+              duration: _animDuration,
+              onTap: () => _selectTab(2),
+            ),
+            _NavBarItem(
+              inactiveIcon: Icons.settings_outlined,
+              activeIcon: Icons.settings,
+              label: l10n.setting,
+              isSelected: _selectedTab == 3,
+              activeColor: notchColor,
+              inactiveColor: inactiveItemColor,
+              duration: _animDuration,
+              onTap: () => _selectTab(3),
+            ),
+          ],
         ),
-        elevation: 4,
-        kBottomRadius: 24,
-        bottomBarItems: [
-          BottomBarItem(
-            inActiveItem: Icon(Icons.home_outlined, color: inactiveItemColor),
-            activeItem: Icon(Icons.home, color: activeItemColor),
-            itemLabel: l10n.home,
-          ),
-          BottomBarItem(
-            inActiveItem: Icon(
-              Icons.bar_chart_outlined,
-              color: inactiveItemColor,
-            ),
-            activeItem: Icon(Icons.bar_chart, color: activeItemColor),
-            itemLabel: l10n.stats,
-          ),
-          BottomBarItem(
-            inActiveItem: Icon(Icons.add, color: inactiveItemColor),
-            activeItem: Icon(Icons.add, color: activeItemColor),
-            itemLabel: l10n.addMood,
-          ),
-          BottomBarItem(
-            inActiveItem: Icon(Icons.history, color: inactiveItemColor),
-            activeItem: Icon(Icons.history, color: activeItemColor),
-            itemLabel: l10n.history,
-          ),
-          BottomBarItem(
-            inActiveItem: Icon(
-              Icons.settings_outlined,
-              color: inactiveItemColor,
-            ),
-            activeItem: Icon(Icons.settings, color: activeItemColor),
-            itemLabel: l10n.setting,
-          ),
-        ],
-        onTap: _onTap,
       ),
     );
   }
@@ -177,9 +189,90 @@ class _MainShellState extends State<MainShell> {
   ShellDrawerDestination _drawerDestinationForTab(int tabIndex) {
     return switch (tabIndex) {
       1 => ShellDrawerDestination.stats,
-      3 => ShellDrawerDestination.history,
-      4 => ShellDrawerDestination.settings,
+      2 => ShellDrawerDestination.history,
+      3 => ShellDrawerDestination.settings,
       _ => ShellDrawerDestination.home,
     };
+  }
+}
+
+/// A single bottom-bar destination that animates its own icon swap
+/// (outline -> filled) and color/scale change when selected, replacing
+/// the notch-bar package's built-in item animation.
+class _NavBarItem extends StatelessWidget {
+  const _NavBarItem({
+    required this.inactiveIcon,
+    required this.activeIcon,
+    required this.label,
+    required this.isSelected,
+    required this.activeColor,
+    required this.inactiveColor,
+    required this.duration,
+    required this.onTap,
+  });
+
+  final IconData inactiveIcon;
+  final IconData activeIcon;
+  final String label;
+  final bool isSelected;
+  final Color activeColor;
+  final Color inactiveColor;
+  final Duration duration;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isSelected ? activeColor : inactiveColor;
+
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedContainer(
+                duration: duration,
+                curve: Curves.easeInOut,
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? activeColor.withValues(alpha: 0.12)
+                      : Colors.transparent,
+                  shape: BoxShape.circle,
+                ),
+                child: AnimatedSwitcher(
+                  duration: duration,
+                  transitionBuilder: (child, animation) => ScaleTransition(
+                    scale: animation,
+                    child: FadeTransition(opacity: animation, child: child),
+                  ),
+                  child: Icon(
+                    isSelected ? activeIcon : inactiveIcon,
+                    key: ValueKey<bool>(isSelected),
+                    color: color,
+                    size: 24,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 2),
+              AnimatedDefaultTextStyle(
+                duration: duration,
+                curve: Curves.easeInOut,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                ),
+                child: Text(label),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

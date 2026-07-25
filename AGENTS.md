@@ -8,20 +8,20 @@ The app currently lives in `daily_mood_application/`. Product, architecture, pri
 
 ## Repository Map
 
-| Path | Purpose |
-| --- | --- |
-| `daily_mood_application/` | Flutter application source, platform folders, tests, and assets |
-| `daily_mood_application/lib/app/` | App shell, routing, theme, design tokens |
-| `daily_mood_application/lib/core/` | Database, security, and cross-feature infrastructure |
-| `daily_mood_application/lib/features/` | Feature-first UI and state modules |
-| `daily_mood_application/test/` | Widget, Cubit, DAO, and database tests |
-| `prd_daily_mood_tracker.md` | Product scope and user stories |
-| `daily_mood_tracker_offline_first_plan.md` | Offline-first architecture and implementation phases |
-| `data_model.md` | Target schema, migrations, import/restore strategy |
-| `Daily_mood_tracker_uiux_spec.md` | Screen flows, interaction rules, mood visuals |
-| `style_guide.md` | Color and typography system |
-| `privacy_policy.md` | Privacy commitments for the local-only MVP |
-| `.agents/` | Agent commands, local rules, skills, and settings |
+| Path                                       | Purpose                                                           |
+| ------------------------------------------ | ----------------------------------------------------------------- |
+| `daily_mood_application/`                  | Flutter application source, platform folders, tests, and assets   |
+| `daily_mood_application/lib/app/`          | App shell, routing, theme, design tokens                          |
+| `daily_mood_application/lib/core/`         | Database, security, and cross-feature infrastructure              |
+| `daily_mood_application/lib/features/`     | Feature-first UI and state modules                                |
+| `daily_mood_application/test/`             | Widget, Cubit, DAO, and database tests                            |
+| `prd_daily_mood_tracker.md`                | Product scope and user stories                                    |
+| `daily_mood_tracker_offline_first_plan.md` | Offline-first architecture and implementation phases              |
+| `data_model.md`                            | Target schema, migrations, import/restore strategy                |
+| `Daily_mood_tracker_uiux_spec.md`          | Screen flows, interaction rules, mood visuals                     |
+| `style_guide.md`                           | Color and typography system                                       |
+| `privacy_policy.md`                        | Privacy commitments for the local-only MVP                        |
+| `.codex/`                                  | Codex CLI config (`config.toml`) and skills (`skills/*/SKILL.md`) |
 
 ## Current Stack
 
@@ -39,14 +39,12 @@ The app currently lives in `daily_mood_application/`. Product, architecture, pri
 
 Use a small-slice workflow:
 
-1. Read the relevant root document before changing product scope, data behavior, security, privacy, or UI patterns.
-2. Plan the smallest vertical slice that leaves the app buildable.
+1. Read the relevant root document before changing product scope, data behavior, security, privacy, or UI patterns. If a request appears to conflict with the PRD, architecture plan, data model, or privacy policy (e.g. it implies networking, cloud sync, account login, or analytics), stop and flag the conflict instead of proceeding.
+2. Plan the smallest vertical slice that leaves the app buildable. As a guide, a slice should touch one feature module (or one `core/` concern) plus its direct tests — for example, "add optional voice-note playback to the entry detail screen" is one slice; "add voice notes and revise the dashboard chart" is two.
 3. Add or update tests before behavior changes when the expected behavior is clear.
 4. Implement inside the existing feature-first structure.
 5. Leave `dart format`, `flutter analyze`, and `flutter test` for the user to run unless the user explicitly asks the agent to run them.
 6. Review for privacy, local data safety, migration safety, and UI consistency.
-
-Commands in `.agents/commands/` are available, but this project is Flutter-first. If a generic rule mentions Next.js, Prisma, Redis, Postgres, REST APIs, or React, treat it as non-applicable unless that technology is actually introduced by an approved scope change.
 
 ## Essential Commands
 
@@ -61,7 +59,7 @@ flutter test
 flutter run
 ```
 
-Use code generation after changing Drift tables, DAOs, generated part files, or database-related annotations.
+Use code generation after changing Drift tables, DAOs, generated part files, or database-related annotations. Never hand-edit generated files (e.g. `*.g.dart`, `*.drift.dart`); change the source annotation or schema and re-run `build_runner` instead.
 
 Agent execution rule: the user runs formatting, analysis, and tests. Do not run `dart format`, `flutter analyze`, or `flutter test` unless explicitly requested.
 
@@ -96,12 +94,15 @@ Agent execution rule: the user runs formatting, analysis, and tests. Do not run 
 ## Testing Expectations
 
 - Prefer focused tests near the changed behavior:
-  - DAO/database tests for Drift queries, seeding, migrations, and conflict behavior.
-  - Cubit tests for form and lock state transitions.
-  - Widget tests for quick-log, dashboard, settings, and lock flows.
+- DAO/database tests for Drift queries, seeding, migrations, and conflict behavior.
+- Cubit tests for form and lock state transitions.
+- Widget tests for quick-log, dashboard, settings, and lock flows.
 - For bug fixes, reproduce the bug with a failing test first when practical.
 - For database changes, test empty database creation and migration from previous schemas.
 - Before reporting completion, run at least the narrow relevant tests. Run the full suite when touching shared database, routing, security, or theme behavior.
+- Narrow example: `flutter test test/features/quick_log/`
+- Full suite example: `flutter test`
+- Note: per the Essential Commands and Agent Execution Rule above, only run these when the user explicitly asks the agent to run tests; otherwise state which command the user should run.
 
 ## Git And Editing Rules
 
@@ -113,9 +114,9 @@ Agent execution rule: the user runs formatting, analysis, and tests. Do not run 
 
 ## Agent Configuration Notes
 
-- `.agents/settings.json` points tools to `.agents/rules`, `.agents/commands`, `.agents/skills`, and `.agents/agents`.
-- `.agents/AGENTS.md` should stay aligned with this root `AGENTS.md`.
-- The local `.agents/rules/` folder still contains some generic web/backend guidance. Apply only the parts that fit this Flutter offline-first app.
+- This root `AGENTS.md` is the only instructions file Codex CLI reads automatically — it must stay at the repository root, not inside `.codex/`.
+- `.codex/config.toml` holds Codex's model, approval, and sandbox settings for this project.
+- `.codex/skills/` holds reusable, on-demand workflows as `SKILL.md` files (e.g. `flutter-apply-architecture-best-practices`, `flutter-build-responsive-layout`, `ui-ux-pro-max`). Each needs `name` and `description` front matter; Codex invokes them explicitly via `$<name>` or automatically when a request matches the description.
 
 ## Architecture Principles
 

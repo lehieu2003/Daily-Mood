@@ -10,19 +10,6 @@ import '../history/history_screen.dart';
 import '../settings/settings_screen.dart';
 import 'shell_drawer.dart';
 
-/// Persistent bottom-nav shell built on plain Material widgets
-/// (`Scaffold` + `BottomAppBar` + `FloatingActionButton`).
-///
-/// Home / Stats / History / Setting live in a [PageView] driven by a
-/// [PageController]; the [BottomAppBar] icons animate themselves via
-/// [AnimatedContainer]/[AnimatedSwitcher] to track the selected page.
-/// "Add mood" is NOT a tab — it's the docked [FloatingActionButton]
-/// that pushes the existing [AppRoutes.quickLog] route. Because it's
-/// no longer a slot inside the tab strip, the remaining four tabs are
-/// simply indices 0..3 (home, stats, history, settings).
-///
-/// Drop-in replacement for the old `_HomePlaceholder` — mount it at
-/// [AppRoutes.home] and nothing else in the router needs to change.
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
 
@@ -32,6 +19,13 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   static const _animDuration = Duration(milliseconds: 300);
+
+  // Bottom bar geometry — kept as constants so the clipper, the FAB
+  // position, and the bar's own padding all agree with each other.
+  static const _barHeight = 70.0;
+  static const _fabDiameter = 56.0;
+  static const _notchMargin = 8.0;
+  static const _notchRadius = (_fabDiameter / 2) + _notchMargin;
 
   final _pageController = PageController(initialPage: 0);
   int _selectedTab = 0;
@@ -111,77 +105,64 @@ class _MainShellState extends State<MainShell> {
         onDestinationSelected: _selectDrawerDestination,
       ),
       drawerEnableOpenDragGesture: true,
-      body: PageView(
-        controller: _pageController,
-        physics: const NeverScrollableScrollPhysics(),
-        onPageChanged: (index) => setState(() => _selectedTab = index),
+      body: Stack(
         children: [
-          DashboardScreen(onOpenTrend: _openStatsTab),
-          const StatsScreen(),
-          const HistoryScreen(),
-          const SettingsScreen(),
+          Positioned.fill(
+            child: PageView(
+              controller: _pageController,
+              physics: const NeverScrollableScrollPhysics(),
+              onPageChanged: (index) => setState(() => _selectedTab = index),
+              children: [
+                DashboardScreen(onOpenTrend: _openStatsTab),
+                const StatsScreen(),
+                const HistoryScreen(),
+                const SettingsScreen(),
+              ],
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: _CustomBottomBar(
+              height: _barHeight,
+              notchRadius: _notchRadius,
+              backgroundColor: navSurface,
+              selectedTab: _selectedTab,
+              activeColor: notchColor,
+              inactiveColor: inactiveItemColor,
+              duration: _animDuration,
+              onTabSelected: _selectTab,
+              homeLabel: l10n.home,
+              statsLabel: l10n.stats,
+              historyLabel: l10n.history,
+              settingsLabel: l10n.setting,
+            ),
+          ),
+          Positioned(
+            bottom: _barHeight - (_fabDiameter / 2),
+            left: 0,
+            right: 0,
+            child: Center(
+              child: SizedBox(
+                width: _fabDiameter,
+                height: _fabDiameter,
+                child: FloatingActionButton(
+                  onPressed: _onAddMoodTap,
+                  backgroundColor: notchColor,
+                  tooltip: l10n.addMood,
+                  shape: const CircleBorder(),
+                  elevation: 0,
+                  highlightElevation: 0,
+                  focusElevation: 0,
+                  hoverElevation: 0,
+                  disabledElevation: 0,
+                  child: Icon(Icons.add, color: activeItemColor),
+                ),
+              ),
+            ),
+          ),
         ],
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: FloatingActionButton(
-        onPressed: _onAddMoodTap,
-        backgroundColor: notchColor,
-        tooltip: l10n.addMood,
-        child: Icon(Icons.add, color: activeItemColor),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        color: navSurface,
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8,
-        padding: EdgeInsets.zero,
-        height: 64,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _NavBarItem(
-              inactiveIcon: Icons.home_outlined,
-              activeIcon: Icons.home,
-              label: l10n.home,
-              isSelected: _selectedTab == 0,
-              activeColor: notchColor,
-              inactiveColor: inactiveItemColor,
-              duration: _animDuration,
-              onTap: () => _selectTab(0),
-            ),
-            _NavBarItem(
-              inactiveIcon: Icons.bar_chart_outlined,
-              activeIcon: Icons.bar_chart,
-              label: l10n.stats,
-              isSelected: _selectedTab == 1,
-              activeColor: notchColor,
-              inactiveColor: inactiveItemColor,
-              duration: _animDuration,
-              onTap: () => _selectTab(1),
-            ),
-            // Gap reserved for the docked FAB notch.
-            const SizedBox(width: 48),
-            _NavBarItem(
-              inactiveIcon: Icons.history,
-              activeIcon: Icons.history,
-              label: l10n.history,
-              isSelected: _selectedTab == 2,
-              activeColor: notchColor,
-              inactiveColor: inactiveItemColor,
-              duration: _animDuration,
-              onTap: () => _selectTab(2),
-            ),
-            _NavBarItem(
-              inactiveIcon: Icons.settings_outlined,
-              activeIcon: Icons.settings,
-              label: l10n.setting,
-              isSelected: _selectedTab == 3,
-              activeColor: notchColor,
-              inactiveColor: inactiveItemColor,
-              duration: _animDuration,
-              onTap: () => _selectTab(3),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -193,6 +174,131 @@ class _MainShellState extends State<MainShell> {
       3 => ShellDrawerDestination.settings,
       _ => ShellDrawerDestination.home,
     };
+  }
+}
+
+/// Replaces `BottomAppBar` + `CircularNotchedRectangle`.
+///
+/// This paints the same [Row] of [_NavBarItem]s inside a container that
+/// is clipped by [_NotchClipper]. Because the clip path is built with
+/// the even-odd fill rule (full rect MINUS a circle), the circle region
+/// is never painted at all — it's a real hole, not just a shape drawn
+/// in the background color. Whatever sits behind this widget in the
+/// Stack (the PageView) shows straight through it.
+class _CustomBottomBar extends StatelessWidget {
+  const _CustomBottomBar({
+    required this.height,
+    required this.notchRadius,
+    required this.backgroundColor,
+    required this.selectedTab,
+    required this.activeColor,
+    required this.inactiveColor,
+    required this.duration,
+    required this.onTabSelected,
+    required this.homeLabel,
+    required this.statsLabel,
+    required this.historyLabel,
+    required this.settingsLabel,
+  });
+
+  final double height;
+  final double notchRadius;
+  final Color backgroundColor;
+  final int selectedTab;
+  final Color activeColor;
+  final Color inactiveColor;
+  final Duration duration;
+  final ValueChanged<int> onTabSelected;
+  final String homeLabel;
+  final String statsLabel;
+  final String historyLabel;
+  final String settingsLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipPath(
+      clipper: _NotchClipper(notchRadius: notchRadius),
+      child: Container(
+        height: height,
+        padding: EdgeInsets.zero,
+        color: backgroundColor,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _NavBarItem(
+              inactiveIcon: Icons.home_outlined,
+              activeIcon: Icons.home,
+              label: homeLabel,
+              isSelected: selectedTab == 0,
+              activeColor: activeColor,
+              inactiveColor: inactiveColor,
+              duration: duration,
+              onTap: () => onTabSelected(0),
+            ),
+            _NavBarItem(
+              inactiveIcon: Icons.bar_chart_outlined,
+              activeIcon: Icons.bar_chart,
+              label: statsLabel,
+              isSelected: selectedTab == 1,
+              activeColor: activeColor,
+              inactiveColor: inactiveColor,
+              duration: duration,
+              onTap: () => onTabSelected(1),
+            ),
+            // Gap reserved for the FAB's transparent notch.
+            const SizedBox(width: 48),
+            _NavBarItem(
+              inactiveIcon: Icons.history,
+              activeIcon: Icons.history,
+              label: historyLabel,
+              isSelected: selectedTab == 2,
+              activeColor: activeColor,
+              inactiveColor: inactiveColor,
+              duration: duration,
+              onTap: () => onTabSelected(2),
+            ),
+            _NavBarItem(
+              inactiveIcon: Icons.settings_outlined,
+              activeIcon: Icons.settings,
+              label: settingsLabel,
+              isSelected: selectedTab == 3,
+              activeColor: activeColor,
+              inactiveColor: inactiveColor,
+              duration: duration,
+              onTap: () => onTabSelected(3),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Clips a rectangle with a circular hole centered at the top-middle
+/// edge, producing a genuine notch (not just a re-shaped silhouette).
+///
+/// Uses [PathFillType.evenOdd]: the outer rect and the inner circle
+/// overlap, and even-odd fill means overlapping regions cancel out,
+/// leaving the circle area completely unpainted (transparent) while
+/// the rest of the rect paints normally.
+class _NotchClipper extends CustomClipper<Path> {
+  const _NotchClipper({required this.notchRadius});
+
+  final double notchRadius;
+
+  @override
+  Path getClip(Size size) {
+    final notchCenter = Offset(size.width / 2, 0);
+
+    return Path()
+      ..fillType = PathFillType.evenOdd
+      ..addRect(Rect.fromLTWH(0, 0, size.width, size.height))
+      ..addOval(Rect.fromCircle(center: notchCenter, radius: notchRadius));
+  }
+
+  @override
+  bool shouldReclip(covariant _NotchClipper oldClipper) {
+    return oldClipper.notchRadius != notchRadius;
   }
 }
 
